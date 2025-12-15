@@ -2,7 +2,7 @@
 ARC Controllers - Public Reference Implementation
 
 This module contains the reference implementation of ARC v1 (proportional control)
-as described in the paper. For production use cases, contact: eduardo@tuempresa.com
+as described in the paper. For production use cases, contact: edamianreynoso@gmail.com
 """
 
 from typing import Dict, Any

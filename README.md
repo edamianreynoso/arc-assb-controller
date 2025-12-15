@@ -91,7 +91,7 @@ This repository contains the reference implementation for research purposes.
 
 For **production deployments**, **enterprise support**, or **clinical applications**, please contact:
 
-📧 **eduardo@tuempresa.com**
+📧 **edamianreynoso@gmail.com**
 
 We offer:
 - ✅ ARC Pro (optimized controllers)
