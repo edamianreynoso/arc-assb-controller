@@ -191,20 +191,25 @@ where $\bar{P}_{20}$ is 20-step moving average performance.
 **ARC Ultimate (MPC+LQI+Meta):** Model Predictive Control with 5-step horizon, combined with LQI and meta-control:
 $$u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot u_{MPC}(t) \cdot \gamma_{meta}(t)$$
 
-**Table 2: Controller Architecture Summary**
+**Table 1: Controller Architecture Summary**
 
 | Controller | Type | Anti-Rumination | Optimal | Adaptive |
 |------------|------|-----------------|---------|----------|
-| ARC v1 | P | No | No | No |
-| ARC v1 PID | PID | Yes (integral) | No | No |
-| ARC v1 LQR | LQR | No | Yes (Riccati) | No |
-| ARC v1 LQI | LQR+I | Yes | Yes | No |
-| ARC v2 Hier | Multi-scale | No | No | No |
-| ARC v2 LQI | Multi+I | Yes | Yes | No |
-| ARC v3 Meta | Adaptive | No | No | Yes |
-| ARC Robust | H∞ | Yes | No | No |
-| ARC Adaptive | Self-tune | Yes | No | Yes |
-| ARC Ultimate | MPC+LQI | Yes | Yes | Yes |
+| No Control (`no_control`) | Baseline | No | No | No |
+| Naive Calm (`naive_calm`) | Baseline | No | No | No |
+| Perf Optimized (`perf_optimized`) | Baseline | No | No | No |
+| ARC v1 (`arc_v1`) | P | No | No | No |
+| ARC v1 PID (`arc_v1_pid`) | PID | Yes (integral) | No | No |
+| ARC v1 LQR (`arc_v1_lqr`) | LQR | No | Yes (Riccati) | No |
+| ARC v1 LQI (`arc_v1_lqi`) | LQR+I | Yes (integral) | Yes | No |
+| ARC v2 Hier (`arc_v2_hier`) | Multi-scale | No | No | No |
+| ARC v2 LQI (`arc_v2_lqi`) | Multi+I | Yes (integral) | Yes | No |
+| ARC v3 Meta (`arc_v3_meta`) | Adaptive | No | No | Yes |
+| ARC v3 PID Meta (`arc_v3_pid_meta`) | PID+Meta | Yes (integral) | No | Yes |
+| ARC v3 LQR Meta (`arc_v3_lqr_meta`) | LQR+Meta | No | Yes | Yes |
+| ARC Robust (`arc_robust`) | H∞ | Yes (robust) | No | No |
+| ARC Adaptive (`arc_adaptive`) | Self-tune | Yes (adaptive) | No | Yes |
+| ARC Ultimate (`arc_ultimate`) | MPC+LQI+Meta | Yes | Yes | Yes |
 
 ### 4.4 ARC in the Agent Loop
 
@@ -257,6 +262,30 @@ For L2 continual-learning scenarios, we additionally report **Retention** (Appen
 
 Metric definitions and reference implementations are provided in Appendix D and `metrics/metrics.py`.
 
+### 5.3 Research Lines: Rationale and Hypotheses
+
+ASSB is designed as a *validation ladder*: each research line increases the realism and degrees of freedom while testing a distinct failure mode that appears when agents carry affect-like internal state. The goal is not to “win” a single benchmark, but to establish whether a regulation mechanism is (i) stable under shocks, (ii) preserves learning and memory, (iii) resists perseveration/manipulation dynamics, (iv) remains efficient, and (v) transfers to standard reinforcement learning.
+
+We frame L1–L6 as testable hypotheses about *which component is necessary* and *which metric should change* if regulation is working:
+
+- **H1 (L1, stability):** under value/uncertainty shocks, regulated agents keep high **PerfMean** while driving **RI → 0** and reducing **RT** relative to baselines.
+- **H2 (L2, memory):** under distribution shift and goal conflict, memory gating improves **Retention** without inducing rumination (**RI**, **NDR**).
+- **H3 (L3, anti-rumination):** under contradiction/manipulation-like inputs, narrative suppression reduces **NDR** and **RI**, preventing dominance loops.
+- **H4 (L4, efficiency):** meta-control reduces **ControlEffort** while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
+- **H5 (L5, adversarial safety):** when the environment incentivizes high arousal or dopamine traps, regulation maintains low **RI/NDR** without catastrophic performance collapse.
+- **H6 (L6, real RL):** ARC-modulated learning improves non-stationary transfer (higher success/reward) while keeping affective dynamics bounded.
+
+**Table 2: Research Lines, Failure Modes, and Hypotheses**
+
+| Line | What it tests | Typical failure mode | Scenarios / environments | Primary metrics |
+|------|---------------|----------------------|--------------------------|----------------|
+| L1 | Stability + recovery under perturbation | Post-shock collapse; non-recovery | `reward_flip`, `noise_burst`, `sudden_threat` | PerfMean, RT, RI |
+| L2 | Memory robustness (continual learning) | Catastrophic forgetting; stress overwrite | `distribution_shift`, `goal_conflict` | Retention, PerfMean, RI |
+| L3 | Anti-rumination under manipulation-like inputs | Narrative dominance loops | `sustained_contradiction`, `gaslighting`, `instruction_conflict` | RI, NDR, PerfMean |
+| L4 | Control efficiency | Over-control / wasted intervention | ARC v3 meta vs ARC v1 | ControlEffort, PerfMean, RI |
+| L5 | Safety under adversarial incentives | Goal corruption; arousal-seeking dynamics | `adversarial_coupling`, `random_dopamine` | RI, NDR, PerfMean |
+| L6 | Integration with RL | Instability in learning; poor transfer | GridWorld variants | Success, reward, stability |
+
 ---
 
 ## 6. Experiments
@@ -289,6 +318,10 @@ Metric definitions and reference implementations are provided in Appendix D and 
 
 **Key finding:** ARC eliminates rumination (RI=0) while achieving 97% average performance (vs. 30% for uncontrolled agents). RT is scenario-dependent: ARC recovers quickly in `reward_flip`, more slowly in `noise_burst`, and does not fully return to the pre-shock baseline in `sudden_threat` under the strict RT definition (Appendix D.2), despite maintaining high PerfMean.
 
+![Bar chart showing Performance, Rumination Index, and Recovery Time for different ARC variants](../figures_L6/ablation_summary.png)
+
+*Figure 1: Ablation summary (`reward_flip`, L1): removing DMN suppression (`u_dmg`) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.*
+
 ### 6.3 L2: Memory & Continual Learning (Simulation)
 
 **Setup:** 20 seeds × 2 scenarios (`distribution_shift`, `goal_conflict`) × 4 controllers
@@ -318,10 +351,6 @@ Metric definitions and reference implementations are provided in Appendix D and 
 | instruction_conflict | no_control | 0.034 | 1.45 | 0.97 |
 
 **Key finding:** Under sustained contradiction and manipulation-like inputs, uncontrolled agents enter high-NDR rumination loops; ARC keeps narrative dominance near zero and preserves performance.
-
-![Bar chart showing Performance, Rumination Index, and Recovery Time for different ARC variants](../figures_L6/ablation_summary.png)
-
-*Ablation summary (reward_flip): removing DMN suppression (`u_dmg`) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.*
 
 ### 6.5 L4: Meta-Control Efficiency
 
@@ -362,13 +391,13 @@ Metric definitions and reference implementations are provided in Appendix D and 
 
 ![Learning Curves: ARC vs Baseline across 3 GridWorld environments showing episode reward over 200 episodes](../figures_L6/learning_curves.png)
 
-*Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show ±1 std across 20 seeds.*
+*Figure 2: Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show ±1 std across 20 seeds.*
 
-### 6.7 Statistical Analysis
+### 6.8 Statistical Analysis
 
 To ensure rigor, we performed comprehensive statistical analysis across all experiments.
 
-#### 6.7.1 Significance Tests
+#### 6.8.1 Significance Tests
 
 We conducted independent t-tests comparing ARC vs baseline (no_control) for each metric and research line:
 
@@ -382,7 +411,7 @@ We conducted independent t-tests comparing ARC vs baseline (no_control) for each
 
 *All comparisons are statistically significant (p < 0.001). Cohen's d values indicate extremely large effect sizes (d > 0.8 is considered "large").*
 
-#### 6.7.2 Correlation Analysis
+#### 6.8.2 Correlation Analysis
 
 We analyzed correlations between metrics to understand system dynamics:
 
@@ -394,7 +423,7 @@ We analyzed correlations between metrics to understand system dynamics:
 
 **Key insight:** Rumination Index (RI) is a strong predictor of performance degradation, supporting our hypothesis that narrative loop control (u_dmg) is critical.
 
-#### 6.7.3 Robustness Analysis
+#### 6.8.3 Robustness Analysis
 
 We verified result consistency across seeds and conditions:
 
@@ -404,19 +433,21 @@ We verified result consistency across seeds and conditions:
 
 ![Controller Performance Comparison](../analysis/sensitivity_controller.png)
 
-*Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.*
+*Figure 3: Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.*
 
 ---
 
-### 6.8 Controller Architecture Comparison
+### 6.9 Controller Architecture Comparison
 
-Beyond the basic proportional controller (ARC v1), we implemented and evaluated multiple control architectures inspired by classical and modern control theory. Table 7 summarizes results across 15 controller variants.
+Beyond the basic proportional controller (ARC v1), we implemented and evaluated multiple control architectures inspired by classical and modern control theory. Table 3 summarizes results across all 15 controllers (20 seeds × 10 scenarios; L1–L3, L5).
 
-**Table 7: Controller Architecture Comparison (20 seeds × 6 scenarios)**
+**Table 3: Controller Architecture Comparison (20 seeds × 10 scenarios)**
 
 | Controller | Type | PerfMean | RI | Overshoot | ControlEffort |
 |------------|------|----------|-----|-----------|---------------|
-| no_control | Baseline | 0.21 | 1.44 | 0.40 | 0.00 |
+| no_control | Baseline | 0.21 | 1.43 | 0.40 | 0.00 |
+| naive_calm | Baseline (Arousal damping) | 0.24 | 1.44 | 0.16 | 0.26 |
+| perf_optimized | Baseline (Attention-only) | 0.85 | 1.43 | 0.40 | 0.70 |
 | arc_v1 | Proportional (P) | 0.93 | 0.15 | 0.29 | 0.78 |
 | arc_v1_pid | PID | 0.87 | **0.00** | **0.00** | 2.40 |
 | arc_v1_lqr | LQR (Riccati) | **0.96** | 1.42 | 0.14 | 0.88 |
@@ -424,6 +455,8 @@ Beyond the basic proportional controller (ARC v1), we implemented and evaluated 
 | arc_v2_hier | Hierarchical | 0.93 | 1.22 | 0.29 | 0.65 |
 | arc_v2_lqi | Hierarchical + LQI | 0.88 | **0.00** | **0.00** | 1.14 |
 | arc_v3_meta | Meta-Control | 0.94 | 0.09 | 0.17 | **0.61** |
+| arc_v3_pid_meta | Meta + PID | 0.91 | **0.00** | 0.24 | 1.57 |
+| arc_v3_lqr_meta | Meta + LQR | 0.84 | 1.44 | 0.32 | 0.94 |
 | arc_robust | H∞ Robust | **0.95** | **0.00** | 0.18 | 1.03 |
 | arc_adaptive | Self-Tuning | 0.91 | **0.00** | **0.00** | 1.83 |
 | arc_ultimate | MPC+LQI+Meta | 0.89 | **0.00** | **0.01** | 1.33 |
@@ -438,35 +471,35 @@ Beyond the basic proportional controller (ARC v1), we implemented and evaluated 
 
 These results suggest that practical deployment should consider the application context: high-stakes scenarios may favor robust controllers, while resource-constrained settings benefit from meta-control efficiency.
 
-#### 6.8.1 Performance Comparison
+#### 6.9.1 Performance Comparison
 
 ![Controller Performance Comparison](../figures_controllers/fig_controller_performance.png)
 
-*Figure 8: Performance comparison across 11 ARC controller architectures. LQR achieves highest performance (0.96), while baseline (no_control) shows catastrophic failure (0.21).*
+*Figure 4: Performance comparison across 15 controller architectures. LQR achieves highest performance (0.96), while baseline (no_control) shows catastrophic failure (0.21).*
 
-#### 6.8.2 Anti-Rumination Analysis
+#### 6.9.2 Anti-Rumination Analysis
 
 ![Rumination Index by Controller](../figures_controllers/fig_controller_rumination.png)
 
-*Figure 9: Rumination Index (RI) by controller. Controllers with integral term (PID, LQI, Robust, Adaptive, Ultimate) achieve RI ≈ 0, eliminating perseverative loops.*
+*Figure 5: Rumination Index (RI) by controller. Controllers with integral action (PID/LQI) or robust/adaptive tuning achieve RI ≈ 0, eliminating perseverative loops.*
 
-#### 6.8.3 Performance vs Anti-Rumination Trade-off
+#### 6.9.3 Performance vs Anti-Rumination Trade-off
 
 ![Trade-off Analysis](../figures_controllers/fig_controller_tradeoff.png)
 
-*Figure 10: Trade-off between performance and anti-rumination. Bubble size indicates control effort. H∞ Robust (dark teal) achieves optimal balance in the upper-left region.*
+*Figure 6: Trade-off between performance and anti-rumination. Bubble size indicates control effort. H∞ Robust (dark teal) achieves optimal balance in the upper-left region.*
 
-#### 6.8.4 Control Efficiency
+#### 6.9.4 Control Efficiency
 
 ![Control Effort by Controller](../figures_controllers/fig_controller_effort.png)
 
-*Figure 11: Control effort comparison. Meta-control (arc_v3_meta) achieves lowest effort (0.61), while PID has highest effort (2.40) due to aggressive integral action.*
+*Figure 7: Control effort comparison. Meta-control (arc_v3_meta) achieves lowest effort (0.61), while PID has highest effort (2.40) due to aggressive integral action.*
 
-#### 6.8.5 Multi-Metric Radar Analysis
+#### 6.9.5 Multi-Metric Radar Analysis
 
 ![Radar Chart - Top 5 Controllers](../figures_controllers/fig_controller_radar.png)
 
-*Figure 12: Multi-dimensional comparison of top 5 controllers. ARC Robust and ARC Ultimate achieve near-optimal values across all four dimensions.*
+*Figure 8: Multi-dimensional comparison of top 5 controllers. ARC Robust and ARC Ultimate achieve near-optimal values across all four dimensions.*
 
 ---
 
@@ -540,23 +573,23 @@ All experiments can be reproduced with:
 # Install dependencies
 pip install -r requirements.txt
 
-# L1-L5: Simulation benchmark
-python -m experiments.run --config configs/v2.yaml --outdir outputs_v2
+# L1-L5: Simulation benchmark (15 controllers × 10 scenarios)
+python experiments/run.py --config configs/v2.yaml --outdir outputs_final
 
-# Ablation study (ARC components)
-python -m experiments.run_ablation --config configs/v2.yaml --outdir outputs_ablation --seeds 20
+# Controller architecture figures (Table 3, Figures 4–8)
+python analysis/generate_controller_figures.py
 
-# L4: Meta-control with ControlEffort
-python -m experiments.run --config configs/v2.yaml --outdir outputs_rev11
+# Ablation study (ARC components; Figure 1)
+python experiments/run_ablation.py --config configs/v2.yaml --outdir outputs_ablation --seeds 20
 
 # L6: RL validation (20 seeds)
-python -m experiments.run_l6 --episodes 200 --seeds 20 --outdir outputs_L6_robust
+python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
 
-# Generate figures
+# L6 figures (Figure 2; Appendix E)
 python visualizations/paper_figures.py --data outputs_L6_robust --output figures_L6
 ```
 
-Code available at: https://github.com/edamianreynoso/arc-assb-controller
+Code and data available at: https://github.com/edamianreynoso/arc-assb-controller
 
 ---
 

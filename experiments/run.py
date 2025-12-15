@@ -5,7 +5,23 @@ from sim.state import State, performance, ccog, capacity
 from sim.dynamics import step_dynamics
 from tasks.scenarios import build_scenarios
 from metrics.metrics import compute_metrics
-from controllers.controllers import NoControl, NaiveCalm, ARCv1, PerfOptimized, ARCv2_Hierarchical, ARCv3_MetaControl
+from controllers.controllers import (
+    NoControl,
+    NaiveCalm,
+    ARCv1,
+    PerfOptimized,
+    ARCv2_Hierarchical,
+    ARCv3_MetaControl,
+    ARCv1_PID,
+    ARCv3_PID_Meta,
+    ARCv1_LQR,
+    ARCv3_LQR_Meta,
+    ARCv1_LQI,
+    ARC_Ultimate,
+    ARCv2_LQI,
+    ARC_Robust,
+    ARC_Adaptive,
+)
 
 def init_state(cfg):
     return State(phi=cfg["phi0"], g=cfg["g0"], p=cfg["p0"], i=cfg["i0"],
@@ -71,7 +87,23 @@ def main():
     os.makedirs(out_dir, exist_ok=True)
     os.makedirs(os.path.join(out_dir, "traces"), exist_ok=True)
 
-    controllers = [NoControl(), NaiveCalm(), ARCv1(), PerfOptimized(), ARCv2_Hierarchical(), ARCv3_MetaControl()]
+    controllers = [
+        NoControl(),
+        NaiveCalm(),
+        ARCv1(),
+        ARCv1_PID(),
+        ARCv1_LQR(),
+        ARCv1_LQI(),
+        ARC_Ultimate(),
+        ARCv2_Hierarchical(),
+        ARCv2_LQI(),
+        ARCv3_MetaControl(),
+        ARCv3_PID_Meta(),
+        ARCv3_LQR_Meta(),
+        ARC_Robust(),
+        ARC_Adaptive(),
+        PerfOptimized(),
+    ]
     scenarios = build_scenarios(cfg)
     rows = []
     for sc in scenarios:
