@@ -34,11 +34,11 @@ This paper addresses a fundamental question: **If an agent has internal affectiv
 
 1. **A 10-dimensional state-space model** of an agent with integrated cognitive, affective, and narrative components (Section 3)
 
-2. **The Affective Regulation Core (ARC)**, a hierarchical controller inspired by prefrontal cortex functions (Section 4)
+2. **The Affective Regulation Core (ARC)**, a family of 15 controller architectures including P, PID, LQR, LQI, hierarchical, meta-control, H∞ robust, and MPC variants (Section 4)
 
 3. **The Affective Stability & Safety Benchmark (ASSB)**, with reproducible scenarios and metrics (Section 5)
 
-4. **Comprehensive validation** across 6 research lines, including real RL integration (Section 6)
+4. **Comprehensive validation** across 6 research lines, 15 controller architectures, and real RL integration (Section 6)
 
 ### 1.3 Scope
 
@@ -140,15 +140,71 @@ $$\mathbf{u}(t) = [u_{dmg}, u_{att}, u_{mem}, u_{calm}, u_{reapp}]$$
 | u_calm | Reduce arousal |
 | u_reapp | Cognitive reappraisal |
 
-### 4.3 ARC Variants
+### 4.3 ARC Controller Architectures
 
-**ARC v1 (Proportional):**
+We implement 15 controller variants spanning classical, optimal, and adaptive control theory:
+
+#### 4.3.1 Proportional Controllers
+
+**ARC v1 (Proportional):** Basic proportional feedback on risk signal:
 $$\text{risk} = w_U \cdot U + w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+$$
 $$u_{dmg} = k_{dmg} \cdot \text{risk}$$
 
-**ARC v2 (Hierarchical):** Fast/Medium/Slow loops operating at different timescales.
+#### 4.3.2 PID Controllers
 
-**ARC v3 (Meta-Control):** Gain scheduling—relaxes control when stable, intensifies during crisis.
+**ARC v1 PID:** Adds integral and derivative terms:
+$$u(t) = K_p \cdot e(t) + K_i \cdot \int e(\tau) d\tau + K_d \cdot \frac{de}{dt}$$
+
+The integral term on narrative error ($S$) eliminates steady-state rumination (RI → 0).
+
+#### 4.3.3 Optimal Controllers (LQR/LQI)
+
+**ARC v1 LQR:** Linear Quadratic Regulator with gains from Riccati equation:
+$$K^* = (R + B^T P B)^{-1} B^T P A$$
+
+where $P$ solves the Discrete Algebraic Riccati Equation (DARE).
+
+**ARC v1 LQI:** LQR + integral augmentation for zero steady-state error.
+
+#### 4.3.4 Hierarchical Controllers
+
+**ARC v2 Hierarchical:** Multi-timescale control:
+- **Fast loop** (every step): Arousal regulation
+- **Medium loop** (every 5 steps): Narrative suppression
+- **Slow loop** (every 20 steps): Setpoint adaptation
+
+**ARC v2 LQI:** Hierarchical structure + LQI for anti-rumination.
+
+#### 4.3.5 Adaptive Controllers
+
+**ARC v3 Meta-Control:** Gain scheduling based on performance history:
+$$K(t) = K_{base} \cdot f(\bar{P}_{20})$$
+
+where $\bar{P}_{20}$ is 20-step moving average performance.
+
+**ARC Adaptive:** Online parameter optimization using gradient-free adaptation.
+
+#### 4.3.6 Robust and Predictive Controllers
+
+**ARC Robust (H∞-inspired):** Conservative gains with robustness margins for worst-case disturbances.
+
+**ARC Ultimate (MPC+LQI+Meta):** Model Predictive Control with 5-step horizon, combined with LQI and meta-control:
+$$u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot u_{MPC}(t) \cdot \gamma_{meta}(t)$$
+
+**Table 2: Controller Architecture Summary**
+
+| Controller | Type | Anti-Rumination | Optimal | Adaptive |
+|------------|------|-----------------|---------|----------|
+| ARC v1 | P | No | No | No |
+| ARC v1 PID | PID | Yes (integral) | No | No |
+| ARC v1 LQR | LQR | No | Yes (Riccati) | No |
+| ARC v1 LQI | LQR+I | Yes | Yes | No |
+| ARC v2 Hier | Multi-scale | No | No | No |
+| ARC v2 LQI | Multi+I | Yes | Yes | No |
+| ARC v3 Meta | Adaptive | No | No | Yes |
+| ARC Robust | H∞ | Yes | No | No |
+| ARC Adaptive | Self-tune | Yes | No | Yes |
+| ARC Ultimate | MPC+LQI | Yes | Yes | Yes |
 
 ### 4.4 ARC in the Agent Loop
 
