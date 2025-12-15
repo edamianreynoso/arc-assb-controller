@@ -1,7 +1,7 @@
 # Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents
 
-**Authors:** Eduardo Damián  
-**Date:** December 2025  
+**Authors:** J. Eduardo Damián Reynoso  
+**Date:** 14 December 2025  
 **Status:** Draft v1.1 (Ready for Submission)
 
 ---

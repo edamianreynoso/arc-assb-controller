@@ -9,7 +9,7 @@ This repository contains the **reference implementation** for the paper:
 
 > **Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents**
 > 
-> Eduardo Damián, December 2025
+> J. Eduardo Damián Reynoso, 14 December 2025
 
 **Key Results:**
 - ARC achieves 97% performance with zero rumination (vs 30% baseline)
@@ -79,7 +79,7 @@ If you use this code, please cite:
 ```bibtex
 @article{damian2025arc,
   title={Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents},
-  author={Damián, Eduardo},
+  author={Damián Reynoso, J. Eduardo},
   journal={arXiv preprint arXiv:XXXX.XXXXX},
   year={2025}
 }
