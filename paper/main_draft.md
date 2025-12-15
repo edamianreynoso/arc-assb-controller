@@ -437,7 +437,7 @@ python -m experiments.run_l6 --episodes 200 --seeds 20 --outdir outputs_L6_robus
 python visualizations/paper_figures.py --data outputs_L6_robust --output figures_L6
 ```
 
-Code available at: https://github.com/edamianreynoso/arc-assb
+Code available at: https://github.com/edamianreynoso/arc-assb-controller
 
 ---
 
