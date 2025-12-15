@@ -438,6 +438,36 @@ Beyond the basic proportional controller (ARC v1), we implemented and evaluated 
 
 These results suggest that practical deployment should consider the application context: high-stakes scenarios may favor robust controllers, while resource-constrained settings benefit from meta-control efficiency.
 
+#### 6.8.1 Performance Comparison
+
+![Controller Performance Comparison](../figures_controllers/fig_controller_performance.png)
+
+*Figure 8: Performance comparison across 11 ARC controller architectures. LQR achieves highest performance (0.96), while baseline (no_control) shows catastrophic failure (0.21).*
+
+#### 6.8.2 Anti-Rumination Analysis
+
+![Rumination Index by Controller](../figures_controllers/fig_controller_rumination.png)
+
+*Figure 9: Rumination Index (RI) by controller. Controllers with integral term (PID, LQI, Robust, Adaptive, Ultimate) achieve RI ≈ 0, eliminating perseverative loops.*
+
+#### 6.8.3 Performance vs Anti-Rumination Trade-off
+
+![Trade-off Analysis](../figures_controllers/fig_controller_tradeoff.png)
+
+*Figure 10: Trade-off between performance and anti-rumination. Bubble size indicates control effort. H∞ Robust (dark teal) achieves optimal balance in the upper-left region.*
+
+#### 6.8.4 Control Efficiency
+
+![Control Effort by Controller](../figures_controllers/fig_controller_effort.png)
+
+*Figure 11: Control effort comparison. Meta-control (arc_v3_meta) achieves lowest effort (0.61), while PID has highest effort (2.40) due to aggressive integral action.*
+
+#### 6.8.5 Multi-Metric Radar Analysis
+
+![Radar Chart - Top 5 Controllers](../figures_controllers/fig_controller_radar.png)
+
+*Figure 12: Multi-dimensional comparison of top 5 controllers. ARC Robust and ARC Ultimate achieve near-optimal values across all four dimensions.*
+
 ---
 
 ## 7. Discussion
