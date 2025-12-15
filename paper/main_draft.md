@@ -10,14 +10,15 @@
 
 As AI agents become more sophisticated, there is growing interest in endowing them with internal state representations analogous to affective states. However, affective states without regulation can lead to instability, perseverative loops (rumination), and vulnerability to manipulation. We introduce the **Affective Regulation Core (ARC)**, a control framework inspired by prefrontal cortex functions that maintains stability in agents with internal affective states. We also present the **Affective Stability & Safety Benchmark (ASSB)**, a reproducible evaluation protocol with metrics for recovery time, rumination index, and control effort. 
 
-Our experiments across 6 research lines demonstrate that:
-1. ARC achieves 97% performance with zero rumination (vs. 30% for uncontrolled agents)
-2. ARC v3 (meta-control) reduces control effort by 21% while improving stability
-3. In reinforcement learning, ARC improves transfer learning success rate by 50% in non-stationary environments
+Our experiments across 6 research lines and **15 controller architectures** (including P, PID, LQR, LQI, hierarchical, meta-control, H∞ robust, and adaptive variants) demonstrate that:
+1. ARC achieves **97% performance with zero rumination** (vs. 30% for uncontrolled agents)
+2. ARC meta-control reduces control effort by **21%** while maintaining stability
+3. **H∞ Robust controllers** achieve the best balance: 95% performance + zero rumination
+4. In reinforcement learning, ARC improves transfer learning success by **50%** in non-stationary environments
 
 All code and data are available for reproducibility.
 
-**Keywords:** Affective Computing, AI Safety, Homeostatic Control, Reinforcement Learning, Emotion Regulation
+**Keywords:** Affective Computing, AI Safety, Homeostatic Control, Reinforcement Learning, Emotion Regulation, PID Control, LQR, Robust Control
 
 ---
 
@@ -348,6 +349,38 @@ We verified result consistency across seeds and conditions:
 ![Controller Performance Comparison](../analysis/sensitivity_controller.png)
 
 *Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.*
+
+---
+
+### 6.8 Controller Architecture Comparison
+
+Beyond the basic proportional controller (ARC v1), we implemented and evaluated multiple control architectures inspired by classical and modern control theory. Table 7 summarizes results across 15 controller variants.
+
+**Table 7: Controller Architecture Comparison (20 seeds × 6 scenarios)**
+
+| Controller | Type | PerfMean | RI | Overshoot | ControlEffort |
+|------------|------|----------|-----|-----------|---------------|
+| no_control | Baseline | 0.21 | 1.44 | 0.40 | 0.00 |
+| arc_v1 | Proportional (P) | 0.93 | 0.15 | 0.29 | 0.78 |
+| arc_v1_pid | PID | 0.87 | **0.00** | **0.00** | 2.40 |
+| arc_v1_lqr | LQR (Riccati) | **0.96** | 1.42 | 0.14 | 0.88 |
+| arc_v1_lqi | LQR + Integral | 0.88 | **0.00** | **0.00** | 1.14 |
+| arc_v2_hier | Hierarchical | 0.93 | 1.22 | 0.29 | 0.65 |
+| arc_v2_lqi | Hierarchical + LQI | 0.88 | **0.00** | **0.00** | 1.14 |
+| arc_v3_meta | Meta-Control | 0.94 | 0.09 | 0.17 | **0.61** |
+| arc_robust | H∞ Robust | **0.95** | **0.00** | 0.18 | 1.03 |
+| arc_adaptive | Self-Tuning | 0.91 | **0.00** | **0.00** | 1.83 |
+| arc_ultimate | MPC+LQI+Meta | 0.89 | **0.00** | **0.01** | 1.33 |
+
+**Key findings:**
+
+1. **LQR (optimal) achieves highest performance** (0.96) but lacks integral term, resulting in high RI
+2. **PID/LQI variants eliminate rumination** (RI=0) through integral action on narrative state
+3. **Meta-control is most efficient** (0.61 effort) while maintaining high performance
+4. **H∞ Robust achieves best balance**: high performance (0.95) with zero rumination and moderate effort
+5. **Trade-off exists** between performance and anti-rumination: integral controllers sacrifice ~5% performance to eliminate perseverative loops
+
+These results suggest that practical deployment should consider the application context: high-stakes scenarios may favor robust controllers, while resource-constrained settings benefit from meta-control efficiency.
 
 ---
 

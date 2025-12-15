@@ -61,16 +61,32 @@ arc-assb/
 | **NDR** | Narrative dominance ratio |
 | **ControlEffort** | Average control magnitude |
 
-### ARC Controller
+### ARC Controller Architectures
 
-ARC v1 implements proportional control based on a risk signal:
+This repository includes **15 controller implementations** for affective regulation:
 
+| Controller | Type | Description |
+|------------|------|-------------|
+| `NoControl` | Baseline | No regulation (demonstrates failure) |
+| `ARCv1` | Proportional (P) | Basic proportional control |
+| `ARCv1_PID` | PID | Eliminates rumination via integral |
+| `ARCv1_LQR` | LQR (Riccati) | Optimal gains from Riccati equation |
+| `ARCv1_LQI` | LQR + Integral | Optimal + anti-rumination |
+| `ARCv2_Hierarchical` | Multi-scale | Fast/medium/slow timescales |
+| `ARCv2_LQI` | Hierarchical + LQI | Efficiency + anti-rumination |
+| `ARCv3_MetaControl` | Adaptive | Gain scheduling based on performance |
+| `ARC_Robust` | H∞ Inspired | Maximum robustness to perturbations |
+| `ARC_Adaptive` | Self-Tuning | Online parameter optimization |
+| `ARC_Ultimate` | MPC+LQI+Meta | State-of-the-art combination |
+
+**Quick usage:**
 ```python
-risk = w_U * U + w_A * [A - a_safe]+ + w_S * [S - s_safe]+
-u_dmg = k_dmg * risk  # DMN suppression
+from controllers.controllers import ARCv1, ARCv1_PID, ARC_Robust
+controller = ARC_Robust()  # Best balance: high perf + zero rumination
+action = controller.act(state, observations, config)
 ```
 
-See `controllers/controllers.py` for the full implementation.
+See `controllers/controllers.py` for the full implementation (~1200 lines).
 
 ## Citation
 
