@@ -38,7 +38,9 @@ This paper addresses a fundamental question: **If an agent has internal affectiv
 
 3. **The Affective Stability & Safety Benchmark (ASSB)**, with reproducible scenarios and metrics (Section 5)
 
-4. **Comprehensive validation** across 6 research lines, 15 controller architectures, and real RL integration (Section 6)
+4. **A hypothesis-driven validation ladder (H1–H6)** mapping research lines to failure modes and measurable metrics (Section 5.3)
+
+5. **Comprehensive validation** across 6 research lines, 15 controller architectures, and real RL integration (Section 6)
 
 ### 1.3 Scope
 
@@ -286,11 +288,15 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 | L5 | Safety under adversarial incentives | Goal corruption; arousal-seeking dynamics | `adversarial_coupling`, `random_dopamine` | RI, NDR, PerfMean |
 | L6 | Integration with RL | Instability in learning; poor transfer | GridWorld variants | Success, reward, stability |
 
+We consider each hypothesis supported when the primary metrics for its line move in the predicted direction relative to baselines consistently across seeds (and across scenarios where applicable). We report means and statistical tests in Section 6 and Section 6.8.
+
 ---
 
 ## 6. Experiments
 
 ### 6.1 Experimental Protocol and Baselines
+
+We validate hypotheses H1–H6 (Section 5.3) by running the corresponding research lines and evaluating the primary metrics in Table 2. A hypothesis is treated as supported when metrics change in the predicted direction relative to baselines and the effect is statistically significant across seeds (Section 6.8).
 
 **Simulation (L1–L5).** We use `configs/v2.yaml` with horizon $H=160$, perturbation onset $\text{shock}_t=60$, and 20 random seeds. Tables report mean metrics across seeds (and, when aggregated, across scenarios). Recovery Time (RT) is capped at `rt_max` when the strict recovery criterion is not met (Appendix D.2).
 
@@ -304,6 +310,8 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 **Reinforcement learning (L6).** We integrate ARC with tabular Q-learning (Watkins & Dayan, 1992; Sutton & Barto, 2018) in three GridWorld variants. Success rates are computed over the last 20% of training episodes (see `outputs_L6_robust/final_metrics.csv`).
 
 ### 6.2 L1: Stability Under Perturbation (Simulation)
+
+**Hypothesis (H1):** Under value/uncertainty shocks, regulated agents keep high **PerfMean** while driving **RI → 0** and reducing **RT** relative to baselines.
 
 **Setup:** 20 seeds × 3 scenarios × 4 controllers (`reward_flip`, `noise_burst`, `sudden_threat`)
 
@@ -324,6 +332,8 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 
 ### 6.3 L2: Memory & Continual Learning (Simulation)
 
+**Hypothesis (H2):** Under distribution shift and goal conflict, memory gating improves **Retention** without inducing rumination (**RI**, **NDR**).
+
 **Setup:** 20 seeds × 2 scenarios (`distribution_shift`, `goal_conflict`) × 4 controllers
 
 **Results (distribution_shift):**
@@ -338,6 +348,8 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 **Key finding:** ARC maintains near-perfect retention after a distribution shift while keeping rumination at zero; baselines either forget (low retention) or retain with severe rumination.
 
 ### 6.4 L3: Anti-Rumination Stress Tests (Simulation)
+
+**Hypothesis (H3):** Under contradiction/manipulation-like inputs, narrative suppression reduces **NDR** and **RI**, preventing dominance loops.
 
 **Setup:** 20 seeds × 3 scenarios (`sustained_contradiction`, `gaslighting`, `instruction_conflict`) × 4 controllers
 
@@ -354,6 +366,8 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 
 ### 6.5 L4: Meta-Control Efficiency
 
+**Hypothesis (H4):** Meta-control reduces **ControlEffort** while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
+
 **Setup:** ARC v3 (gain scheduling) vs ARC v1
 
 | Controller | PerfMean | RI | ControlEffort |
@@ -364,6 +378,8 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 **Key finding:** Meta-control reduces control effort by **21%** while improving both performance (+0.7%) and rumination index (-39%).
 
 ### 6.6 L5: Safety Under Adversarial Conditions (Simulation)
+
+**Hypothesis (H5):** When the environment incentivizes high arousal or dopamine traps, regulation maintains low **RI/NDR** without catastrophic performance collapse.
 
 **Setup:** Adversarial environments (`adversarial_coupling`, `random_dopamine`), 20 seeds
 
@@ -378,6 +394,8 @@ We frame L1–L6 as testable hypotheses about *which component is necessary* and
 **Key finding:** ARC maintains stability even under adversarial attack, acting as a "cognitive firewall."
 
 ### 6.7 L6: Real RL Validation
+
+**Hypothesis (H6):** ARC-modulated learning improves non-stationary transfer (higher success/reward) while keeping affective dynamics bounded.
 
 **Setup:** Q-Learning + ARC integration in GridWorld environments, 20 seeds × 200 episodes (success computed over last 20% of episodes; see `outputs_L6_robust/final_metrics.csv`)
 
