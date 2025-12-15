@@ -1,0 +1,16 @@
+/.venv/
+**/__pycache__/
+*.pyc
+
+# Resultados / outputs (generados - muy pesados para git)
+/outputs/
+/outputs_*/
+
+# Figuras para paper - SÍ incluir
+!figures_L6/
+!figures/
+
+# Archivos temporales
+*.log
+*.tmp
+.DS_Store

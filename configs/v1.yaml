@@ -1,0 +1,93 @@
+out_dir: outputs
+seeds: [1, 2, 3]
+horizon: 160
+shock_t: 60
+burst_len: 25
+
+u_base: 0.25
+u_shock: 0.80
+
+pe_base: 0.20
+pe_noise: 0.10
+
+phi0: 0.70
+g0: 0.70
+p0: 0.70
+i0: 0.65
+s0: 0.35
+v0: 0.55
+a0: 0.35
+mf0: 0.25
+ms0: 0.20
+
+a_safe: 0.55
+s_safe: 0.55
+
+omega_s: 0.40
+perf_bias: 0.20
+perf_gain: 0.90
+w_u: 0.35
+w_a: 0.35
+w_s: 0.25
+
+k_u_att: 0.35
+
+k_i_att: 0.30
+k_i_u: 0.10
+mu_i: 0.05
+
+k_p_pe: 0.22
+k_p_u: 0.10
+k_p_i: 0.15
+mu_p: 0.02
+
+k_g_i: 0.10
+k_g_p: 0.15
+k_g_u: 0.18
+k_g_a: 0.15
+mu_g: 0.02
+
+k_phi_gp: 0.10
+mu_phi: 0.02
+
+k_s_u: 0.10
+k_s_pe: 0.08
+k_s_dmg: 0.25
+mu_s: 0.03
+
+k_a_pe: 0.20
+k_a_u: 0.16
+k_a_s: 0.10
+k_a_calm: 0.40
+mu_a: 0.06
+
+k_v_r: 0.25
+k_v_pe: 0.10
+k_v_u: 0.06
+k_v_reapp: 0.12
+mu_v: 0.05
+
+eta0: 0.18
+k_eta_a: 0.60
+w_mem_pe: 0.55
+w_mem_a: 0.30
+w_mem_v: 0.25
+mu_mf: 0.06
+k_ms: 0.02
+mu_ms: 0.01
+
+arc_w_u: 0.40
+arc_w_a: 0.40
+arc_w_s: 0.35
+arc_k_dmg: 0.95
+arc_k_att: 0.75
+arc_k_mem_block: 0.90
+arc_k_calm: 0.85
+arc_k_reapp: 0.55
+
+baseline_window: 25
+rt_eps: 0.05
+rt_a_eps: 0.05
+
+s_rum_tau: 0.62
+ri_persistence_weight: 0.50
