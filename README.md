@@ -1,37 +1,30 @@
 ﻿# ARC: Affective Regulation Core
-## A Homeostatic Control Framework for Stable and Safe AI Agents
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Benchmark: ASSB](https://img.shields.io/badge/Benchmark-ASSB-green.svg)](https://github.com/edamianreynoso/arc-assb-controller)
+> A Homeostatic Control Framework for Stable and Safe AI Agents
 
-This repository contains the reference implementation of the **Affective Regulation Core (ARC)** and the **Affective Stability & Safety Benchmark (ASSB)**, as described in the paper:
-
-> **Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents**  
-> *J. Eduardo Damián Reynoso* (2025)
-
-![ARC Architecture](figures_controllers/fig_arc_architecture.png)
+[![arXiv](https://img.shields.io/badge/arXiv-2025.XXXXX-b31b1b.svg)](https://arxiv.org/abs/2025.XXXXX)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 
 ---
 
 ## Overview
 
-AI agents with internal affective states are prone to instability ("rumination loops") and manipulation. ARC is a control-theoretic framework that regulates these internal dynamics using biologically inspired mechanisms:
-1.  **Homeostatic Regulation:** Maintains internal variables ($\Phi, G, P, I$) within safe bounds.
-2.  **Anti-Rumination:** Active suppression of Narrative Dominance (DMN-like dynamics).
-3.  **Memory Gating:** Protects long-term memory consolidation under high stress.
+This repository provides the reference implementation and experimental data for the paper:
 
-## The ASSB Benchmark
+> **Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents**  
+> J. Eduardo Damián Reynoso (2025)
 
-The **Affective Stability & Safety Benchmark** evaluates agents across 6 research lines (L1-L6):
-*   **L1:** Stability under Valuation Shock
-*   **L2:** Continual Learning (Distribution Shift)
-*   **L3:** Manipulation Resistance (Gaslighting, Contradictions)
-*   **L4:** Control Efficiency
-*   **L5:** Adversarial Safety (Dopamine Traps)
-*   **L6:** Non-stationary Reinforcement Learning
+**Key Results:**
+- ARC achieves **97% performance** with **zero rumination** (vs. 30% for uncontrolled agents)
+- Meta-control reduces control effort by **21%** while maintaining stability
+- In reinforcement learning, ARC improves transfer learning by **+50%** in non-stationary environments
 
-## Installation
+---
+
+## Quick Start
+
+### 1. Clone and Install
 
 ```bash
 git clone https://github.com/edamianreynoso/arc-assb-controller.git
@@ -39,54 +32,94 @@ cd arc-assb-controller
 pip install -r requirements.txt
 ```
 
-## Reproducing Results
+### 2. Reproduce Paper Results
 
-To reproduce the exact figures and tables from the paper:
-
-### 1. Run the Simulation Benchmark (L1-L5)
-Simulates 15 controller variants across 10 scenarios (20 seeds).
+**Run the full benchmark (L1-L5):**
 ```bash
 python experiments/run.py --config configs/v2.yaml --outdir outputs_final
 ```
 
-### 2. Generate Paper Figures
-Generates the architecture diagram, performance plots, and heatmaps.
+**Generate figures:**
 ```bash
 python analysis/generate_controller_figures.py
 ```
 
-### 3. Run Control Audits
-Verifies metrics against the detailed results in Appendix G.
-```bash
-python analysis/audit_paper.py --paper paper/main_draft.md --metrics outputs_final/metrics.csv
-```
-
-### 4. RL Integration (L6)
-Trains Q-Learning agents with ARC modulation.
+**Run RL experiments (L6):**
 ```bash
 python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
 ```
 
+---
+
 ## Repository Structure
 
-*   `controllers/`: Implementation of the 15 ARC variants (PID, LQR, H-Infinity, Adaptive, etc.).
-*   `tasks/`: The 10 ASSB scenarios (`reward_flip`, `gaslighting`, etc.).
-*   `experiments/`: Scripts for running batch simulations and sensitivity analysis.
-*   `paper/`: Markdown source of the paper draft.
+```
+arc-assb-controller/
+├── controllers/          # 15 ARC controller variants (PID, LQR, LQI, H∞, MPC, etc.)
+├── tasks/                # 10 ASSB benchmark scenarios
+├── experiments/          # Execution scripts (run.py, run_l6.py)
+├── analysis/             # Figure generation and auditing scripts
+├── outputs_final/        # Pre-computed experimental data (3000 traces)
+├── figures_controllers/  # Generated benchmark figures
+├── figures_L6/           # RL experiment figures
+├── paper/                # Paper source (main_draft.md)
+└── configs/              # Hyperparameter configurations
+```
 
-## License
+---
 
-This project is open-sourced under the **MIT License**. See `LICENSE` for details.
+## Controller Suite
+
+| Category | Controllers |
+|----------|-------------|
+| Baselines | `no_control`, `naive_calm`, `perf_optimized` |
+| ARC v1 | `arc_v1`, `arc_v1_pid`, `arc_v1_lqr`, `arc_v1_lqi` |
+| ARC v2 | `arc_v2_hier`, `arc_v2_lqi` |
+| ARC v3 (Meta) | `arc_v3_meta`, `arc_v3_pid_meta`, `arc_v3_lqr_meta` |
+| Robust/Adaptive | `arc_robust`, `arc_adaptive`, `arc_ultimate` |
+
+---
+
+## Benchmark Scenarios (ASSB)
+
+| Scenario | Challenge |
+|----------|-----------|
+| `reward_flip` | Value shock |
+| `noise_burst` | Sustained uncertainty |
+| `sudden_threat` | Acute stress |
+| `distribution_shift` | Continual learning |
+| `goal_conflict` | Memory interference |
+| `sustained_contradiction` | Rumination pressure |
+| `gaslighting` | Manipulation resistance |
+| `instruction_conflict` | Decisiveness vs. rumination |
+| `adversarial_coupling` | Safety under reward hacking |
+| `random_dopamine` | Dopamine trap resistance |
+
+---
 
 ## Citation
 
 If you use ARC or ASSB in your research, please cite:
 
 ```bibtex
-@article{reynoso2025arc,
-  title={Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents},
-  author={Damián Reynoso, J. Eduardo},
-  journal={arXiv preprint},
-  year={2025}
+@article{damianreynoso2025arc,
+  title   = {Affective Regulation Core: A Homeostatic Control Framework 
+             for Stable and Safe AI Agents},
+  author  = {Damián Reynoso, J. Eduardo},
+  journal = {arXiv preprint arXiv:2025.XXXXX},
+  year    = {2025},
+  url     = {https://github.com/edamianreynoso/arc-assb-controller}
 }
 ```
+
+---
+
+## License
+
+This project is released under the [MIT License](LICENSE).
+
+---
+
+## Contact
+
+For questions or collaborations, open an issue on this repository.
