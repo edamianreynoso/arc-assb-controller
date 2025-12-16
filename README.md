@@ -48,4 +48,4 @@ Or just use the pre-computed data in `outputs_final/` to generate figures direct
 
 ## License
 
-MIT
+Apache-2.0 (see `LICENSE`)
