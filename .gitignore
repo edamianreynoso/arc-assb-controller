@@ -1,16 +1,32 @@
-/.venv/
-**/__pycache__/
+# Python
+__pycache__/
 *.pyc
-
-# Resultados / outputs (generados - muy pesados para git)
-/outputs/
-/outputs_*/
-
-# Figuras para paper - SÍ incluir
-!figures_L6/
-!figures/
-
-# Archivos temporales
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
 *.log
 *.tmp
 .DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Data & Outputs (Ignore all generated outputs by default)
+outputs/
+outputs_*/
+
+# Exceptions (Keep these for reproducibility/reference)
+!outputs_final/
+!outputs_L6_robust/
+
+# Figures (Keep all figures)
+!figures_controllers/
+!figures_L4/
+!figures_L6/
+
+# Misc
+arc-assb-public/
