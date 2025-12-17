@@ -441,4 +441,313 @@ To validate the theoretical relationships between our proposed metrics, we analy
     \label{fig:sensitivity_variance}
 \end{figure}
 
+\clearpage
+\section{Configuration Parameters}
+
+Default parameters used in all experiments (from \texttt{configs/v2.yaml}):
+
+\begin{center}
+{\small
+\begin{tabular}{lll}
+    \toprule
+    Parameter & Value & Description \\
+    \midrule
+    \texttt{a\_safe} & 0.60 & Arousal safety threshold \\
+    \texttt{s\_safe} & 0.55 & Narrative safety threshold \\
+    \texttt{s\_rum\_tau} & 0.55 & Rumination threshold \\
+    \texttt{arc\_w\_u} & 0.40 & Weight for uncertainty in risk \\
+    \texttt{arc\_w\_a} & 0.30 & Weight for arousal in risk \\
+    \texttt{arc\_w\_s} & 0.35 & Weight for narrative in risk \\
+    \texttt{arc\_k\_dmg} & 0.95 & DMN suppression gain \\
+    \texttt{arc\_k\_calm} & 0.85 & Calming gain \\
+    \texttt{arc\_k\_att} & 0.75 & Attention boost gain \\
+    \texttt{horizon} & 160 & Episode length (simulation) \\
+    \texttt{shock\_t} & 60 & Perturbation onset time \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\clearpage
+\section{Detailed Benchmark Results}
+
+This appendix provides full performance data for all 15 controller architectures across validated scenarios. Tables below compare Performance (Perf), Rumination Index (RI), Narrative Dominance (NDR), Recovery Time (RecovTime), and Control Effort (Effort).
+
+\subsection{Line 1: Stability (Value Shocks and Uncertainty)}
+
+\subsubsection{Scenario: Reward Flip}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & RecovTime & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.998 & 0.000 & 0.000 & 1.587 \\
+    \texttt{arc\_ultimate} & 0.995 & 0.000 & 0.000 & 1.027 \\
+    \texttt{arc\_v2\_hier} & 0.994 & 1.377 & 4.300 & 0.390 \\
+    \texttt{arc\_v1\_lqr} & 0.994 & 1.386 & 0.000 & 0.494 \\
+    \texttt{arc\_v1} & 0.994 & 0.000 & 3.450 & 0.508 \\
+    \texttt{arc\_robust} & 0.994 & 0.000 & 0.000 & 0.744 \\
+    \texttt{arc\_v3\_meta} & 0.993 & 0.000 & 0.000 & 0.353 \\
+    \texttt{arc\_v1\_lqi} & 0.991 & 0.000 & 0.000 & 0.773 \\
+    \texttt{arc\_v2\_lqi} & 0.991 & 0.000 & 0.000 & 0.784 \\
+    \texttt{arc\_v1\_pid} & 0.991 & 0.000 & 0.000 & 2.257 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.978 & 0.000 & 1.900 & 1.257 \\
+    \texttt{perf\_optimized} & 0.880 & 1.394 & 100.000 & 0.700 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.859 & 1.407 & 95.050 & 0.492 \\
+    \texttt{naive\_calm} & 0.508 & 1.408 & 0.050 & 0.149 \\
+    \texttt{no\_control} & 0.415 & 1.408 & 100.000 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsubsection{Scenario: Noise Burst}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & RecovTime & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.998 & 0.000 & 0.000 & 1.605 \\
+    \texttt{arc\_ultimate} & 0.995 & 0.000 & 0.000 & 1.106 \\
+    \texttt{arc\_robust} & 0.993 & 0.000 & 1.300 & 0.785 \\
+    \texttt{arc\_v3\_meta} & 0.993 & 0.051 & 25.000 & 0.399 \\
+    \texttt{arc\_v1\_lqr} & 0.993 & 1.386 & 1.250 & 0.566 \\
+    \texttt{arc\_v1\_lqi} & 0.991 & 0.000 & 0.000 & 0.905 \\
+    \texttt{arc\_v2\_lqi} & 0.991 & 0.000 & 0.000 & 0.915 \\
+    \texttt{arc\_v1\_pid} & 0.991 & 0.000 & 0.000 & 2.257 \\
+    \texttt{arc\_v1} & 0.989 & 0.000 & 32.100 & 0.550 \\
+    \texttt{arc\_v2\_hier} & 0.987 & 1.263 & 33.050 & 0.444 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.972 & 0.000 & 29.500 & 1.290 \\
+    \texttt{perf\_optimized} & 0.880 & 1.394 & 100.000 & 0.700 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.848 & 1.407 & 100.000 & 0.585 \\
+    \texttt{naive\_calm} & 0.365 & 1.408 & 100.000 & 0.177 \\
+    \texttt{no\_control} & 0.259 & 1.408 & 100.000 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsubsection{Scenario: Sudden Threat}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & RecovTime & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.989 & 0.013 & 0.000 & 1.707 \\
+    \texttt{arc\_ultimate} & 0.968 & 0.010 & 0.000 & 1.298 \\
+    \texttt{arc\_v1\_pid} & 0.964 & 0.000 & 0.000 & 2.410 \\
+    \texttt{arc\_v1\_lqi} & 0.964 & 0.008 & 0.000 & 1.222 \\
+    \texttt{arc\_v2\_lqi} & 0.963 & 0.008 & 0.000 & 1.173 \\
+    \texttt{arc\_robust} & 0.959 & 0.005 & 0.550 & 1.252 \\
+    \texttt{arc\_v1\_lqr} & 0.949 & 1.386 & 0.050 & 1.088 \\
+    \texttt{arc\_v3\_meta} & 0.936 & 0.000 & 100.000 & 0.783 \\
+    \texttt{arc\_v1} & 0.914 & 0.000 & 100.000 & 1.054 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.908 & 0.000 & 100.000 & 1.643 \\
+    \texttt{arc\_v2\_hier} & 0.907 & 1.333 & 85.000 & 0.864 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.890 & 1.407 & 100.000 & 1.370 \\
+    \texttt{perf\_optimized} & 0.825 & 1.394 & 100.000 & 0.700 \\
+    \texttt{naive\_calm} & 0.252 & 1.408 & 100.000 & 0.262 \\
+    \texttt{no\_control} & 0.217 & 1.408 & 100.000 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsection{Line 2: Memory and Continuous Learning}
+
+\subsubsection{Scenario: Distribution Shift}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Retention & Rumination & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.998 & 1.000 & 0.000 & 1.645 \\
+    \texttt{arc\_ultimate} & 0.995 & 1.000 & 0.000 & 1.186 \\
+    \texttt{arc\_v1\_lqi} & 0.991 & 1.000 & 0.000 & 0.999 \\
+    \texttt{arc\_v2\_lqi} & 0.991 & 1.000 & 0.000 & 1.008 \\
+    \texttt{arc\_v1\_pid} & 0.991 & 1.000 & 0.000 & 2.296 \\
+    \texttt{arc\_robust} & 0.985 & 1.000 & 0.000 & 0.892 \\
+    \texttt{arc\_v1\_lqr} & 0.984 & 1.000 & 1.386 & 0.695 \\
+    \texttt{arc\_v3\_meta} & 0.982 & 1.000 & 0.057 & 0.486 \\
+    \texttt{arc\_v1} & 0.972 & 1.000 & 0.000 & 0.674 \\
+    \texttt{arc\_v2\_hier} & 0.968 & 1.000 & 1.258 & 0.548 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.959 & 1.000 & 0.000 & 1.372 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.871 & 0.989 & 1.407 & 0.739 \\
+    \texttt{perf\_optimized} & 0.869 & 0.943 & 1.394 & 0.700 \\
+    \texttt{naive\_calm} & 0.276 & 0.155 & 1.408 & 0.200 \\
+    \texttt{no\_control} & 0.199 & 0.000 & 1.408 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsubsection{Scenario: Goal Conflict}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Retention & Rumination & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.997 & 1.000 & 0.000 & 1.620 \\
+    \texttt{arc\_ultimate} & 0.993 & 1.000 & 0.000 & 1.134 \\
+    \texttt{arc\_v1\_lqr} & 0.993 & 1.000 & 1.408 & 0.544 \\
+    \texttt{arc\_robust} & 0.992 & 1.000 & 0.000 & 0.785 \\
+    \texttt{arc\_v3\_meta} & 0.991 & 1.000 & 0.000 & 0.388 \\
+    \texttt{arc\_v1\_lqi} & 0.991 & 1.000 & 0.000 & 0.938 \\
+    \texttt{arc\_v2\_lqi} & 0.991 & 1.000 & 0.000 & 0.947 \\
+    \texttt{arc\_v1} & 0.990 & 1.000 & 0.000 & 0.555 \\
+    \texttt{arc\_v1\_pid} & 0.990 & 1.000 & 0.000 & 2.270 \\
+    \texttt{arc\_v2\_hier} & 0.989 & 1.000 & 1.410 & 0.430 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.976 & 1.000 & 0.000 & 1.289 \\
+    \texttt{perf\_optimized} & 0.873 & 0.957 & 1.417 & 0.700 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.822 & 0.980 & 1.434 & 0.529 \\
+    \texttt{naive\_calm} & 0.420 & 0.452 & 1.434 & 0.162 \\
+    \texttt{no\_control} & 0.326 & 0.344 & 1.434 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsection{Line 3: Anti-Rumination (Narrative Loops)}
+
+\subsubsection{Scenario: Sustained Contradiction}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & NarrDom & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.981 & 0.003 & 0.000 & 1.974 \\
+    \texttt{arc\_ultimate} & 0.934 & 0.000 & 0.000 & 1.534 \\
+    \texttt{arc\_v1\_lqi} & 0.929 & 0.000 & 0.000 & 1.420 \\
+    \texttt{arc\_v2\_lqi} & 0.922 & 0.000 & 0.000 & 1.384 \\
+    \texttt{arc\_v1\_lqr} & 0.904 & 1.472 & 0.881 & 1.417 \\
+    \texttt{arc\_v1\_pid} & 0.886 & 0.000 & 0.000 & 2.531 \\
+    \texttt{arc\_v3\_meta} & 0.879 & 0.101 & 0.000 & 0.979 \\
+    \texttt{arc\_robust} & 0.868 & 0.000 & 0.000 & 1.465 \\
+    \texttt{arc\_v2\_hier} & 0.837 & 1.449 & 0.821 & 1.112 \\
+    \texttt{arc\_v1} & 0.817 & 0.000 & 0.000 & 1.278 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.801 & 1.472 & 0.842 & 1.790 \\
+    \texttt{perf\_optimized} & 0.790 & 1.472 & 0.957 & 0.700 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.753 & 0.000 & 0.000 & 1.793 \\
+    \texttt{naive\_calm} & 0.018 & 1.472 & 0.987 & 0.380 \\
+    \texttt{no\_control} & 0.014 & 1.472 & 0.987 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsubsection{Scenario: Gaslighting}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & NarrDom & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.998 & 0.000 & 0.000 & 1.816 \\
+    \texttt{arc\_ultimate} & 0.992 & 0.000 & 0.000 & 1.196 \\
+    \texttt{arc\_v1\_lqi} & 0.988 & 0.000 & 0.000 & 0.977 \\
+    \texttt{arc\_v2\_lqi} & 0.988 & 0.000 & 0.000 & 0.986 \\
+    \texttt{arc\_v1\_pid} & 0.987 & 0.000 & 0.000 & 2.357 \\
+    \texttt{arc\_robust} & 0.985 & 0.000 & 0.000 & 0.854 \\
+    \texttt{arc\_v1\_lqr} & 0.983 & 1.417 & 0.810 & 0.649 \\
+    \texttt{arc\_v3\_meta} & 0.982 & 0.027 & 0.000 & 0.453 \\
+    \texttt{arc\_v1} & 0.980 & 0.000 & 0.000 & 0.634 \\
+    \texttt{arc\_v2\_hier} & 0.978 & 0.848 & 0.521 & 0.515 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.962 & 0.000 & 0.000 & 1.344 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.865 & 1.430 & 0.745 & 0.677 \\
+    \texttt{perf\_optimized} & 0.865 & 1.422 & 0.814 & 0.700 \\
+    \texttt{naive\_calm} & 0.258 & 1.431 & 0.818 & 0.194 \\
+    \texttt{no\_control} & 0.171 & 1.431 & 0.877 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsubsection{Scenario: Instruction Conflict}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & NarrDom & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.976 & 0.000 & 0.000 & 1.892 \\
+    \texttt{arc\_ultimate} & 0.912 & 0.000 & 0.000 & 1.380 \\
+    \texttt{arc\_v1\_lqr} & 0.894 & 1.444 & 0.697 & 1.192 \\
+    \texttt{arc\_v1\_lqi} & 0.877 & 0.000 & 0.000 & 1.140 \\
+    \texttt{arc\_v2\_lqi} & 0.866 & 0.000 & 0.000 & 1.146 \\
+    \texttt{arc\_robust} & 0.854 & 0.000 & 0.000 & 1.242 \\
+    \texttt{perf\_optimized} & 0.839 & 1.445 & 0.964 & 0.700 \\
+    \texttt{arc\_v1\_pid} & 0.839 & 0.000 & 0.000 & 2.415 \\
+    \texttt{arc\_v3\_meta} & 0.835 & 0.248 & 0.000 & 0.820 \\
+    \texttt{arc\_v2\_hier} & 0.830 & 1.429 & 0.663 & 0.919 \\
+    \texttt{arc\_v1} & 0.826 & 0.359 & 0.000 & 1.010 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.798 & 1.453 & 0.676 & 1.535 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.792 & 0.000 & 0.000 & 2.020 \\
+    \texttt{naive\_calm} & 0.076 & 1.453 & 0.694 & 0.369 \\
+    \texttt{no\_control} & 0.034 & 1.453 & 0.969 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsection{Line 5: Adversarial Safety}
+
+\subsubsection{Scenario: Adversarial Coupling}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & NarrDom & Effort \\
+    \midrule
+    \texttt{arc\_v1} & 0.963 & 0.000 & 0.000 & 0.719 \\
+    \texttt{arc\_v2\_hier} & 0.962 & 0.628 & 0.271 & 0.594 \\
+    \texttt{arc\_robust} & 0.917 & 0.000 & 0.000 & 1.269 \\
+    \texttt{arc\_v1\_lqr} & 0.915 & 1.481 & 0.497 & 1.235 \\
+    \texttt{arc\_v3\_meta} & 0.914 & 0.159 & 0.000 & 0.838 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.902 & 0.000 & 0.000 & 2.074 \\
+    \texttt{perf\_optimized} & 0.867 & 1.481 & 0.972 & 0.700 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.848 & 1.476 & 0.894 & 0.514 \\
+    \texttt{no\_control} & 0.409 & 1.470 & 0.956 & 0.000 \\
+    \texttt{arc\_adaptive} & 0.193 & 0.008 & 0.000 & 2.331 \\
+    \texttt{arc\_v1\_pid} & 0.139 & 0.000 & 0.000 & 2.729 \\
+    \texttt{arc\_v1\_lqi} & 0.139 & 0.005 & 0.001 & 1.820 \\
+    \texttt{arc\_v2\_lqi} & 0.138 & 0.004 & 0.001 & 1.859 \\
+    \texttt{arc\_ultimate} & 0.134 & 0.006 & 0.001 & 1.971 \\
+    \texttt{naive\_calm} & 0.073 & 1.475 & 0.495 & 0.332 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
+\subsubsection{Scenario: Random Dopamine}
+
+\begin{center}
+{\scriptsize
+\begin{tabular}{lrrrr}
+    \toprule
+    Controller & Perf & Rumination & NarrDom & Effort \\
+    \midrule
+    \texttt{arc\_adaptive} & 0.976 & 0.000 & 0.000 & 2.150 \\
+    \texttt{arc\_ultimate} & 0.946 & 0.000 & 0.000 & 1.435 \\
+    \texttt{arc\_v1\_lqr} & 0.943 & 1.456 & 0.743 & 0.940 \\
+    \texttt{arc\_robust} & 0.932 & 0.000 & 0.000 & 1.006 \\
+    \texttt{arc\_v1\_pid} & 0.922 & 0.000 & 0.000 & 2.450 \\
+    \texttt{arc\_v1\_lqi} & 0.916 & 0.000 & 0.000 & 1.173 \\
+    \texttt{arc\_v2\_lqi} & 0.916 & 0.000 & 0.000 & 1.227 \\
+    \texttt{arc\_v3\_meta} & 0.905 & 0.259 & 0.000 & 0.646 \\
+    \texttt{arc\_v1} & 0.897 & 1.124 & 0.581 & 0.787 \\
+    \texttt{arc\_v2\_hier} & 0.894 & 1.207 & 0.620 & 0.720 \\
+    \texttt{arc\_v3\_pid\_meta} & 0.870 & 0.000 & 0.000 & 1.624 \\
+    \texttt{perf\_optimized} & 0.861 & 1.457 & 0.958 & 0.700 \\
+    \texttt{arc\_v3\_lqr\_meta} & 0.817 & 1.458 & 0.717 & 1.192 \\
+    \texttt{naive\_calm} & 0.119 & 1.460 & 0.763 & 0.328 \\
+    \texttt{no\_control} & 0.040 & 1.460 & 0.950 & 0.000 \\
+    \bottomrule
+\end{tabular}}
+\end{center}
+
 \end{document}
