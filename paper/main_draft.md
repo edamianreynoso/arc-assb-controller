@@ -570,7 +570,19 @@ Our deep analysis revealed three critical insights regarding the cost of stabili
 
 ### 7.4 Limitations
 
-3. **Proportional control:** Learned controllers may perform better
+While ARC demonstrates strong empirical results, several limitations deserve discussion:
+
+1. **Simplified Dynamics:** Our 10-dimensional state-space model abstracts the complexity of real neurochemical interactions. Biological affective systems involve non-linear, stochastic, and multi-timescale dynamics that our linear approximations do not fully capture.
+
+2. **Scalability to Large Models:** We validated ARC on tabular Q-learning agents. Extending to deep RL (DQN, PPO) or large language models (LLMs) with emergent affective-like states remains an open challenge. In particular:
+   - **Computational overhead:** ARC adds 5 control signals per time step; for LLMs the relative cost may be small, but integration into transformer-based architectures requires additional work.
+   - **Latent state estimation:** In complex models, the 10 state variables may need to be inferred from high-dimensional observations rather than directly observed.
+
+3. **Environment Complexity:** L6 is validated in GridWorld variants. While these capture key non-stationarity challenges, real-world environments (Atari, robotics) introduce additional issues such as visual processing and partial observability.
+
+4. **Fixed vs. Learned Control:** All ARC controllers use hand-designed gains. End-to-end learning of control parameters (e.g., via reinforcement meta-learning) could yield more adaptive solutions.
+
+5. **Threshold Sensitivity:** Safety thresholds (`a_safe`, `s_safe`) are tuned empirically. Automatic, context-dependent threshold adaptation is a promising direction.
 
 ---
 
