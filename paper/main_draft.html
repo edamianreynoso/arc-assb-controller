@@ -282,7 +282,7 @@ signals that prioritize learning, modulate memory, and signal internal
 needs (Damasio, 1994; Picard, 1997). However, affective states introduce
 risks: without proper regulation, they may cause instability,
 perseverative loops (analogous to rumination in humans), and
-susceptibility to manipulation.</p>
+susceptibility to manipulation (Amodei et al., 2016).</p>
 <p>This paper addresses a fundamental question: <strong>If an agent has
 internal affective states, what control mechanisms are necessary to
 maintain stability and recoverability under perturbation?</strong></p>
@@ -345,13 +345,13 @@ feedback loops (Carver &amp; Scheier, 1982), and emotion regulation is a
 mature field with process-level and strategy models (Gross, 1998). In
 control theory, the problem of maintaining sufficient excitation for
 parameter identification is known as <strong>persistence of
-excitation</strong> (Åström &amp; Murray, 2008), a concept related to
-the “dual control” dilemma (Feldbaum, 1965) balancing learning and
-control. In humans, dysregulated self-referential processing and the
-default mode network (DMN) have been linked to rumination-like dynamics
-(Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We
-use DMN-inspired narrative intensity as an engineering proxy for
-perseveration pressure.</p>
+excitation</strong> (Åström &amp; Murray, 2008), a central limitation
+for adaptive control in low-variance (“benign”) environments. In humans,
+dysregulated self-referential processing and the default mode network
+(DMN) have been linked to rumination-like dynamics (Raichle et al.,
+2001; Buckner et al., 2008; Hamilton et al., 2015). We use DMN-inspired
+narrative intensity as an engineering proxy for perseveration
+pressure.</p>
 <h3 id="positioning-arc">2.4 Positioning ARC</h3>
 <p>We position ARC as a <em>regulation-first</em> approach: affect is
 treated as an internal dynamical system requiring explicit control. Most
@@ -1087,11 +1087,12 @@ baselines.</p>
 </tbody>
 </table>
 <p><strong>Key finding:</strong> ARC eliminates rumination (RI=0) while
-achieving 97% average performance (vs. 30% for uncontrolled agents). RT
-is scenario-dependent: ARC recovers quickly in <code>reward_flip</code>,
-more slowly in <code>noise_burst</code>, and does not fully return to
-the pre-shock baseline in <code>sudden_threat</code> under the strict RT
-definition (Appendix D.2), despite maintaining high PerfMean.</p>
+achieving <strong>96.6%</strong> average performance (PerfMean = 0.966)
+(vs. 29.7% for uncontrolled agents). RT is scenario-dependent: ARC
+recovers quickly in <code>reward_flip</code>, more slowly in
+<code>noise_burst</code>, and does not fully return to the pre-shock
+baseline in <code>sudden_threat</code> under the strict RT definition
+(Appendix D.2), despite maintaining high PerfMean.</p>
 <figure>
 <img src="../figures_L6/ablation_summary.png"
 alt="Bar chart showing Performance, Rumination Index, and Recovery Time for different ARC variants" />
@@ -1483,9 +1484,12 @@ dynamics:</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Key insight:</strong> Rumination Index (RI) is a strong
-predictor of performance degradation, supporting our hypothesis that
-narrative loop control (u_dmg) is critical.</p>
+<p><strong>Key insight:</strong> Across controllers and scenarios,
+higher Rumination Index (RI) tends to reduce mean performance. However,
+some optimal controllers (e.g., LQR) can sustain high PerfMean while
+exhibiting high RI, because PerfMean includes narrative-modulated
+capacity (Appendix B). This motivates reporting RI as a separate safety
+metric.</p>
 <h4 id="robustness-analysis">6.8.3 Robustness Analysis</h4>
 <p>Finally, our state dynamics are designed for functional plausibility
 rather than biological fidelity, and formal stability analysis (e.g.,
@@ -1828,7 +1832,7 @@ internal affective states, and ASSB, a benchmark for evaluating
 affective stability. Our experiments demonstrate:</p>
 <ol type="1">
 <li><strong>Affective states without regulation lead to
-collapse</strong> (97% vs 30% performance)</li>
+collapse</strong> (96.6% vs 29.7% performance)</li>
 <li><strong>Meta-control reduces effort while improving
 stability</strong> (-21% ControlEffort)</li>
 <li><strong>ARC improves RL transfer learning</strong> (+50% success in
@@ -1859,7 +1863,6 @@ Annals of the New York Academy of Sciences, 1124.</li>
 conceptual framework for personality-social, clinical, and health
 psychology. Psychological Bulletin, 92(1), 111–135.</li>
 <li>Damasio, A.R. (1994). Descartes’ Error. Putnam.</li>
-<li>Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.</li>
 <li>Friston, K. (2010). The free-energy principle. Nature Reviews
 Neuroscience, 11(2).</li>
 <li>Garcia, J. &amp; Fernández, F. (2015). A comprehensive survey on
@@ -2123,13 +2126,15 @@ Metrics</figcaption>
 indicate stronger positive correlations.</em></p>
 <p><strong>Key Observations:</strong> 1. <strong>Rumination
 vs. Performance:</strong> A strong negative correlation (<strong>r =
--0.59</strong>) confirms that higher Rumination Index (RI) consistently
-degrades mean performance. 2. <strong>Recovery vs. Rumination:</strong>
-The positive correlation (<strong>r = +0.44</strong>) between Recovery
-Time (RT) and RI supports H1, indicating that perseverative loops
-prolong the return to homeostasis. 3. <strong>Narrative
-Dominance:</strong> NDR shows near-perfect correlation with RI,
-validating its use as a proxy for DMN-driven rumination.</p>
+-0.59</strong>) shows that higher Rumination Index (RI) tends to reduce
+mean performance, although some optimal controllers (e.g., LQR) can
+maintain high PerfMean while ruminating due to the narrative-modulated
+capacity term. 2. <strong>Recovery vs. Rumination:</strong> The positive
+correlation (<strong>r = +0.44</strong>) between Recovery Time (RT) and
+RI supports H1, indicating that perseverative loops prolong the return
+to homeostasis. 3. <strong>Narrative Dominance:</strong> NDR shows
+near-perfect correlation with RI, validating its use as a proxy for
+DMN-driven rumination.</p>
 <hr />
 <h3 id="figure-s8-efficiency-comparison-fast-convergence">Figure S8:
 Efficiency Comparison (Fast Convergence)</h3>

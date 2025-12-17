@@ -43,10 +43,10 @@ As AI agents become more sophisticated, there is growing interest in endowing th
 
 Our experiments across 6 research lines and \textbf{15 controller architectures} (including P, PID, LQR, LQI, hierarchical, meta-control, H$\infty$ robust, and adaptive variants) demonstrate that:
 \begin{enumerate}
-    \item ARC achieves \textbf{97\% performance with zero rumination} (vs. 30\% for uncontrolled agents).
+    \item ARC achieves \textbf{96.6\% average performance with zero rumination} (vs. 29.7\% for uncontrolled agents).
     \item ARC meta-control reduces control effort by \textbf{21\%} while maintaining stability.
-    \item \textbf{H$\infty$ Robust controllers} achieve the best balance: 95\% performance + zero rumination.
-    \item In reinforcement learning, ARC improves transfer learning success by \textbf{50\%} in non-stationary environments.
+    \item \textbf{H$\infty$ Robust controllers} achieve the best overall balance, although integral controllers can collapse under adversarial incentives.
+    \item In reinforcement learning, ARC improves transfer learning success by \textbf{50\%} via memory gating and a shift-detection boost.
 \end{enumerate}
 All code and data are available for reproducibility.
 \end{abstract}
@@ -56,7 +56,7 @@ All code and data are available for reproducibility.
 \section{Introduction}
 
 \subsection{Motivation}
-Modern AI systems increasingly incorporate internal state representations that go beyond task performance---including affective signals that prioritize learning, modulate memory, and signal internal needs \citep{damasio1994descartes,picard1997affective}. However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (analogous to rumination in humans), and susceptibility to manipulation.
+Modern AI systems increasingly incorporate internal state representations that go beyond task performance---including affective signals that prioritize learning, modulate memory, and signal internal needs \citep{damasio1994descartes,picard1997affective}. However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (analogous to rumination in humans), and susceptibility to manipulation \citep{amodei2016concrete}.
 
 This paper addresses a fundamental question: \textbf{If an agent has internal affective states, what control mechanisms are necessary to maintain stability and recoverability under perturbation?}
 
@@ -202,11 +202,18 @@ We implement 15 controller variants stemming from basic feedback control to opti
     \midrule
     No Control & Baseline & No & No & No \\
     Naive Calm & Baseline & No & No & No \\
+    Perf Optimized & Baseline & No & No & No \\
     ARC v1 & P & No & No & No \\
     ARC v1 PID & PID & Yes (integral) & No & No \\
+    ARC v1 LQR & LQR & No & Yes (Riccati) & No \\
     ARC v1 LQI & LQR+I & Yes (integral) & Yes & No \\
+    ARC v2 Hier & Multi-scale & No & No & No \\
+    ARC v2 LQI & Multi+I & Yes (integral) & Yes & No \\
     ARC v3 Meta & Adaptive & No & No & Yes \\
+    ARC v3 PID Meta & PID+Meta & Yes (integral) & No & Yes \\
+    ARC v3 LQR Meta & LQR+Meta & No & Yes & Yes \\
     ARC Robust & H$\infty$ & Yes (robust) & No & No \\
+    ARC Adaptive & Self-tune & Yes (adaptive) & No & Yes \\
     ARC Ultimate & MPC+LQI+Meta & Yes & Yes & Yes \\
     \bottomrule
   \end{tabular}
@@ -236,7 +243,7 @@ ASSB is organized as research lines (L1--L5 in simulation, L6 in RL).
 We validated hypotheses H1--H6 across all research lines.
 
 \subsubsection{L1: Stability Under Perturbation}
-\textbf{Key finding:} ARC eliminates rumination (RI=0) while achieving 97\% performance (vs. 30\% for uncontrolled agents).
+\textbf{Key finding:} ARC eliminates rumination (RI=0) while achieving 96.6\% average performance (vs. 29.7\% for uncontrolled agents).
 
 \begin{figure}[h]
     \centering
@@ -245,11 +252,14 @@ We validated hypotheses H1--H6 across all research lines.
     \label{fig:ablation}
 \end{figure}
 
+\subsubsection{L5: Adversarial Safety}
+Notably, controllers with strong integral action (PID/LQI/Ultimate) can \textbf{collapse} under adversarial incentives (performance $< 0.2$), performing worse than the uncontrolled agent due to integral windup. Proportional (ARC v1) and robust (ARC Robust) controllers avoid this failure mode.
+
 \subsubsection{L4: Meta-Control Efficiency}
 Meta-control reduces control effort by \textbf{21\%} while improving stability compared to fixed-gain control.
 
 \subsubsection{L6: Real RL Validation}
-In non-stationary GridWorld environments (ChangingGoal), ARC improves transfer learning success by \textbf{50\%}.
+In non-stationary GridWorld environments (ChangingGoal), ARC improves transfer learning success by \textbf{50\%}. This is driven by memory gating (blocking updates under high uncertainty) plus a shift-detection mechanism that temporarily boosts exploration ($\\epsilon$) and learning rate ($\\alpha$) for 30 steps after a goal change.
 
 \begin{figure}[h]
     \centering

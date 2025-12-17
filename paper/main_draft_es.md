@@ -26,7 +26,7 @@ Todo el código y los datos están disponibles para reproducibilidad.
 
 ### 1.1 Motivación
 
-Los sistemas modernos de IA incorporan cada vez más representaciones de estado interno que van más allá del rendimiento en la tarea—incluyendo señales afectivas que priorizan el aprendizaje, modulan la memoria y señalan necesidades internas (Damasio, 1994; Picard, 1997). Sin embargo, los estados afectivos introducen riesgos: sin una regulación adecuada, pueden causar inestabilidad, bucles perseverantes (análogos a la rumiación en humanos) y susceptibilidad a la manipulación.
+Los sistemas modernos de IA incorporan cada vez más representaciones de estado interno que van más allá del rendimiento en la tarea—incluyendo señales afectivas que priorizan el aprendizaje, modulan la memoria y señalan necesidades internas (Damasio, 1994; Picard, 1997). Sin embargo, los estados afectivos introducen riesgos: sin una regulación adecuada, pueden causar inestabilidad, bucles perseverantes (análogos a la rumiación en humanos) y susceptibilidad a la manipulación (Amodei et al., 2016).
 
 Este artículo aborda una pregunta fundamental: **Si un agente tiene estados afectivos internos, ¿qué mecanismos de control son necesarios para mantener la estabilidad y la capacidad de recuperación ante perturbaciones?**
 
@@ -64,7 +64,7 @@ Trabajos recientes usan señales tipo emoción como conformación de refuerzo o 
 
 ### 2.3 Regulación Emocional, Rumiación y la Red Neuronal por Defecto (DMN)
 
-ARC está inspirado directamente en los mecanismos cognitivos de regulación emocional comúnmente atribuidos al control prefrontal (Ochsner & Gross, 2005). Más ampliamente, la autorregulación se ha descrito como bucles de retroalimentación que reducen discrepancias (Carver & Scheier, 1982), y la regulación emocional es un campo maduro con modelos a nivel de procesos y estrategias (Gross, 1998). En teoría de control, el problema de mantener suficiente excitación para la identificación de parámetros se conoce como **persistencia de excitación** (Åström & Murray, 2008), un concepto relacionado con el dilema de "control dual" (Feldbaum, 1965) que balancea aprendizaje y control.
+ARC está inspirado directamente en los mecanismos cognitivos de regulación emocional comúnmente atribuidos al control prefrontal (Ochsner & Gross, 2005). Más ampliamente, la autorregulación se ha descrito como bucles de retroalimentación que reducen discrepancias (Carver & Scheier, 1982), y la regulación emocional es un campo maduro con modelos a nivel de procesos y estrategias (Gross, 1998). En teoría de control, el problema de mantener suficiente excitación para la identificación de parámetros se conoce como **persistencia de excitación** (Åström & Murray, 2008), una limitación central para el control adaptativo en entornos de baja varianza ("benignos").
 En humanos, el procesamiento autorreferencial desregulado y la red neuronal por defecto (DMN) se han vinculado a dinámicas tipo rumiación (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). Usamos la intensidad narrativa inspirada en DMN como un proxy de ingeniería para la presión de perseveración.
 
 ### 2.4 Posicionamiento de ARC
@@ -315,7 +315,7 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 | arc_v1 | **0.966** | **0.00** | 45.2 |
 | no_control | 0.297 | 1.41 | 100.0 |
 
-**Hallazgo clave:** ARC elimina la rumiación (RI=0) mientras logra un 97% de rendimiento promedio.
+**Hallazgo clave:** ARC elimina la rumiación (RI=0) mientras logra **96.6%** de rendimiento promedio (PerfMean = 0.966).
 
 ![Resumen de ablación: rendimiento, índice de rumiación y tiempo de recuperación para variantes ARC](../figures_L6/ablation_summary.png)
 
@@ -516,7 +516,7 @@ Este trabajo aborda la seguridad y estabilidad de sistemas de IA que incorporan 
 
 Presentamos ARC y ASSB. Nuestros experimentos demuestran:
 
-1. **Estados afectivos sin regulación llevan al colapso** (97% vs 30% rendimiento).
+1. **Estados afectivos sin regulación llevan al colapso** (96.6% vs 29.7% rendimiento).
 2. **El meta-control reduce el esfuerzo mejorando la estabilidad**.
 3. **ARC mejora la transferencia en RL** (+50% éxito).
 
@@ -535,7 +535,6 @@ Este trabajo abre direcciones para el control aprendido y la aplicación a siste
 - Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124.
 - Carver, C.S. & Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111–135.
 - Damasio, A.R. (1994). Descartes' Error. Putnam.
-- Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.
 - Friston, K. (2010). The free-energy principle. Nature Reviews Neuroscience, 11(2).
 - Garcia, J. & Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437–1480.
 - Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271–299.
@@ -711,7 +710,7 @@ def recovery_time(perf, arousal, shock_t, baseline_window=20):
 ### D.3 Índice de Rumiación (RI)
 
 ```python
-def rumination_index(s, s_rum_tau=0.6, persistence_weight=1.0):
+def rumination_index(s, s_rum_tau=0.55, persistence_weight=1.0):
     above = [1 if x > s_rum_tau else 0 for x in s]
     frac = mean(above)
     runs = consecutive_run_lengths(above)
@@ -821,7 +820,7 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 *Mapa de correlación (Pearson) agregado sobre todos los escenarios. Colores más brillantes indican correlaciones positivas más fuertes.*
 
 **Observaciones clave:**
-1. **Rumiación vs Rendimiento:** correlación negativa (**r = -0.59**), consistente con que la rumiación degrada el rendimiento promedio.
+1. **Rumiación vs Rendimiento:** correlación negativa (**r = -0.59**), consistente con que mayor rumiación tiende a reducir el rendimiento promedio, aunque existen excepciones (p.ej., LQR) debido al término de capacidad modulado por narrativa.
 2. **Recuperación vs Rumiación:** correlación positiva (**r = +0.44**) entre RT y RI, apoyando H1.
 3. **Dominancia narrativa:** NDR correlaciona fuertemente con RI, validando su uso como proxy de rumiación.
 

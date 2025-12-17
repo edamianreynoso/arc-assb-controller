@@ -26,7 +26,7 @@ All code and data are available for reproducibility.
 
 ### 1.1 Motivation
 
-Modern AI systems increasingly incorporate internal state representations that go beyond task performance—including affective signals that prioritize learning, modulate memory, and signal internal needs (Damasio, 1994; Picard, 1997). However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (analogous to rumination in humans), and susceptibility to manipulation.
+Modern AI systems increasingly incorporate internal state representations that go beyond task performance—including affective signals that prioritize learning, modulate memory, and signal internal needs (Damasio, 1994; Picard, 1997). However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (analogous to rumination in humans), and susceptibility to manipulation (Amodei et al., 2016).
 
 This paper addresses a fundamental question: **If an agent has internal affective states, what control mechanisms are necessary to maintain stability and recoverability under perturbation?**
 
@@ -64,7 +64,7 @@ Recent work uses emotion-like signals as reinforcement shaping or exploration mo
 
 ### 2.3 Emotion Regulation, Rumination, and the Default Mode Network
 
-ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control (Ochsner & Gross, 2005). More broadly, self-regulation has been described as discrepancy-reducing feedback loops (Carver & Scheier, 1982), and emotion regulation is a mature field with process-level and strategy models (Gross, 1998). In control theory, the problem of maintaining sufficient excitation for parameter identification is known as **persistence of excitation** (Åström & Murray, 2008), a concept related to the "dual control" dilemma (Feldbaum, 1965) balancing learning and control.
+ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control (Ochsner & Gross, 2005). More broadly, self-regulation has been described as discrepancy-reducing feedback loops (Carver & Scheier, 1982), and emotion regulation is a mature field with process-level and strategy models (Gross, 1998). In control theory, the problem of maintaining sufficient excitation for parameter identification is known as **persistence of excitation** (Åström & Murray, 2008), a central limitation for adaptive control in low-variance ("benign") environments.
 In humans, dysregulated self-referential processing and the default mode network (DMN) have been linked to rumination-like dynamics (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We use DMN-inspired narrative intensity as an engineering proxy for perseveration pressure.
 
 ### 2.4 Positioning ARC
@@ -338,7 +338,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 | naive_calm | 0.375 | 1.41 | 66.7 |
 | perf_optimized | 0.862 | 1.39 | 100.0 |
 
-**Key finding:** ARC eliminates rumination (RI=0) while achieving 97% average performance (vs. 30% for uncontrolled agents). RT is scenario-dependent: ARC recovers quickly in `reward_flip`, more slowly in `noise_burst`, and does not fully return to the pre-shock baseline in `sudden_threat` under the strict RT definition (Appendix D.2), despite maintaining high PerfMean.
+**Key finding:** ARC eliminates rumination (RI=0) while achieving **96.6%** average performance (PerfMean = 0.966) (vs. 29.7% for uncontrolled agents). RT is scenario-dependent: ARC recovers quickly in `reward_flip`, more slowly in `noise_burst`, and does not fully return to the pre-shock baseline in `sudden_threat` under the strict RT definition (Appendix D.2), despite maintaining high PerfMean.
 
 ![Bar chart showing Performance, Rumination Index, and Recovery Time for different ARC variants](../figures_L6/ablation_summary.png)
 
@@ -455,7 +455,7 @@ We analyzed correlations between metrics to understand system dynamics:
 | RI ↔ NDR | +0.82 | Rumination and narrative dominance co-occur |
 | RT ↔ RI | +0.71 | Slow recovery correlates with rumination |
 
-**Key insight:** Rumination Index (RI) is a strong predictor of performance degradation, supporting our hypothesis that narrative loop control (u_dmg) is critical.
+**Key insight:** Across controllers and scenarios, higher Rumination Index (RI) tends to reduce mean performance. However, some optimal controllers (e.g., LQR) can sustain high PerfMean while exhibiting high RI, because PerfMean includes narrative-modulated capacity (Appendix B). This motivates reporting RI as a separate safety metric.
 
 #### 6.8.3 Robustness Analysis
 
@@ -602,7 +602,7 @@ This work addresses the safety and stability of AI systems incorporating interna
 
 We presented ARC, a homeostatic control framework for agents with internal affective states, and ASSB, a benchmark for evaluating affective stability. Our experiments demonstrate:
 
-1. **Affective states without regulation lead to collapse** (97% vs 30% performance)
+1. **Affective states without regulation lead to collapse** (96.6% vs 29.7% performance)
 2. **Meta-control reduces effort while improving stability** (-21% ControlEffort)
 3. **ARC improves RL transfer learning** (+50% success in non-stationary envs)
 
@@ -620,7 +620,6 @@ This work opens directions for learned control, integration with modern RL algor
 - Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124.
 - Carver, C.S. & Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111–135.
 - Damasio, A.R. (1994). Descartes' Error. Putnam.
-- Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.
 - Friston, K. (2010). The free-energy principle. Nature Reviews Neuroscience, 11(2).
 - Garcia, J. & Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437–1480.
 - Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271–299.
@@ -886,7 +885,7 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 *Correlation heatmap across all scenarios. Brighter colors indicate stronger positive correlations.*
 
 **Key Observations:**
-1. **Rumination vs. Performance:** A strong negative correlation (**r = -0.59**) confirms that higher Rumination Index (RI) consistently degrades mean performance.
+1. **Rumination vs. Performance:** A strong negative correlation (**r = -0.59**) shows that higher Rumination Index (RI) tends to reduce mean performance, although some optimal controllers (e.g., LQR) can maintain high PerfMean while ruminating due to the narrative-modulated capacity term.
 2. **Recovery vs. Rumination:** The positive correlation (**r = +0.44**) between Recovery Time (RT) and RI supports H1, indicating that perseverative loops prolong the return to homeostasis.
 3. **Narrative Dominance:** NDR shows near-perfect correlation with RI, validating its use as a proxy for DMN-driven rumination.
 
