@@ -155,6 +155,10 @@ We implement 15 controller variants stemming from basic feedback control to opti
 $$\text{risk} = w_U \cdot U + w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+$$
 $$u_{dmg} = k_{dmg} \cdot \text{risk}$$
 
+![ARC v1 controller diagram (proportional): risk computation and bounded control actions used by the baseline ARC controller.](../figures_controllers/fig_arc_v1_controller.png)
+
+*Figure 1: ARC v1 control law overview. A bounded risk signal drives a set of saturated regulation actions (DMN suppression, attention boost, memory gating, calming, and reappraisal).*
+
 #### 4.3.2 PID Controllers
 
 **ARC v1 PID:** Adds integral and derivative terms:
@@ -337,7 +341,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 ![Bar chart showing Performance, Rumination Index, and Recovery Time for different ARC variants](../figures_L6/ablation_summary.png)
 
-*Figure 1: Ablation summary (`reward_flip`, L1): removing DMN suppression (`u_dmg`) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.*
+*Figure 2: Ablation summary (`reward_flip`, L1): removing DMN suppression (`u_dmg`) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.*
 
 ### 6.3 L2: Memory & Continual Learning (Simulation)
 
@@ -418,7 +422,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 ![Learning Curves: ARC vs Baseline across 3 GridWorld environments showing episode reward over 200 episodes](../figures_L6/learning_curves.png)
 
-*Figure 2: Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show ±1 std across 20 seeds.*
+*Figure 3: Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show ±1 std across 20 seeds.*
 
 ### 6.8 Statistical Analysis
 
@@ -460,7 +464,7 @@ Finally, our state dynamics are designed for functional plausibility rather than
 
 ![Controller Performance Comparison](../analysis/sensitivity_controller.png)
 
-*Figure 3: Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.*
+*Figure 4: Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.*
 
 ---
 
@@ -502,31 +506,31 @@ These results suggest that practical deployment should consider the application 
 
 ![Controller Performance Comparison](../figures_controllers/fig_controller_performance.png)
 
-*Figure 4: Performance comparison across 15 controller architectures. LQR achieves highest performance (0.96), while baseline (no_control) shows catastrophic failure (0.21).*
+*Figure 5: Performance comparison across 15 controller architectures. LQR achieves highest performance (0.96), while baseline (no_control) shows catastrophic failure (0.21).*
 
 #### 6.9.2 Anti-Rumination Analysis
 
 ![Rumination Index by Controller](../figures_controllers/fig_controller_rumination.png)
 
-*Figure 5: Rumination Index (RI) by controller. Controllers with integral action (PID/LQI) or robust/adaptive tuning achieve RI ≈ 0, eliminating perseverative loops.*
+*Figure 6: Rumination Index (RI) by controller. Controllers with integral action (PID/LQI) or robust/adaptive tuning achieve RI ≈ 0, eliminating perseverative loops.*
 
 #### 6.9.3 Performance vs Anti-Rumination Trade-off
 
 ![Trade-off Analysis](../figures_controllers/fig_controller_tradeoff.png)
 
-*Figure 6: Trade-off between performance and anti-rumination. Bubble size indicates control effort. H∞ Robust (dark teal) achieves optimal balance in the upper-left region.*
+*Figure 7: Trade-off between performance and anti-rumination. Bubble size indicates control effort. H∞ Robust (dark teal) achieves optimal balance in the upper-left region.*
 
 #### 6.9.4 Control Efficiency
 
 ![Control Effort by Controller](../figures_controllers/fig_controller_effort.png)
 
-*Figure 7: Control effort comparison. Meta-control (arc_v3_meta) achieves lowest effort (0.61), while PID has highest effort (2.40) due to aggressive integral action.*
+*Figure 8: Control effort comparison. Meta-control (arc_v3_meta) achieves lowest effort (0.61), while PID has highest effort (2.40) due to aggressive integral action.*
 
 #### 6.9.5 Multi-Metric Radar Analysis
 
 ![Radar Chart - Top 5 Controllers](../figures_controllers/fig_controller_radar.png)
 
-*Figure 8: Multi-dimensional comparison of top 5 controllers. ARC Robust and ARC Ultimate achieve near-optimal values across all four dimensions.*
+*Figure 9: Multi-dimensional comparison of top 5 controllers. ARC Robust and ARC Ultimate achieve near-optimal values across all four dimensions.*
 
 ---
 
@@ -657,13 +661,13 @@ python experiments/run.py --config configs/v2.yaml --outdir outputs_final
 # Controller architecture figures (Table 3, Figures 4–8)
 python analysis/generate_controller_figures.py
 
-# Ablation study (ARC components; Figure 1)
+# Ablation study (ARC components; Figure 2)
 python experiments/run_ablation.py --config configs/v2.yaml --outdir outputs_ablation --seeds 20
 
 # L6: RL validation (20 seeds)
 python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
 
-# L6 figures (Figure 2; Appendix E)
+# L6 figures (Figure 3; Appendix E)
 python visualizations/paper_figures.py --data outputs_L6_robust --output figures_L6
 ```
 
@@ -879,8 +883,80 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 
 **Key Observations:**
 1. **Rumination vs. Performance:** A strong negative correlation (**r = -0.59**) confirms that higher Rumination Index (RI) consistently degrades mean performance.
-2. **Recovery vs. Rumination:** The positive correlation (**r = +0.71**) between Recovery Time (RT) and RI supports H1, indicating that perseverative loops prolong the return to homeostasis.
+2. **Recovery vs. Rumination:** The positive correlation (**r = +0.44**) between Recovery Time (RT) and RI supports H1, indicating that perseverative loops prolong the return to homeostasis.
 3. **Narrative Dominance:** NDR shows near-perfect correlation with RI, validating its use as a proxy for DMN-driven rumination.
+
+---
+
+### Figure S8: Efficiency Comparison (Fast Convergence)
+
+![Learning speed comparison: both reach 100% success, but ARC converges faster in benign environments](../figures_L6/efficiency_comparison.png)
+
+*Efficiency comparison in GridWorld and StochasticGridWorld. Both agents reach 100% success, but ARC converges faster (higher reward earlier), indicating improved learning efficiency even when asymptotic success is identical.*
+
+---
+
+### Figure S9: Scenario Difficulty Analysis
+
+![Scenario Difficulty Analysis: performance, rumination index, and recovery time by scenario](../analysis/sensitivity_scenario.png)
+
+*Scenario-level analysis (ARC only): performance, rumination, and recovery time vary substantially by stressor type; adversarial coupling and sustained contradiction are among the hardest conditions.*
+
+---
+
+### Figure S10: Variance Sensitivity
+
+![Variance sensitivity analysis: performance distribution across controllers and scenarios](../analysis/sensitivity_variance.png)
+
+*Variance analysis across seeds. Lower variance indicates more reliable behavior; ARC controllers generally exhibit tighter performance distributions than baselines.*
+
+---
+
+### Figure S11: Metric Correlations (L1)
+
+![Metric Correlations - L1](../analysis/correlation_L1.png)
+
+*Correlation heatmap for L1 runs only (stability line).*
+
+---
+
+### Figure S12: Metric Correlations (L2)
+
+![Metric Correlations - L2](../analysis/correlation_L2.png)
+
+*Correlation heatmap for L2 runs only (memory & continual learning line).*
+
+---
+
+### Figure S13: Metric Correlations (L3)
+
+![Metric Correlations - L3](../analysis/correlation_L3.png)
+
+*Correlation heatmap for L3 runs only (anti-rumination stress tests line).*
+
+---
+
+### Figure S14: Metric Correlations (L4)
+
+![Metric Correlations - L4](../analysis/correlation_L4.png)
+
+*Correlation heatmap for L4 runs only (meta-control efficiency line).*
+
+---
+
+### Figure S15: Metric Correlations (L4 Meta-Control)
+
+![Metric Correlations - L4 Meta](../analysis/correlation_L4_meta.png)
+
+*Correlation heatmap for meta-control-focused runs (L4\_meta).*
+
+---
+
+### Figure S16: Metric Correlations (L5)
+
+![Metric Correlations - L5](../analysis/correlation_L5.png)
+
+*Correlation heatmap for L5 runs only (adversarial safety line).*
 
 ---
 

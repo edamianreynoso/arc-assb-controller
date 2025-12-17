@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>main_draft_es</title>
+  <title>Affective Regulation Core (ES)</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -239,9 +239,6 @@
   type="text/javascript"></script>
 </head>
 <body>
-<header id="title-block-header">
-<h1 class="title">main_draft_es</h1>
-</header>
 <h1
 id="affective-regulation-core-arc-un-marco-de-control-homeostático-para-agentes-de-ia-estables-y-seguros">Affective
 Regulation Core (ARC): Un Marco de Control Homeostático para Agentes de
@@ -591,6 +588,16 @@ proporcional básica sobre la señal de riesgo: <span
 class="math display">\[\text{risk} = w_U \cdot U + w_A \cdot [A -
 a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+\]</span> <span
 class="math display">\[u_{dmg} = k_{dmg} \cdot \text{risk}\]</span></p>
+<figure>
+<img src="../figures_controllers/fig_arc_v1_controller.png"
+alt="Diagrama del controlador ARC v1 (proporcional): cálculo de riesgo y acciones de control acotadas usadas por el controlador base ARC." />
+<figcaption aria-hidden="true">Diagrama del controlador ARC v1
+(proporcional): cálculo de riesgo y acciones de control acotadas usadas
+por el controlador base ARC.</figcaption>
+</figure>
+<p><em>Figura 1: Resumen de la ley de control ARC v1. Una señal de
+riesgo acotada impulsa acciones de regulación saturadas (supresión DMN,
+atención, gating de memoria, calma y reevaluación).</em></p>
 <h4 id="controladores-pid">4.3.2 Controladores PID</h4>
 <p><strong>ARC v1 PID:</strong> Añade términos integral y derivativo:
 <span class="math display">\[u(t) = K_p \cdot e(t) + K_i \cdot \int
@@ -1049,6 +1056,16 @@ Bajo Perturbación (Simulación)</h3>
 </table>
 <p><strong>Hallazgo clave:</strong> ARC elimina la rumiación (RI=0)
 mientras logra un 97% de rendimiento promedio.</p>
+<figure>
+<img src="../figures_L6/ablation_summary.png"
+alt="Resumen de ablación: rendimiento, índice de rumiación y tiempo de recuperación para variantes ARC" />
+<figcaption aria-hidden="true">Resumen de ablación: rendimiento, índice
+de rumiación y tiempo de recuperación para variantes ARC</figcaption>
+</figure>
+<p><em>Figura 2: Resumen de ablación (<code>reward_flip</code>, L1):
+remover la supresión DMN (<code>u_dmg</code>) causa rumiación y
+no-recuperación, indicando que el control DMN es necesario para
+estabilidad bajo shocks de valor.</em></p>
 <h3 id="l2-memoria-y-aprendizaje-continuo-simulación">6.3 L2: Memoria y
 Aprendizaje Continuo (Simulación)</h3>
 <p><strong>Hipótesis (H2):</strong> Soportada.</p>
@@ -1199,6 +1216,16 @@ manipulación.</p>
 <p><strong>Hallazgo clave:</strong> En entornos no estacionarios, el
 gating de memoria y exploración adaptativa de ARC mejoran
 significativamente el aprendizaje por transferencia.</p>
+<figure>
+<img src="../figures_L6/learning_curves.png"
+alt="Curvas de aprendizaje: ARC vs línea base en 3 entornos GridWorld (recompensa por episodio)" />
+<figcaption aria-hidden="true">Curvas de aprendizaje: ARC vs línea base
+en 3 entornos GridWorld (recompensa por episodio)</figcaption>
+</figure>
+<p><em>Figura 3: Curvas de aprendizaje comparando Q-learning modulado
+por ARC (cyan) vs Q-learning línea base (naranja) en GridWorld,
+StochasticGridWorld y ChangingGoalGridWorld. Las regiones sombreadas
+muestran ±1 std sobre 20 seeds.</em></p>
 <h3 id="análisis-estadístico">6.8 Análisis Estadístico</h3>
 <p><em>Todas las comparaciones son estadísticamente significativas (p
 &lt; 0.001). Los valores de d de Cohen indican tamaños del efecto
@@ -1206,6 +1233,15 @@ extremadamente grandes (d &gt; 0.8 se considera “grande”). El valor
 extremadamente alto para RI (-589.7) refleja la eliminación casi
 determinista de la varianza de la rumiación por los controladores
 integrales.</em></p>
+<figure>
+<img src="../analysis/sensitivity_controller.png"
+alt="Comparación de rendimiento por tipo de controlador" />
+<figcaption aria-hidden="true">Comparación de rendimiento por tipo de
+controlador</figcaption>
+</figure>
+<p><em>Figura 4: Distribución de rendimiento por tipo de controlador.
+Las variantes ARC (azul) superan consistentemente a las líneas base
+(rojo) con menor varianza.</em></p>
 <hr />
 <h3 id="comparación-de-arquitecturas-de-control">6.9 Comparación de
 Arquitecturas de Control</h3>
@@ -1221,6 +1257,58 @@ esfuerzo).</li>
 <li><strong>H∞ Robusto logra el mejor equilibrio</strong> (0.95
 rendimiento, RI=0).</li>
 </ol>
+<h4 id="comparación-de-rendimiento">6.9.1 Comparación de
+Rendimiento</h4>
+<figure>
+<img src="../figures_controllers/fig_controller_performance.png"
+alt="Comparación de rendimiento entre controladores" />
+<figcaption aria-hidden="true">Comparación de rendimiento entre
+controladores</figcaption>
+</figure>
+<p><em>Figura 5: Comparación de rendimiento a través de 15 arquitecturas
+de control. LQR logra el mayor rendimiento (0.96), mientras que la línea
+base (no_control) falla catastróficamente (0.21).</em></p>
+<h4 id="análisis-anti-rumiación">6.9.2 Análisis Anti-Rumiación</h4>
+<figure>
+<img src="../figures_controllers/fig_controller_rumination.png"
+alt="Índice de Rumiación por controlador" />
+<figcaption aria-hidden="true">Índice de Rumiación por
+controlador</figcaption>
+</figure>
+<p><em>Figura 6: Índice de Rumiación (RI) por controlador. Controladores
+con acción integral (PID/LQI) o tuning robusto/adaptativo logran RI ≈ 0,
+eliminando bucles perseverantes.</em></p>
+<h4 id="compromiso-rendimiento-vs-anti-rumiación">6.9.3 Compromiso
+Rendimiento vs Anti-Rumiación</h4>
+<figure>
+<img src="../figures_controllers/fig_controller_tradeoff.png"
+alt="Análisis de trade-off" />
+<figcaption aria-hidden="true">Análisis de trade-off</figcaption>
+</figure>
+<p><em>Figura 7: Trade-off entre rendimiento y anti-rumiación. El tamaño
+de burbuja indica esfuerzo de control. H∞ Robusto logra un balance
+óptimo en la región superior-izquierda.</em></p>
+<h4 id="eficiencia-de-control">6.9.4 Eficiencia de Control</h4>
+<figure>
+<img src="../figures_controllers/fig_controller_effort.png"
+alt="Esfuerzo de control por controlador" />
+<figcaption aria-hidden="true">Esfuerzo de control por
+controlador</figcaption>
+</figure>
+<p><em>Figura 8: Comparación de esfuerzo de control. Meta-control
+(arc_v3_meta) logra el menor esfuerzo (0.61), mientras PID tiene el
+mayor (2.40) por acción integral agresiva.</em></p>
+<h4 id="análisis-radar-multi-métrica">6.9.5 Análisis Radar
+Multi-Métrica</h4>
+<figure>
+<img src="../figures_controllers/fig_controller_radar.png"
+alt="Radar Chart - Top 5 Controllers" />
+<figcaption aria-hidden="true">Radar Chart - Top 5
+Controllers</figcaption>
+</figure>
+<p><em>Figura 9: Comparación multi-dimensional de los top 5
+controladores. ARC Robust y ARC Ultimate alcanzan valores casi óptimos
+en las cuatro dimensiones.</em></p>
 <hr />
 <h2 id="discusión">7. Discusión</h2>
 <h3 id="interpretación">7.1 Interpretación</h3>
@@ -1836,9 +1924,133 @@ alt="Mapa de calor del Esfuerzo de Control a través de 15 controladores y 10 es
 <figcaption aria-hidden="true">Mapa de calor del Esfuerzo de Control a
 través de 15 controladores y 10 escenarios</figcaption>
 </figure>
-<p><em>ControlEffort agregado como promedio sobre 20 seeds para cada par
+<h2
+id="controleffort-agregado-como-promedio-sobre-20-seeds-para-cada-par-controladorescenario-datos-outputs_finalmetrics.csv."><em>ControlEffort
+agregado como promedio sobre 20 seeds para cada par
 controlador×escenario (datos:
-<code>outputs_final/metrics.csv</code>).</em></p>
+<code>outputs_final/metrics.csv</code>).</em></h2>
+<h3 id="figura-s7-mapa-de-correlaciones">Figura S7: Mapa de
+correlaciones</h3>
+<figure>
+<img src="../analysis/correlation_combined.png"
+alt="Matriz de correlación de métricas" />
+<figcaption aria-hidden="true">Matriz de correlación de
+métricas</figcaption>
+</figure>
+<p><em>Mapa de correlación (Pearson) agregado sobre todos los
+escenarios. Colores más brillantes indican correlaciones positivas más
+fuertes.</em></p>
+<p><strong>Observaciones clave:</strong> 1. <strong>Rumiación vs
+Rendimiento:</strong> correlación negativa (<strong>r = -0.59</strong>),
+consistente con que la rumiación degrada el rendimiento promedio. 2.
+<strong>Recuperación vs Rumiación:</strong> correlación positiva
+(<strong>r = +0.44</strong>) entre RT y RI, apoyando H1. 3.
+<strong>Dominancia narrativa:</strong> NDR correlaciona fuertemente con
+RI, validando su uso como proxy de rumiación.</p>
+<hr />
+<h3 id="figura-s8-comparación-de-eficiencia-convergencia-rápida">Figura
+S8: Comparación de eficiencia (convergencia rápida)</h3>
+<figure>
+<img src="../figures_L6/efficiency_comparison.png"
+alt="Comparación de velocidad de aprendizaje: ambos alcanzan 100% de éxito, pero ARC converge más rápido" />
+<figcaption aria-hidden="true">Comparación de velocidad de aprendizaje:
+ambos alcanzan 100% de éxito, pero ARC converge más rápido</figcaption>
+</figure>
+<p><em>Comparación en GridWorld y StochasticGridWorld. Ambos agentes
+alcanzan 100% de éxito, pero ARC converge antes (mayor recompensa
+temprana), indicando mayor eficiencia de aprendizaje.</em></p>
+<hr />
+<h3 id="figura-s9-análisis-de-dificultad-por-escenario">Figura S9:
+Análisis de dificultad por escenario</h3>
+<figure>
+<img src="../analysis/sensitivity_scenario.png"
+alt="Análisis de dificultad por escenario: rendimiento, índice de rumiación y tiempo de recuperación" />
+<figcaption aria-hidden="true">Análisis de dificultad por escenario:
+rendimiento, índice de rumiación y tiempo de recuperación</figcaption>
+</figure>
+<p><em>Análisis por escenario (solo ARC): rendimiento, rumiación y
+recuperación varían por tipo de estresor; adversarial coupling y
+sustained contradiction figuran entre las condiciones más
+difíciles.</em></p>
+<hr />
+<h3 id="figura-s10-sensibilidad-de-varianza">Figura S10: Sensibilidad de
+varianza</h3>
+<figure>
+<img src="../analysis/sensitivity_variance.png"
+alt="Análisis de varianza: distribución de rendimiento a través de controladores y escenarios" />
+<figcaption aria-hidden="true">Análisis de varianza: distribución de
+rendimiento a través de controladores y escenarios</figcaption>
+</figure>
+<p><em>Análisis de varianza sobre seeds. Menor varianza indica
+comportamiento más confiable; los controladores ARC tienden a exhibir
+distribuciones más ajustadas que las líneas base.</em></p>
+<hr />
+<h3 id="figura-s11-correlaciones-de-métricas-l1">Figura S11:
+Correlaciones de métricas (L1)</h3>
+<figure>
+<img src="../analysis/correlation_L1.png"
+alt="Correlaciones de métricas - L1" />
+<figcaption aria-hidden="true">Correlaciones de métricas -
+L1</figcaption>
+</figure>
+<p><em>Mapa de correlación para corridas de L1 únicamente (línea de
+estabilidad).</em></p>
+<hr />
+<h3 id="figura-s12-correlaciones-de-métricas-l2">Figura S12:
+Correlaciones de métricas (L2)</h3>
+<figure>
+<img src="../analysis/correlation_L2.png"
+alt="Correlaciones de métricas - L2" />
+<figcaption aria-hidden="true">Correlaciones de métricas -
+L2</figcaption>
+</figure>
+<p><em>Mapa de correlación para corridas de L2 únicamente (línea de
+memoria y aprendizaje continuo).</em></p>
+<hr />
+<h3 id="figura-s13-correlaciones-de-métricas-l3">Figura S13:
+Correlaciones de métricas (L3)</h3>
+<figure>
+<img src="../analysis/correlation_L3.png"
+alt="Correlaciones de métricas - L3" />
+<figcaption aria-hidden="true">Correlaciones de métricas -
+L3</figcaption>
+</figure>
+<p><em>Mapa de correlación para corridas de L3 únicamente (línea de
+estrés anti-rumiación).</em></p>
+<hr />
+<h3 id="figura-s14-correlaciones-de-métricas-l4">Figura S14:
+Correlaciones de métricas (L4)</h3>
+<figure>
+<img src="../analysis/correlation_L4.png"
+alt="Correlaciones de métricas - L4" />
+<figcaption aria-hidden="true">Correlaciones de métricas -
+L4</figcaption>
+</figure>
+<p><em>Mapa de correlación para corridas de L4 únicamente (línea de
+eficiencia de meta-control).</em></p>
+<hr />
+<h3 id="figura-s15-correlaciones-de-métricas-l4-meta-control">Figura
+S15: Correlaciones de métricas (L4 Meta-Control)</h3>
+<figure>
+<img src="../analysis/correlation_L4_meta.png"
+alt="Correlaciones de métricas - L4 Meta" />
+<figcaption aria-hidden="true">Correlaciones de métricas - L4
+Meta</figcaption>
+</figure>
+<p><em>Mapa de correlación para corridas enfocadas en meta-control
+(L4_meta).</em></p>
+<hr />
+<h3 id="figura-s16-correlaciones-de-métricas-l5">Figura S16:
+Correlaciones de métricas (L5)</h3>
+<figure>
+<img src="../analysis/correlation_L5.png"
+alt="Correlaciones de métricas - L5" />
+<figcaption aria-hidden="true">Correlaciones de métricas -
+L5</figcaption>
+</figure>
+<p><em>Mapa de correlación para corridas de L5 únicamente (línea de
+seguridad adversarial).</em></p>
+<hr />
 <h2 id="apéndice-g-resultados-detallados-del-benchmark">Apéndice G:
 Resultados Detallados del Benchmark</h2>
 <p>Este apéndice proporciona los datos completos de rendimiento para las

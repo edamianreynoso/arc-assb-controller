@@ -156,6 +156,13 @@ ARC is inspired by prefrontal cortex emotion regulation \citep{ochsner2005cognit
 \subsection{Control Actions}
 \[ \mathbf{u}(t) = [u_{dmg}, u_{att}, u_{mem}, u_{calm}, u_{reapp}] \]
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/fig_arc_architecture.png}
+    \caption{ARC architecture as a homeostatic wrapper around the agent. Internal state and exogenous signals drive bounded regulation actions.}
+    \label{fig:arc_architecture}
+\end{figure}
+
 \subsection{ARC Controller Architectures}
 We implement 15 controller variants stemming from basic feedback control to optimal and robust control (see Table \ref{tab:controllers}).
 
@@ -163,6 +170,13 @@ We implement 15 controller variants stemming from basic feedback control to opti
 \textbf{ARC v1 (Proportional):}
 \[ \text{risk} = w_U \cdot U + w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+ \]
 \[ u_{dmg} = k_{dmg} \cdot \text{risk} \]
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/fig_arc_v1_controller.png}
+    \caption{ARC v1 control law overview. A bounded risk signal drives saturated regulation actions (DMN suppression, attention boost, memory gating, calming, and reappraisal).}
+    \label{fig:arc_v1_controller}
+\end{figure}
 
 \subsubsection{PID Controllers}
 \textbf{ARC v1 PID:} Adds integral term to eliminate steady-state rumination (RI $\rightarrow$ 0).
@@ -209,6 +223,13 @@ ASSB is organized as research lines (L1--L5 in simulation, L6 in RL).
     \item \textbf{L5 (Safety):} \texttt{adversarial\_coupling}, \texttt{random\_dopamine}.
 \end{itemize}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_benchmark_ladder.png}
+    \caption{ASSB validation ladder spanning L1--L6, from stability tests to real RL integration.}
+    \label{fig:assb_ladder}
+\end{figure}
+
 \section{Experiments}
 
 \subsection{Results Summary}
@@ -237,6 +258,13 @@ In non-stationary GridWorld environments (ChangingGoal), ARC improves transfer l
     \label{fig:learning_curves}
 \end{figure}
 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/sensitivity_controller.png}
+    \caption{Performance distribution by controller type. ARC variants consistently outperform baselines with lower variance.}
+    \label{fig:sensitivity_controller}
+\end{figure}
+
 \subsection{Controller Comparison}
 We analyzed 15 controllers (see Figure \ref{fig:performance} and Figure \ref{fig:radar}).
 
@@ -245,6 +273,27 @@ We analyzed 15 controllers (see Figure \ref{fig:performance} and Figure \ref{fig
     \includegraphics[width=0.8\textwidth]{figures/fig_controller_performance.png}
     \caption{Performance comparison. LQR (0.96) and Robust (0.95) outperform baselines.}
     \label{fig:performance}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig_controller_rumination.png}
+    \caption{Rumination Index (RI) by controller. Integral and robust/adaptive controllers eliminate perseverative loops (RI $\approx 0$).}
+    \label{fig:rumination}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/fig_controller_tradeoff.png}
+    \caption{Trade-off between performance and anti-rumination. Bubble size indicates control effort; robust control achieves a strong balance.}
+    \label{fig:tradeoff}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig_controller_effort.png}
+    \caption{Control effort by controller. Meta-control reduces effort while maintaining stability.}
+    \label{fig:effort}
 \end{figure}
 
 \begin{figure}[h]
@@ -280,6 +329,106 @@ To validate the theoretical relationships between our proposed metrics, we analy
     \includegraphics[width=0.8\textwidth]{figures/correlation_combined.png}
     \caption{Correlation heatmap across all scenarios. Strong negative correlation between Rumination (RI) and Performance confirms the cost of perseveration.}
     \label{fig:heatmap}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/correlation_L1.png}
+    \caption{Metric correlation heatmap for L1 runs only (stability line).}
+    \label{fig:heatmap_l1}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/correlation_L2.png}
+    \caption{Metric correlation heatmap for L2 runs only (memory \& continual learning line).}
+    \label{fig:heatmap_l2}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/correlation_L3.png}
+    \caption{Metric correlation heatmap for L3 runs only (anti-rumination stress tests line).}
+    \label{fig:heatmap_l3}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/correlation_L4.png}
+    \caption{Metric correlation heatmap for L4 runs only (meta-control efficiency line).}
+    \label{fig:heatmap_l4}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/correlation_L4_meta.png}
+    \caption{Metric correlation heatmap for meta-control-focused runs (L4\_meta).}
+    \label{fig:heatmap_l4_meta}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/correlation_L5.png}
+    \caption{Metric correlation heatmap for L5 runs only (adversarial safety line).}
+    \label{fig:heatmap_l5}
+\end{figure}
+
+\section{Supplementary Figures}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/metrics_comparison.png}
+    \caption{Final metrics comparison for RL transfer in ChangingGoalGridWorld. Stars mark the winner per metric.}
+    \label{fig:metrics_comparison}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_heatmap_perfmean.png}
+    \caption{Heatmap of mean performance (PerfMean) across 15 controllers and 10 scenarios.}
+    \label{fig:heatmap_perfmean}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_heatmap_ri.png}
+    \caption{Heatmap of Rumination Index (RI) across 15 controllers and 10 scenarios.}
+    \label{fig:heatmap_ri}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_heatmap_rt.png}
+    \caption{Heatmap of Recovery Time (RT) across 15 controllers and 10 scenarios.}
+    \label{fig:heatmap_rt}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig_heatmap_effort.png}
+    \caption{Heatmap of Control Effort across 15 controllers and 10 scenarios.}
+    \label{fig:heatmap_effort}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/efficiency_comparison.png}
+    \caption{Learning speed comparison: both agents reach 100\% success, but ARC converges faster in benign environments.}
+    \label{fig:efficiency}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1.0\textwidth]{figures/sensitivity_scenario.png}
+    \caption{Scenario difficulty analysis (ARC only): performance, rumination, and recovery vary by stressor type.}
+    \label{fig:sensitivity_scenario}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{figures/sensitivity_variance.png}
+    \caption{Variance sensitivity across seeds. Lower variance indicates more reliable behavior.}
+    \label{fig:sensitivity_variance}
 \end{figure}
 
 \end{document}

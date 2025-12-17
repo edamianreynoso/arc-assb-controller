@@ -155,6 +155,10 @@ Implementamos 15 variantes de controladores que abarcan teoría de control clás
 $$\text{risk} = w_U \cdot U + w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+$$
 $$u_{dmg} = k_{dmg} \cdot \text{risk}$$
 
+![Diagrama del controlador ARC v1 (proporcional): cálculo de riesgo y acciones de control acotadas usadas por el controlador base ARC.](../figures_controllers/fig_arc_v1_controller.png)
+
+*Figura 1: Resumen de la ley de control ARC v1. Una señal de riesgo acotada impulsa acciones de regulación saturadas (supresión DMN, atención, gating de memoria, calma y reevaluación).*
+
 #### 4.3.2 Controladores PID
 
 **ARC v1 PID:** Añade términos integral y derivativo:
@@ -312,6 +316,10 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 
 **Hallazgo clave:** ARC elimina la rumiación (RI=0) mientras logra un 97% de rendimiento promedio.
 
+![Resumen de ablación: rendimiento, índice de rumiación y tiempo de recuperación para variantes ARC](../figures_L6/ablation_summary.png)
+
+*Figura 2: Resumen de ablación (`reward_flip`, L1): remover la supresión DMN (`u_dmg`) causa rumiación y no-recuperación, indicando que el control DMN es necesario para estabilidad bajo shocks de valor.*
+
 ### 6.3 L2: Memoria y Aprendizaje Continuo (Simulación)
 
 **Hipótesis (H2):** Soportada.
@@ -366,9 +374,17 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 
 **Hallazgo clave:** En entornos no estacionarios, el gating de memoria y exploración adaptativa de ARC mejoran significativamente el aprendizaje por transferencia.
 
+![Curvas de aprendizaje: ARC vs línea base en 3 entornos GridWorld (recompensa por episodio)](../figures_L6/learning_curves.png)
+
+*Figura 3: Curvas de aprendizaje comparando Q-learning modulado por ARC (cyan) vs Q-learning línea base (naranja) en GridWorld, StochasticGridWorld y ChangingGoalGridWorld. Las regiones sombreadas muestran ±1 std sobre 20 seeds.*
+
 ### 6.8 Análisis Estadístico
 
 *Todas las comparaciones son estadísticamente significativas (p < 0.001). Los valores de d de Cohen indican tamaños del efecto extremadamente grandes (d > 0.8 se considera "grande"). El valor extremadamente alto para RI (-589.7) refleja la eliminación casi determinista de la varianza de la rumiación por los controladores integrales.*
+
+![Comparación de rendimiento por tipo de controlador](../analysis/sensitivity_controller.png)
+
+*Figura 4: Distribución de rendimiento por tipo de controlador. Las variantes ARC (azul) superan consistentemente a las líneas base (rojo) con menor varianza.*
 
 ---
 
@@ -382,6 +398,36 @@ La Tabla 3 (en el texto completo inglés) resume los resultados de los 15 contro
 2.  **PID/LQI eliminan la rumiación** (RI=0).
 3.  **Meta-control es el más eficiente** (0.61 esfuerzo).
 4.  **H∞ Robusto logra el mejor equilibrio** (0.95 rendimiento, RI=0).
+
+#### 6.9.1 Comparación de Rendimiento
+
+![Comparación de rendimiento entre controladores](../figures_controllers/fig_controller_performance.png)
+
+*Figura 5: Comparación de rendimiento a través de 15 arquitecturas de control. LQR logra el mayor rendimiento (0.96), mientras que la línea base (no_control) falla catastróficamente (0.21).*
+
+#### 6.9.2 Análisis Anti-Rumiación
+
+![Índice de Rumiación por controlador](../figures_controllers/fig_controller_rumination.png)
+
+*Figura 6: Índice de Rumiación (RI) por controlador. Controladores con acción integral (PID/LQI) o tuning robusto/adaptativo logran RI ≈ 0, eliminando bucles perseverantes.*
+
+#### 6.9.3 Compromiso Rendimiento vs Anti-Rumiación
+
+![Análisis de trade-off](../figures_controllers/fig_controller_tradeoff.png)
+
+*Figura 7: Trade-off entre rendimiento y anti-rumiación. El tamaño de burbuja indica esfuerzo de control. H∞ Robusto logra un balance óptimo en la región superior-izquierda.*
+
+#### 6.9.4 Eficiencia de Control
+
+![Esfuerzo de control por controlador](../figures_controllers/fig_controller_effort.png)
+
+*Figura 8: Comparación de esfuerzo de control. Meta-control (arc_v3_meta) logra el menor esfuerzo (0.61), mientras PID tiene el mayor (2.40) por acción integral agresiva.*
+
+#### 6.9.5 Análisis Radar Multi-Métrica
+
+![Radar Chart - Top 5 Controllers](../figures_controllers/fig_controller_radar.png)
+
+*Figura 9: Comparación multi-dimensional de los top 5 controladores. ARC Robust y ARC Ultimate alcanzan valores casi óptimos en las cuatro dimensiones.*
 
 ---
 
@@ -762,8 +808,92 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 ![Mapa de calor del Esfuerzo de Control a través de 15 controladores y 10 escenarios](../figures_controllers/fig_heatmap_effort.png)
 
 *ControlEffort agregado como promedio sobre 20 seeds para cada par controlador×escenario (datos: `outputs_final/metrics.csv`).*
+---
 
+### Figura S7: Mapa de correlaciones
 
+![Matriz de correlación de métricas](../analysis/correlation_combined.png)
+
+*Mapa de correlación (Pearson) agregado sobre todos los escenarios. Colores más brillantes indican correlaciones positivas más fuertes.*
+
+**Observaciones clave:**
+1. **Rumiación vs Rendimiento:** correlación negativa (**r = -0.59**), consistente con que la rumiación degrada el rendimiento promedio.
+2. **Recuperación vs Rumiación:** correlación positiva (**r = +0.44**) entre RT y RI, apoyando H1.
+3. **Dominancia narrativa:** NDR correlaciona fuertemente con RI, validando su uso como proxy de rumiación.
+
+---
+
+### Figura S8: Comparación de eficiencia (convergencia rápida)
+
+![Comparación de velocidad de aprendizaje: ambos alcanzan 100% de éxito, pero ARC converge más rápido](../figures_L6/efficiency_comparison.png)
+
+*Comparación en GridWorld y StochasticGridWorld. Ambos agentes alcanzan 100% de éxito, pero ARC converge antes (mayor recompensa temprana), indicando mayor eficiencia de aprendizaje.*
+
+---
+
+### Figura S9: Análisis de dificultad por escenario
+
+![Análisis de dificultad por escenario: rendimiento, índice de rumiación y tiempo de recuperación](../analysis/sensitivity_scenario.png)
+
+*Análisis por escenario (solo ARC): rendimiento, rumiación y recuperación varían por tipo de estresor; adversarial coupling y sustained contradiction figuran entre las condiciones más difíciles.*
+
+---
+
+### Figura S10: Sensibilidad de varianza
+
+![Análisis de varianza: distribución de rendimiento a través de controladores y escenarios](../analysis/sensitivity_variance.png)
+
+*Análisis de varianza sobre seeds. Menor varianza indica comportamiento más confiable; los controladores ARC tienden a exhibir distribuciones más ajustadas que las líneas base.*
+
+---
+
+### Figura S11: Correlaciones de métricas (L1)
+
+![Correlaciones de métricas - L1](../analysis/correlation_L1.png)
+
+*Mapa de correlación para corridas de L1 únicamente (línea de estabilidad).*
+
+---
+
+### Figura S12: Correlaciones de métricas (L2)
+
+![Correlaciones de métricas - L2](../analysis/correlation_L2.png)
+
+*Mapa de correlación para corridas de L2 únicamente (línea de memoria y aprendizaje continuo).*
+
+---
+
+### Figura S13: Correlaciones de métricas (L3)
+
+![Correlaciones de métricas - L3](../analysis/correlation_L3.png)
+
+*Mapa de correlación para corridas de L3 únicamente (línea de estrés anti-rumiación).*
+
+---
+
+### Figura S14: Correlaciones de métricas (L4)
+
+![Correlaciones de métricas - L4](../analysis/correlation_L4.png)
+
+*Mapa de correlación para corridas de L4 únicamente (línea de eficiencia de meta-control).*
+
+---
+
+### Figura S15: Correlaciones de métricas (L4 Meta-Control)
+
+![Correlaciones de métricas - L4 Meta](../analysis/correlation_L4_meta.png)
+
+*Mapa de correlación para corridas enfocadas en meta-control (L4\_meta).*
+
+---
+
+### Figura S16: Correlaciones de métricas (L5)
+
+![Correlaciones de métricas - L5](../analysis/correlation_L5.png)
+
+*Mapa de correlación para corridas de L5 únicamente (línea de seguridad adversarial).*
+
+---
 
 ## Apéndice G: Resultados Detallados del Benchmark
 

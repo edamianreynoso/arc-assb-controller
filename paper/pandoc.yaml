@@ -1,0 +1,6 @@
+from: markdown+smart
+standalone: true
+toc: false
+number-sections: false
+metadata:
+  title: ""
