@@ -3369,39 +3369,5 @@ Safety</h3>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2
-id="appendix-h-scalability-to-high-dimensional-environments-atari">Appendix
-H: Scalability to High-Dimensional Environments (Atari)</h2>
-<p>To address the limitation regarding low-dimensional state spaces
-(Section 7.4), we conducted preliminary validation of ARC on the Atari
-<strong>PongNoFrameskip-v4</strong> environment using a PPO agent
-wrapper.</p>
-<h3 id="h.1-setup">H.1 Setup</h3>
-<ul>
-<li><strong>Agent:</strong> PPO (Proximal Policy Optimization) with CNN
-policy.</li>
-<li><strong>ARC Wrapper:</strong> The same 10-dimensional ARC
-state-space was mapped from the PPO’s internal value estimate and
-entropy (Prediction Error <span class="math inline">\(\approx\)</span>
-TD Error, Uncertainty <span class="math inline">\(\approx\)</span>
-Policy Entropy).</li>
-<li><strong>Control:</strong> ARC modulated the learning rate and
-clipping parameter <span class="math inline">\(\epsilon\)</span>.</li>
-</ul>
-<h3 id="h.2-preliminary-results">H.2 Preliminary Results</h3>
-<figure>
-<img src="../figures_controllers/fig_atari_pong.png"
-alt="ARC Dynamics in Atari Pong: (Top) Reward accumulation, (Bottom) Internal ARC variables (Arousal, Risk, Control Action) showing homeostatic regulation during gameplay." />
-<figcaption aria-hidden="true">ARC Dynamics in Atari Pong: (Top) Reward
-accumulation, (Bottom) Internal ARC variables (Arousal, Risk, Control
-Action) showing homeostatic regulation during gameplay.</figcaption>
-</figure>
-<p>The agent successfully learned to play Pong while ARC maintained
-internal stability. Notably, high “risk” spikes (triggered by ball
-misses) correctly triggered “arousal damping” interventions, stabilizing
-the learning process. This demonstrates that ARC’s low-dimensional
-control logic scales to high-dimensional visual environments without
-modification to the core controller.</p>
 </body>
 </html>
