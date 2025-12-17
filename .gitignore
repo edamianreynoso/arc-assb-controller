@@ -36,3 +36,19 @@ release_assets/
 
 # Misc
 arc-assb-public/
+log_output.txt
+modified_files.txt
+files_today.txt
+
+# LaTeX (paper build artifacts)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.out
+*.synctex.gz
+*.toc
+paper_latex/*.pdf

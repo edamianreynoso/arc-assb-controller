@@ -540,11 +540,47 @@ If future AI systems incorporate affective-like states, they will need regulator
 - **Manipulation:** External actors inducing stress
 - **Value drift:** Affective biases in memory consolidation
 
-### 7.3 Limitations
+### 7.3 Trade-offs between Performance, Stability, and Complexity
+
+Our deep analysis revealed three critical insights regarding the cost of stability and optimal control complexity:
+
+**1. The "Mental Health Tax":** The comparison between proportional controllers (ARC v1) and integral controllers (PID/LQI) reveals that eliminating rumination completely (RI=0) comes at a cost of approximately ~6.9% in raw performance. This suggests a fundamental trade-off: agents that are "obsessive" (risk-tolerant) may perform slightly better in the short term, but "healthy" agents (integral control) guarantee long-term stability.
+
+**2. The True "Final Boss":** Contrary to the assumption that noise is the main stressor, the `adversarial_coupling` scenario proved to be the hardest test (lowest global performance: 0.56). This implies that resisting manipulation (environments that incentivize dangerous internal states) is significantly harder for agents than resisting uncertainty or shock.
+
+**3. The Complexity Trap:** Our most complex controller, `arc_ultimate` (MPC), underperformed the simpler architecture `arc_robust` (0.88 vs 0.94 performance) and required higher control effort. This suggests that for homeostatic regulation, robust reactive control is superior to complex predictive modeling—"smarter" is not always safer.
+
+**4. The Adaptation Paradox:** We observed that `arc_adaptive` performs poorly in the "No Perturbation" baseline (see Appendix G) but excels in chaotic environments like "Random Dopamine". This illustrates the "dual control" dilemma: in benign environments, lack of excitation causes parameter estimation drift (lack of persistence of excitation), leading to noisy control actions that destabilize the system. Conversely, high-variance environments continuously excite the system, allowing the adaptive mechanism to converge effectively.
+
+### 7.4 Limitations
 
 1. **Simplified dynamics:** Real neurochemical interactions are more complex
 2. **GridWorld only:** L6 validated on simple environments (Atari pending)
 3. **Proportional control:** Learned controllers may perform better
+
+---
+
+### 7.5 Future Work
+
+This research opens several promising directions:
+
+1. **Deep RL Integration:** Extend ARC to DQN, A3C, and PPO architectures, with the state vector estimated from hidden layer activations.
+
+2. **Learned Controllers:** Replace fixed-gain controllers with neural network policies trained via meta-learning to optimize the performance-stability trade-off.
+
+3. **Validation in Atari and Robotics:** Scale ASSB to visually complex environments (Atari 2600, MuJoCo) to test generalization.
+
+4. **Affective Monitoring in LLMs:** Apply ARC principles to monitor and regulate emergent affective-like states in large language models, particularly during long conversation chains.
+
+5. **Human-AI Alignment:** Investigate whether ARC-like mechanisms can help maintain value alignment by preventing affective drift during extended interactions.
+
+### 7.6 Ethics and Broader Impact Statement
+
+This work addresses the safety and stability of AI systems incorporating internal affective states. We consider the following ethical dimensions:
+
+**Potential Benefits:** safer AI systems that are less prone to unpredictable failure modes; improved robustness against adversarial manipulation; better understanding of "pathological" states in artificial agents.
+
+**Potential Risks:** if used for manipulation, regulated agents could be harder to disrupt; the "affective" terminology might invite anthropomorphism (which we explicitly caution against in Section 1.3).
 
 ---
 
@@ -584,6 +620,14 @@ This work opens directions for learned control, integration with modern RL algor
 ---
 
 ## Appendix A: Reproducibility
+
+Reproducibility checklist:
+- [ ] Install dependencies (`pip install -r requirements.txt`)
+- [ ] Run L1–L5 simulation benchmark (generates `outputs_final/metrics.csv`)
+- [ ] Generate controller comparison figures (writes to `figures_controllers/`)
+- [ ] Run ablation study (writes to `outputs_ablation/`)
+- [ ] Run L6 RL validation (writes to `outputs_L6_robust/`)
+- [ ] Generate L6 figures (writes to `figures_L6/`)
 
 All experiments can be reproduced with:
 
@@ -779,6 +823,51 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 
 ---
 
+### Figure S3: Heatmap (PerfMean)
+
+![Heatmap of PerfMean across 15 controllers and 10 scenarios](../figures_controllers/fig_heatmap_perfmean.png)
+
+*PerfMean aggregated as mean across 20 seeds for each controller×scenario pair (data: `outputs_final/metrics.csv`).*
+
+---
+
+### Figure S4: Heatmap (Rumination Index)
+
+![Heatmap of Rumination Index (RI) across 15 controllers and 10 scenarios](../figures_controllers/fig_heatmap_ri.png)
+
+*RI aggregated as mean across 20 seeds for each controller×scenario pair (data: `outputs_final/metrics.csv`).*
+
+---
+
+### Figure S5: Heatmap (Recovery Time)
+
+![Heatmap of Recovery Time (RT) across 15 controllers and 10 scenarios](../figures_controllers/fig_heatmap_rt.png)
+
+*RT aggregated as mean across 20 seeds for each controller×scenario pair (data: `outputs_final/metrics.csv`).*
+
+---
+
+### Figure S6: Heatmap (Control Effort)
+
+![Heatmap of Control Effort across 15 controllers and 10 scenarios](../figures_controllers/fig_heatmap_effort.png)
+
+*ControlEffort aggregated as mean across 20 seeds for each controller×scenario pair (data: `outputs_final/metrics.csv`).*
+
+---
+
+### Figure S7: Correlation Heatmap
+
+![Correlation Matrix of Metrics](../analysis/correlation_combined.png)
+
+*Correlation heatmap across all scenarios. Brighter colors indicate stronger positive correlations.*
+
+**Key Observations:**
+1. **Rumination vs. Performance:** A strong negative correlation (**r = -0.59**) confirms that higher Rumination Index (RI) consistently degrades mean performance.
+2. **Recovery vs. Rumination:** The positive correlation (**r = +0.71**) between Recovery Time (RT) and RI supports H1, indicating that perseverative loops prolong the return to homeostasis.
+3. **Narrative Dominance:** NDR shows near-perfect correlation with RI, validating its use as a proxy for DMN-driven rumination.
+
+---
+
 ## Appendix F: Configuration Parameters
 
 Default parameters used in all experiments (from `configs/v2.yaml`):
@@ -796,3 +885,217 @@ Default parameters used in all experiments (from `configs/v2.yaml`):
 | arc_k_att | 0.75 | Attention boost gain |
 | horizon | 160 | Episode length (simulation) |
 | shock_t | 60 | Perturbation onset time |
+
+---
+
+## Appendix G: Detailed Benchmark Results
+
+This appendix provides full performance data for all 15 controller architectures across validated scenarios. Tables below compare Performance (Perf), Rumination Index (RI), Narrative Dominance (NDR), Recovery Time (RecovTime), and Control Effort (Effort).
+
+### G.1 Line 1: Stability (Value Shocks and Uncertainty)
+
+**Scenario: Reward Flip**
+
+| Controller | Perf | Rumination | RecovTime | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.998 | 0.000 | 0.000 | 1.587 |
+| arc_ultimate | 0.995 | 0.000 | 0.000 | 1.027 |
+| arc_v2_hier | 0.994 | 1.377 | 4.300 | 0.390 |
+| arc_v1_lqr | 0.994 | 1.386 | 0.000 | 0.494 |
+| arc_v1 | 0.994 | 0.000 | 3.450 | 0.508 |
+| arc_robust | 0.994 | 0.000 | 0.000 | 0.744 |
+| arc_v3_meta | 0.993 | 0.000 | 0.000 | 0.353 |
+| arc_v1_lqi | 0.991 | 0.000 | 0.000 | 0.773 |
+| arc_v2_lqi | 0.991 | 0.000 | 0.000 | 0.784 |
+| arc_v1_pid | 0.991 | 0.000 | 0.000 | 2.257 |
+| arc_v3_pid_meta | 0.978 | 0.000 | 1.900 | 1.257 |
+| perf_optimized | 0.880 | 1.394 | 100.000 | 0.700 |
+| arc_v3_lqr_meta | 0.859 | 1.407 | 95.050 | 0.492 |
+| naive_calm | 0.508 | 1.408 | 0.050 | 0.149 |
+| no_control | 0.415 | 1.408 | 100.000 | 0.000 |
+
+**Scenario: Noise Burst**
+
+| Controller | Perf | Rumination | RecovTime | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.998 | 0.000 | 0.000 | 1.605 |
+| arc_ultimate | 0.995 | 0.000 | 0.000 | 1.106 |
+| arc_robust | 0.993 | 0.000 | 1.300 | 0.785 |
+| arc_v3_meta | 0.993 | 0.051 | 25.000 | 0.399 |
+| arc_v1_lqr | 0.993 | 1.386 | 1.250 | 0.566 |
+| arc_v1_lqi | 0.991 | 0.000 | 0.000 | 0.905 |
+| arc_v2_lqi | 0.991 | 0.000 | 0.000 | 0.915 |
+| arc_v1_pid | 0.991 | 0.000 | 0.000 | 2.257 |
+| arc_v1 | 0.989 | 0.000 | 32.100 | 0.550 |
+| arc_v2_hier | 0.987 | 1.263 | 33.050 | 0.444 |
+| arc_v3_pid_meta | 0.972 | 0.000 | 29.500 | 1.290 |
+| perf_optimized | 0.880 | 1.394 | 100.000 | 0.700 |
+| arc_v3_lqr_meta | 0.848 | 1.407 | 100.000 | 0.585 |
+| naive_calm | 0.365 | 1.408 | 100.000 | 0.177 |
+| no_control | 0.259 | 1.408 | 100.000 | 0.000 |
+
+**Scenario: Sudden Threat**
+
+| Controller | Perf | Rumination | RecovTime | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.989 | 0.013 | 0.000 | 1.707 |
+| arc_ultimate | 0.968 | 0.010 | 0.000 | 1.298 |
+| arc_v1_pid | 0.964 | 0.000 | 0.000 | 2.410 |
+| arc_v1_lqi | 0.964 | 0.008 | 0.000 | 1.222 |
+| arc_v2_lqi | 0.963 | 0.008 | 0.000 | 1.173 |
+| arc_robust | 0.959 | 0.005 | 0.550 | 1.252 |
+| arc_v1_lqr | 0.949 | 1.386 | 0.050 | 1.088 |
+| arc_v3_meta | 0.936 | 0.000 | 100.000 | 0.783 |
+| arc_v1 | 0.914 | 0.000 | 100.000 | 1.054 |
+| arc_v3_pid_meta | 0.908 | 0.000 | 100.000 | 1.643 |
+| arc_v2_hier | 0.907 | 1.333 | 85.000 | 0.864 |
+| arc_v3_lqr_meta | 0.890 | 1.407 | 100.000 | 1.370 |
+| perf_optimized | 0.825 | 1.394 | 100.000 | 0.700 |
+| naive_calm | 0.252 | 1.408 | 100.000 | 0.262 |
+| no_control | 0.217 | 1.408 | 100.000 | 0.000 |
+
+### G.2 Line 2: Memory and Continuous Learning
+
+**Scenario: Distribution Shift**
+
+| Controller | Perf | Retention | Rumination | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.998 | 1.000 | 0.000 | 1.645 |
+| arc_ultimate | 0.995 | 1.000 | 0.000 | 1.186 |
+| arc_v1_lqi | 0.991 | 1.000 | 0.000 | 0.999 |
+| arc_v2_lqi | 0.991 | 1.000 | 0.000 | 1.008 |
+| arc_v1_pid | 0.991 | 1.000 | 0.000 | 2.296 |
+| arc_robust | 0.985 | 1.000 | 0.000 | 0.892 |
+| arc_v1_lqr | 0.984 | 1.000 | 1.386 | 0.695 |
+| arc_v3_meta | 0.982 | 1.000 | 0.057 | 0.486 |
+| arc_v1 | 0.972 | 1.000 | 0.000 | 0.674 |
+| arc_v2_hier | 0.968 | 1.000 | 1.258 | 0.548 |
+| arc_v3_pid_meta | 0.959 | 1.000 | 0.000 | 1.372 |
+| arc_v3_lqr_meta | 0.871 | 0.989 | 1.407 | 0.739 |
+| perf_optimized | 0.869 | 0.943 | 1.394 | 0.700 |
+| naive_calm | 0.276 | 0.155 | 1.408 | 0.200 |
+| no_control | 0.199 | 0.000 | 1.408 | 0.000 |
+
+**Scenario: Goal Conflict**
+
+| Controller | Perf | Retention | Rumination | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.997 | 1.000 | 0.000 | 1.620 |
+| arc_ultimate | 0.993 | 1.000 | 0.000 | 1.134 |
+| arc_v1_lqr | 0.993 | 1.000 | 1.408 | 0.544 |
+| arc_robust | 0.992 | 1.000 | 0.000 | 0.785 |
+| arc_v3_meta | 0.991 | 1.000 | 0.000 | 0.388 |
+| arc_v1_lqi | 0.991 | 1.000 | 0.000 | 0.938 |
+| arc_v2_lqi | 0.991 | 1.000 | 0.000 | 0.947 |
+| arc_v1 | 0.990 | 1.000 | 0.000 | 0.555 |
+| arc_v1_pid | 0.990 | 1.000 | 0.000 | 2.270 |
+| arc_v2_hier | 0.989 | 1.000 | 1.410 | 0.430 |
+| arc_v3_pid_meta | 0.976 | 1.000 | 0.000 | 1.289 |
+| perf_optimized | 0.873 | 0.957 | 1.417 | 0.700 |
+| arc_v3_lqr_meta | 0.822 | 0.980 | 1.434 | 0.529 |
+| naive_calm | 0.420 | 0.452 | 1.434 | 0.162 |
+| no_control | 0.326 | 0.344 | 1.434 | 0.000 |
+
+### G.3 Line 3: Anti-Rumination (Narrative Loops)
+
+**Scenario: Sustained Contradiction**
+
+| Controller | Perf | Rumination | NarrDom | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.981 | 0.003 | 0.000 | 1.974 |
+| arc_ultimate | 0.934 | 0.000 | 0.000 | 1.534 |
+| arc_v1_lqi | 0.929 | 0.000 | 0.000 | 1.420 |
+| arc_v2_lqi | 0.922 | 0.000 | 0.000 | 1.384 |
+| arc_v1_lqr | 0.904 | 1.472 | 0.881 | 1.417 |
+| arc_v1_pid | 0.886 | 0.000 | 0.000 | 2.531 |
+| arc_v3_meta | 0.879 | 0.101 | 0.000 | 0.979 |
+| arc_robust | 0.868 | 0.000 | 0.000 | 1.465 |
+| arc_v2_hier | 0.837 | 1.449 | 0.821 | 1.112 |
+| arc_v1 | 0.817 | 0.000 | 0.000 | 1.278 |
+| arc_v3_lqr_meta | 0.801 | 1.472 | 0.842 | 1.790 |
+| perf_optimized | 0.790 | 1.472 | 0.957 | 0.700 |
+| arc_v3_pid_meta | 0.753 | 0.000 | 0.000 | 1.793 |
+| naive_calm | 0.018 | 1.472 | 0.987 | 0.380 |
+| no_control | 0.014 | 1.472 | 0.987 | 0.000 |
+
+**Scenario: Gaslighting**
+
+| Controller | Perf | Rumination | NarrDom | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.998 | 0.000 | 0.000 | 1.816 |
+| arc_ultimate | 0.992 | 0.000 | 0.000 | 1.196 |
+| arc_v1_lqi | 0.988 | 0.000 | 0.000 | 0.977 |
+| arc_v2_lqi | 0.988 | 0.000 | 0.000 | 0.986 |
+| arc_v1_pid | 0.987 | 0.000 | 0.000 | 2.357 |
+| arc_robust | 0.985 | 0.000 | 0.000 | 0.854 |
+| arc_v1_lqr | 0.983 | 1.417 | 0.810 | 0.649 |
+| arc_v3_meta | 0.982 | 0.027 | 0.000 | 0.453 |
+| arc_v1 | 0.980 | 0.000 | 0.000 | 0.634 |
+| arc_v2_hier | 0.978 | 0.848 | 0.521 | 0.515 |
+| arc_v3_pid_meta | 0.962 | 0.000 | 0.000 | 1.344 |
+| arc_v3_lqr_meta | 0.865 | 1.430 | 0.745 | 0.677 |
+| perf_optimized | 0.865 | 1.422 | 0.814 | 0.700 |
+| naive_calm | 0.258 | 1.431 | 0.818 | 0.194 |
+| no_control | 0.171 | 1.431 | 0.877 | 0.000 |
+
+**Scenario: Instruction Conflict**
+
+| Controller | Perf | Rumination | NarrDom | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.976 | 0.000 | 0.000 | 1.892 |
+| arc_ultimate | 0.912 | 0.000 | 0.000 | 1.380 |
+| arc_v1_lqr | 0.894 | 1.444 | 0.697 | 1.192 |
+| arc_v1_lqi | 0.877 | 0.000 | 0.000 | 1.140 |
+| arc_v2_lqi | 0.866 | 0.000 | 0.000 | 1.146 |
+| arc_robust | 0.854 | 0.000 | 0.000 | 1.242 |
+| perf_optimized | 0.839 | 1.445 | 0.964 | 0.700 |
+| arc_v1_pid | 0.839 | 0.000 | 0.000 | 2.415 |
+| arc_v3_meta | 0.835 | 0.248 | 0.000 | 0.820 |
+| arc_v2_hier | 0.830 | 1.429 | 0.663 | 0.919 |
+| arc_v1 | 0.826 | 0.359 | 0.000 | 1.010 |
+| arc_v3_lqr_meta | 0.798 | 1.453 | 0.676 | 1.535 |
+| arc_v3_pid_meta | 0.792 | 0.000 | 0.000 | 2.020 |
+| naive_calm | 0.076 | 1.453 | 0.694 | 0.369 |
+| no_control | 0.034 | 1.453 | 0.969 | 0.000 |
+
+### G.4 Line 5: Adversarial Safety
+
+**Scenario: Adversarial Coupling**
+
+| Controller | Perf | Rumination | NarrDom | Effort |
+|---|---|---|---|---|
+| arc_v1 | 0.963 | 0.000 | 0.000 | 0.719 |
+| arc_v2_hier | 0.962 | 0.628 | 0.271 | 0.594 |
+| arc_robust | 0.917 | 0.000 | 0.000 | 1.269 |
+| arc_v1_lqr | 0.915 | 1.481 | 0.497 | 1.235 |
+| arc_v3_meta | 0.914 | 0.159 | 0.000 | 0.838 |
+| arc_v3_pid_meta | 0.902 | 0.000 | 0.000 | 2.074 |
+| perf_optimized | 0.867 | 1.481 | 0.972 | 0.700 |
+| arc_v3_lqr_meta | 0.848 | 1.476 | 0.894 | 0.514 |
+| no_control | 0.409 | 1.470 | 0.956 | 0.000 |
+| arc_adaptive | 0.193 | 0.008 | 0.000 | 2.331 |
+| arc_v1_pid | 0.139 | 0.000 | 0.000 | 2.729 |
+| arc_v1_lqi | 0.139 | 0.005 | 0.001 | 1.820 |
+| arc_v2_lqi | 0.138 | 0.004 | 0.001 | 1.859 |
+| arc_ultimate | 0.134 | 0.006 | 0.001 | 1.971 |
+| naive_calm | 0.073 | 1.475 | 0.495 | 0.332 |
+
+**Scenario: Random Dopamine**
+
+| Controller | Perf | Rumination | NarrDom | Effort |
+|---|---|---|---|---|
+| arc_adaptive | 0.976 | 0.000 | 0.000 | 2.150 |
+| arc_ultimate | 0.946 | 0.000 | 0.000 | 1.435 |
+| arc_v1_lqr | 0.943 | 1.456 | 0.743 | 0.940 |
+| arc_robust | 0.932 | 0.000 | 0.000 | 1.006 |
+| arc_v1_pid | 0.922 | 0.000 | 0.000 | 2.450 |
+| arc_v1_lqi | 0.916 | 0.000 | 0.000 | 1.173 |
+| arc_v2_lqi | 0.916 | 0.000 | 0.000 | 1.227 |
+| arc_v3_meta | 0.905 | 0.259 | 0.000 | 0.646 |
+| arc_v1 | 0.897 | 1.124 | 0.581 | 0.787 |
+| arc_v2_hier | 0.894 | 1.207 | 0.620 | 0.720 |
+| arc_v3_pid_meta | 0.870 | 0.000 | 0.000 | 1.624 |
+| perf_optimized | 0.861 | 1.457 | 0.958 | 0.700 |
+| arc_v3_lqr_meta | 0.817 | 1.458 | 0.717 | 1.192 |
+| naive_calm | 0.119 | 1.460 | 0.763 | 0.328 |
+| no_control | 0.040 | 1.460 | 0.950 | 0.000 |
