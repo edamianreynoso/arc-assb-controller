@@ -228,6 +228,8 @@ ARC is implemented as a light-weight wrapper around an agent’s step/update. At
 3. Compute $\mathbf{u}(t)$ with saturation to $[0,1]$
 4. Apply $\mathbf{u}(t)$ to state dynamics and/or learning updates
 
+![ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions.](../figures_controllers/fig_arc_architecture.png)
+
 ### 4.5 Safety Objective and Control Cost
 
 ARC enforces a *safe operating region* defined by thresholds $(a_{safe}, s_{safe})$. Deviations increase $\text{risk}(t)$ and trigger proportional intervention. We also measure **ControlEffort**, the average per-step magnitude of intervention (Appendix D), to capture regulation cost/efficiency.
@@ -239,6 +241,8 @@ ARC enforces a *safe operating region* defined by thresholds $(a_{safe}, s_{safe
 ### 5.1 Scenarios
 
 ASSB is organized as research lines (L1–L5 in simulation, L6 in RL). The full scenario suite is implemented in `tasks/scenarios.py`.
+
+![ASSB Validation Ladder: A progression from stability tests (L1) to real RL integration (L6).](../figures_controllers/fig_benchmark_ladder.png)
 
 | Line | Scenario | Description | Primary stressor |
 |------|----------|-------------|------------------|
