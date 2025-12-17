@@ -332,12 +332,12 @@ All code and data available at \url{https://github.com/edamianreynoso/arc-assb-c
 
 \section{Metric Correlations (Heatmap)}
 
-To validate the theoretical relationships between our proposed metrics, we analyzed the Pearson correlations across all experimental conditions.
+To validate the theoretical relationships between our proposed metrics, we analyzed Pearson correlations across all experimental runs. The combined heatmap is computed by concatenating run-level metrics CSVs from L1--L5 plus L4\_meta (see \texttt{experiments/analyze\_correlations.py}).
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/correlation_combined.png}
-    \caption{Correlation heatmap across all scenarios. Strong negative correlation between Rumination (RI) and Performance confirms the cost of perseveration.}
+    \caption{Correlation heatmap aggregated across all experimental runs (L1--L5 + L4\_meta). Key correlations include PerfMean $\leftrightarrow$ RI ($r=-0.59$), RT $\leftrightarrow$ RI ($r=+0.44$), and RI $\leftrightarrow$ NDR ($r=+0.92$).}
     \label{fig:heatmap}
 \end{figure}
 

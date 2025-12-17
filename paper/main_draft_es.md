@@ -817,12 +817,12 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 
 ![Matriz de correlación de métricas](../analysis/correlation_combined.png)
 
-*Mapa de correlación (Pearson) agregado sobre todos los escenarios. Colores más brillantes indican correlaciones positivas más fuertes.*
+*Mapa de correlación (Pearson) agregado sobre todas las corridas experimentales (L1–L5 + L4\_meta), calculado a partir de la concatenación de CSVs de métricas por corrida (ver `experiments/analyze_correlations.py`). Colores más brillantes indican correlaciones positivas más fuertes.*
 
 **Observaciones clave:**
 1. **Rumiación vs Rendimiento:** correlación negativa (**r = -0.59**), consistente con que mayor rumiación tiende a reducir el rendimiento promedio, aunque existen excepciones (p.ej., LQR) debido al término de capacidad modulado por narrativa.
 2. **Recuperación vs Rumiación:** correlación positiva (**r = +0.44**) entre RT y RI, apoyando H1.
-3. **Dominancia narrativa:** NDR correlaciona fuertemente con RI, validando su uso como proxy de rumiación.
+3. **Dominancia narrativa:** NDR correlaciona muy fuertemente con RI (**r ≈ +0.92**), apoyando su uso como proxy de rumiación.
 
 ---
 

@@ -27,6 +27,7 @@ def add_box(
     title: str,
     body: str,
     body_fontsize: int = 13,
+    pad_x: float = 0.018,
     facecolor: str = "#DFF7FA",
     edgecolor: str = "#0B7285",
     title_color: str = "#0B7285",
@@ -44,7 +45,6 @@ def add_box(
     )
     ax.add_patch(patch)
 
-    pad_x = 0.018
     title_text = ax.text(
         x + pad_x,
         y + h - 0.06,
@@ -56,6 +56,7 @@ def add_box(
         fontweight="bold",
         color=title_color,
         zorder=2,
+        clip_on=True,
     )
 
     body_text = ax.text(
@@ -70,6 +71,7 @@ def add_box(
         color="#2B2B2B",
         zorder=2,
         linespacing=1.25,
+        clip_on=True,
     )
     title_text.set_clip_path(patch)
     body_text.set_clip_path(patch)
@@ -89,7 +91,8 @@ def add_arrow(ax: plt.Axes, *, x1: float, y1: float, x2: float, y2: float) -> No
             "shrinkA": 0,
             "shrinkB": 0,
         },
-        zorder=3,
+        # Keep arrows above boxes but below text so they don't obscure labels.
+        zorder=1.5,
     )
 
 
@@ -137,23 +140,27 @@ def generate(outpath: Path) -> None:
     actions_body = (
         "u_dmg   = min(1, k_dmg * risk)\n"
         "u_att   = min(1, k_att * U *\n"
-        "              (1 - [A - a_safe]^+))\n"
+        "          (1 - [A-a_safe]^+))\n"
         "u_mem   = 1 - min(1,\n"
-        "                  k_mem_block * risk)\n"
+        "          k_mem_block *\n"
+        "          risk)\n"
         "u_calm  = min(1,\n"
-        "              k_calm * [A - a_safe]^+)\n"
+        "          k_calm *\n"
+        "          [A-a_safe]^+)\n"
         "u_reapp = min(1,\n"
-        "              k_reapp * U * (1 - risk))"
+        "          k_reapp * U *\n"
+        "          (1 - risk))"
     )
     add_box(
         ax,
-        x=0.74,
+        x=0.73,
         y=0.14,
-        w=0.24,
+        w=0.25,
         h=0.70,
         title="Control actions u(t)",
         body=actions_body,
-        body_fontsize=11,
+        body_fontsize=10,
+        pad_x=0.012,
     )
 
     add_arrow(ax, x1=0.28, y1=0.49, x2=0.33, y2=0.49)

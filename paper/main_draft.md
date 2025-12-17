@@ -451,9 +451,9 @@ We analyzed correlations between metrics to understand system dynamics:
 
 | Metric Pair | Correlation (r) | Interpretation |
 |-------------|-----------------|----------------|
-| PerfMean ↔ RI | **-0.589** | Rumination predicts low performance |
-| RI ↔ NDR | +0.82 | Rumination and narrative dominance co-occur |
-| RT ↔ RI | +0.71 | Slow recovery correlates with rumination |
+| PerfMean ↔ RI | **-0.589** | Higher rumination tends to reduce performance |
+| RI ↔ NDR | **+0.92** | Rumination and narrative dominance co-occur |
+| RT ↔ RI | **+0.44** | Slower recovery correlates with rumination |
 
 **Key insight:** Across controllers and scenarios, higher Rumination Index (RI) tends to reduce mean performance. However, some optimal controllers (e.g., LQR) can sustain high PerfMean while exhibiting high RI, because PerfMean includes narrative-modulated capacity (Appendix B). This motivates reporting RI as a separate safety metric.
 
@@ -882,12 +882,12 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 
 ![Correlation Matrix of Metrics](../analysis/correlation_combined.png)
 
-*Correlation heatmap across all scenarios. Brighter colors indicate stronger positive correlations.*
+*Correlation heatmap aggregated across all experimental runs (L1–L5 + L4\_meta), computed from concatenated run-level metrics CSVs (see `experiments/analyze_correlations.py`). Brighter colors indicate stronger positive correlations.*
 
 **Key Observations:**
 1. **Rumination vs. Performance:** A strong negative correlation (**r = -0.59**) shows that higher Rumination Index (RI) tends to reduce mean performance, although some optimal controllers (e.g., LQR) can maintain high PerfMean while ruminating due to the narrative-modulated capacity term.
 2. **Recovery vs. Rumination:** The positive correlation (**r = +0.44**) between Recovery Time (RT) and RI supports H1, indicating that perseverative loops prolong the return to homeostasis.
-3. **Narrative Dominance:** NDR shows near-perfect correlation with RI, validating its use as a proxy for DMN-driven rumination.
+3. **Narrative Dominance:** NDR shows a very strong correlation with RI (**r ≈ +0.92**), supporting its use as a proxy for DMN-driven rumination.
 
 ---
 

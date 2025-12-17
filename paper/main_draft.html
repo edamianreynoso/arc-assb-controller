@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>main_draft</title>
+  <title>Affective Regulation Core: A Homeostatic Control Framework for
+Stable and Safe AI Agents</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -1459,6 +1460,11 @@ controllers.</em></p>
 <p>We analyzed correlations between metrics to understand system
 dynamics:</p>
 <table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 36%" />
+<col style="width: 34%" />
+</colgroup>
 <thead>
 <tr>
 <th>Metric Pair</th>
@@ -1470,17 +1476,17 @@ dynamics:</p>
 <tr>
 <td>PerfMean ↔︎ RI</td>
 <td><strong>-0.589</strong></td>
-<td>Rumination predicts low performance</td>
+<td>Higher rumination tends to reduce performance</td>
 </tr>
 <tr>
 <td>RI ↔︎ NDR</td>
-<td>+0.82</td>
+<td><strong>+0.92</strong></td>
 <td>Rumination and narrative dominance co-occur</td>
 </tr>
 <tr>
 <td>RT ↔︎ RI</td>
-<td>+0.71</td>
-<td>Slow recovery correlates with rumination</td>
+<td><strong>+0.44</strong></td>
+<td>Slower recovery correlates with rumination</td>
 </tr>
 </tbody>
 </table>
@@ -2122,7 +2128,9 @@ alt="Correlation Matrix of Metrics" />
 <figcaption aria-hidden="true">Correlation Matrix of
 Metrics</figcaption>
 </figure>
-<p><em>Correlation heatmap across all scenarios. Brighter colors
+<p><em>Correlation heatmap aggregated across all experimental runs
+(L1–L5 + L4_meta), computed from concatenated run-level metrics CSVs
+(see <code>experiments/analyze_correlations.py</code>). Brighter colors
 indicate stronger positive correlations.</em></p>
 <p><strong>Key Observations:</strong> 1. <strong>Rumination
 vs. Performance:</strong> A strong negative correlation (<strong>r =
@@ -2132,9 +2140,9 @@ maintain high PerfMean while ruminating due to the narrative-modulated
 capacity term. 2. <strong>Recovery vs. Rumination:</strong> The positive
 correlation (<strong>r = +0.44</strong>) between Recovery Time (RT) and
 RI supports H1, indicating that perseverative loops prolong the return
-to homeostasis. 3. <strong>Narrative Dominance:</strong> NDR shows
-near-perfect correlation with RI, validating its use as a proxy for
-DMN-driven rumination.</p>
+to homeostasis. 3. <strong>Narrative Dominance:</strong> NDR shows a
+very strong correlation with RI (<strong>r ≈ +0.92</strong>), supporting
+its use as a proxy for DMN-driven rumination.</p>
 <hr />
 <h3 id="figure-s8-efficiency-comparison-fast-convergence">Figure S8:
 Efficiency Comparison (Fast Convergence)</h3>
