@@ -11,10 +11,10 @@
 As AI agents become more sophisticated, there is growing interest in endowing them with internal state representations analogous to affective states. However, affective states without regulation can lead to instability, perseverative loops (rumination), and vulnerability to manipulation. We introduce the **Affective Regulation Core (ARC)**, a control framework inspired by prefrontal cortex functions that maintains stability in agents with internal affective states. We also present the **Affective Stability & Safety Benchmark (ASSB)**, a reproducible evaluation protocol with metrics for recovery time, rumination index, and control effort. 
 
 Our experiments across 6 research lines and **15 controller architectures** (including P, PID, LQR, LQI, hierarchical, meta-control, H∞ robust, and adaptive variants) demonstrate that:
-1. ARC achieves **97% performance with near-zero rumination** (vs. 30% for uncontrolled agents), with integral variants achieving strictly zero rumination.
+1. ARC achieves **96.6% average performance with zero rumination** (vs. 30% for uncontrolled agents) in stability scenarios.
 2. ARC meta-control reduces control effort by **21%** while maintaining stability
-3. **H∞ Robust controllers** achieve the best balance: 95% performance + zero rumination
-4. In reinforcement learning, ARC improves transfer learning success by **50%** in non-stationary environments
+3. **H∞ Robust controllers** achieve the best overall balance, although integral controllers can suffer collapse in specific adversarial environments
+4. In reinforcement learning, ARC improves transfer learning success by **50%** via memory gating and a shift detection mechanism
 
 All code and data are available for reproducibility.
 
@@ -64,7 +64,8 @@ Recent work uses emotion-like signals as reinforcement shaping or exploration mo
 
 ### 2.3 Emotion Regulation, Rumination, and the Default Mode Network
 
-ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control (Ochsner & Gross, 2005). More broadly, self-regulation has been described as discrepancy-reducing feedback loops (Carver & Scheier, 1982), and emotion regulation is a mature field with process-level and strategy models (Gross, 1998). In humans, dysregulated self-referential processing and the default mode network (DMN) have been linked to rumination-like dynamics (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We use DMN-inspired narrative intensity as an engineering proxy for perseveration pressure, and explicitly regulate it as a safety-relevant internal variable.
+ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control (Ochsner & Gross, 2005). More broadly, self-regulation has been described as discrepancy-reducing feedback loops (Carver & Scheier, 1982), and emotion regulation is a mature field with process-level and strategy models (Gross, 1998). In control theory, the problem of maintaining sufficient excitation for parameter identification is known as **persistence of excitation** (Åström & Murray, 2008), a concept related to the "dual control" dilemma (Feldbaum, 1965) balancing learning and control.
+In humans, dysregulated self-referential processing and the default mode network (DMN) have been linked to rumination-like dynamics (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We use DMN-inspired narrative intensity as an engineering proxy for perseveration pressure.
 
 ### 2.4 Positioning ARC
 
@@ -404,7 +405,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 | random_dopamine | arc_v1 | 0.897 | 1.12 | 0.58 |
 | random_dopamine | no_control | 0.040 | 1.46 | 0.95 |
 
-**Key finding:** ARC maintains stability even under adversarial attack, acting as a "cognitive firewall." However, as detailed in Appendix G.4, integral-based controllers (PID, LQI) can over-regulate in these scenarios, sacrificing performance for stability. This suggests proportional or robust controllers are preferable when manipulation is expected.
+**Key finding:** ARC maintains stability even under adversarial attack. However, we discovered a critical failure mode not previously reported in affective computing: controllers with strong integral action (PID, LQI) **collapse** in this scenario (performance < 0.20), performing worse than the uncontrolled agent. This occurs because the environment rewards high arousal, causing the integral term to accumulate error indefinitely ("integral windup") and excessively suppress agent activity. This suggests that for adversarial defense, proportional or robust controllers are strictly superior to integral ones.
 
 ### 6.7 L6: Real RL Validation
 
@@ -418,7 +419,9 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 | StochasticGridWorld | 100% | 100% | 0% |
 | **ChangingGoalGridWorld** | 39.9% | **59.75%** | **+50%** |
 
-**Key finding:** In non-stationary environments where the goal changes, ARC's memory gating and adaptive exploration significantly improve transfer learning. Learning curves are shown below; additional plots are provided in Appendix E.
+**Key finding:** In non-stationary environments, ARC significantly improves transfer learning (+50%). This is achieved via two mechanisms:
+1. **Memory Gating:** Blocks Q-learning updates when internal uncertainty is high.
+2. **Shift Detection:** We implement an explicit mechanism that detects abrupt changes in the environment's prediction signal. Upon detecting a task shift, ARC temporarily boosts exploration rate ($\epsilon$) and learning rate ($\alpha$) for 30 steps, facilitating rapid adaptation without catastrophic forgetting of the prior policy.
 
 ![Learning Curves: ARC vs Baseline across 3 GridWorld environments showing episode reward over 200 episodes](../figures_L6/learning_curves.png)
 
@@ -494,8 +497,8 @@ Beyond the basic proportional controller (ARC v1), we implemented and evaluated 
 
 **Key findings:**
 
-1.  **LQR (optimal) achieves highest performance** (0.96) but lacks integral term, resulting in high RI
-2.  **PID/LQI variants eliminate rumination** (RI=0) through integral action on narrative state
+1.  **LQR achieves highest performance** (0.96) but at the cost of high rumination (RI > 1.3), demonstrating that blindly optimizing the mathematical state does not necessarily eliminate pathological loops.
+2.  **PID/LQI variants eliminate rumination** (RI=0) in stochastic environments but are fragile against adversaries.
 3.  **Meta-control is most efficient** (0.61 effort) while maintaining high performance
 4.  **H∞ Robust achieves best balance**: high performance (0.95) with zero rumination and moderate effort
 5.  **Trade-off exists** between performance and anti-rumination: integral controllers sacrifice ~5% performance to eliminate perseverative loops
@@ -563,7 +566,7 @@ Our deep analysis revealed three critical insights regarding the cost of stabili
 
 **3. The Complexity Trap:** Our most complex controller, `arc_ultimate` (MPC), underperformed the simpler architecture `arc_robust` (0.88 vs 0.94 performance) and required higher control effort. This suggests that for homeostatic regulation, robust reactive control is superior to complex predictive modeling—"smarter" is not always safer.
 
-**4. The Adaptation Paradox:** We observed that `arc_adaptive` performs poorly in the "No Perturbation" baseline (see Appendix G) but excels in chaotic environments like "Random Dopamine". This illustrates the exploration-exploitation tension in adaptive control: in benign environments, lack of excitation causes parameter estimation drift (lack of persistence of excitation), leading to noisy control actions that destabilize the system. Conversely, high-variance environments continuously excite the system, allowing the adaptive mechanism to converge effectively.
+**4. The Adaptation Paradox and Persistence of Excitation:** We observed that `arc_adaptive` performs poorly in the "No Perturbation" baseline but excels in chaotic environments. This illustrates the classic **persistence of excitation** problem (Åström & Murray, 2008): in benign environments, lack of variation prevents the estimator from identifying correct parameters, leading to control drift. Noisy environments paradoxically stabilize the adaptive controller by providing necessary excitation.
 
 ### 7.4 Limitations
 
@@ -617,6 +620,7 @@ This work opens directions for learned control, integration with modern RL algor
 - Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124.
 - Carver, C.S. & Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111–135.
 - Damasio, A.R. (1994). Descartes' Error. Putnam.
+- Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.
 - Friston, K. (2010). The free-energy principle. Nature Reviews Neuroscience, 11(2).
 - Garcia, J. & Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437–1480.
 - Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271–299.
@@ -771,7 +775,7 @@ def recovery_time(perf, arousal, shock_t, baseline_window=20):
 ### D.3 Rumination Index (RI)
 
 ```python
-def rumination_index(s, s_rum_tau=0.6, persistence_weight=1.0):
+def rumination_index(s, s_rum_tau=0.55, persistence_weight=1.0):
     above = [1 if x > s_rum_tau else 0 for x in s]
     frac = mean(above)
     runs = consecutive_run_lengths(above)

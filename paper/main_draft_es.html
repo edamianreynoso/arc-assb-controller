@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Affective Regulation Core (ES)</title>
+  <title>main_draft_es</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -263,14 +263,16 @@ control.</p>
 <p>Nos experimentos a través de 6 líneas de investigación y <strong>15
 arquitecturas de control</strong> (incluyendo P, PID, LQR, LQI,
 jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran
-que: 1. ARC logra un <strong>97% de rendimiento con rumiación cercana a
-cero</strong> (vs. 30% para agentes no controlados), con variantes
-integrales alcanzando cero absoluto. 2. El meta-control de ARC reduce el
-esfuerzo de control en un <strong>21%</strong> manteniendo la
-estabilidad. 3. Los <strong>controladores Robustos H∞</strong> logran el
-mejor equilibrio: 95% de rendimiento + cero rumiación. 4. En aprendizaje
-por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un
-<strong>50%</strong> en entornos no estacionarios.</p>
+que: 1. ARC logra un <strong>96.6% de rendimiento con cero
+rumiación</strong> (vs. 30% para agentes no controlados) en escenarios
+de estabilidad. 2. El meta-control de ARC reduce el esfuerzo de control
+en un <strong>21%</strong> manteniendo la estabilidad. 3. Los
+<strong>controladores Robustos H∞</strong> logran el mejor equilibrio
+general, aunque los controladores integrales pueden sufrir colapso en
+entornos adversarios específicos. 4. En aprendizaje por refuerzo, ARC
+mejora el éxito en transferencia de aprendizaje en un
+<strong>50%</strong> mediante gating de memoria y un mecanismo de
+detección de cambios.</p>
 <p>Todo el código y los datos están disponibles para
 reproducibilidad.</p>
 <p><strong>Palabras Clave:</strong> Computación Afectiva, Seguridad en
@@ -363,12 +365,15 @@ regulación emocional comúnmente atribuidos al control prefrontal
 descrito como bucles de retroalimentación que reducen discrepancias
 (Carver &amp; Scheier, 1982), y la regulación emocional es un campo
 maduro con modelos a nivel de procesos y estrategias (Gross, 1998). En
-humanos, el procesamiento autorreferencial desregulado y la red neuronal
-por defecto (DMN) se han vinculado a dinámicas tipo rumiación (Raichle
-et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). Usamos la
-intensidad narrativa inspirada en DMN como un proxy de ingeniería para
-la presión de perseveración, y la regulamos explícitamente como una
-variable interna relevante para la seguridad.</p>
+teoría de control, el problema de mantener suficiente excitación para la
+identificación de parámetros se conoce como <strong>persistencia de
+excitación</strong> (Åström &amp; Murray, 2008), un concepto relacionado
+con el dilema de “control dual” (Feldbaum, 1965) que balancea
+aprendizaje y control. En humanos, el procesamiento autorreferencial
+desregulado y la red neuronal por defecto (DMN) se han vinculado a
+dinámicas tipo rumiación (Raichle et al., 2001; Buckner et al., 2008;
+Hamilton et al., 2015). Usamos la intensidad narrativa inspirada en DMN
+como un proxy de ingeniería para la presión de perseveración.</p>
 <h3 id="posicionamiento-de-arc">2.4 Posicionamiento de ARC</h3>
 <p>Posicionamos a ARC como un enfoque de <em>regulación-primero</em>: el
 afecto se trata como un sistema dinámico interno que requiere control
@@ -1187,12 +1192,16 @@ Bajo Condiciones Adversarias</h3>
 </tbody>
 </table>
 <p><strong>Hallazgo clave:</strong> ARC mantiene la estabilidad incluso
-bajo ataque adversario, actuando como un “cortafuegos cognitivo”. Sin
-embargo, como se detalla en el Apéndice G.4, los controladores basados
-en integrales (PID, LQI) pueden sobre-regular en estos escenarios,
-sacrificando rendimiento por estabilidad. Esto sugiere que los
-controladores proporcionales o robustos son preferibles cuando se espera
-manipulación.</p>
+bajo ataque adversario. Sin embargo, descubrimos un modo de fallo
+crítico no reportado previamente en computación afectiva: los
+controladores con fuerte acción integral (PID, LQI)
+<strong>colapsan</strong> en este escenario (rendimiento &lt; 0.20),
+desempeñándose peor que el agente no controlado. Esto se debe a que el
+entorno recompensa la alta activación, causando que el término integral
+acumule error indefinidamente (“integral windup”) y suprima
+excesivamente la actividad del agente. Esto sugiere que para defensa
+adversaria, los controladores proporcionales o robustos son
+estrictamente superiores a los integrales.</p>
 <h3 id="l6-validación-en-rl-real">6.7 L6: Validación en RL Real</h3>
 <p><strong>Hipótesis (H6):</strong> Soportada.</p>
 <table>
@@ -1213,9 +1222,17 @@ manipulación.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Hallazgo clave:</strong> En entornos no estacionarios, el
-gating de memoria y exploración adaptativa de ARC mejoran
-significativamente el aprendizaje por transferencia.</p>
+<p><strong>Hallazgo clave:</strong> En entornos no estacionarios, ARC
+mejora significativamente el aprendizaje por transferencia (+50%). Esto
+se logra mediante dos mecanismos: 1. <strong>Memory Gating:</strong>
+Bloquea actualizaciones de Q-learning cuando la incertidumbre interna es
+alta. 2. <strong>Shift Detection:</strong> Implementamos un mecanismo
+explícito que detecta cambios abruptos en la señal de predicción del
+entorno. Al detectar un cambio de tarea, ARC aumenta temporalmente la
+tasa de exploración (<span class="math inline">\(\epsilon\)</span>) y de
+aprendizaje (<span class="math inline">\(\alpha\)</span>) durante 30
+pasos, facilitando una rápida readaptación sin olvidar la política
+anterior catastróficamente.</p>
 <figure>
 <img src="../figures_L6/learning_curves.png"
 alt="Curvas de aprendizaje: ARC vs línea base en 3 entornos GridWorld (recompensa por episodio)" />
@@ -1249,9 +1266,11 @@ Arquitecturas de Control</h3>
 15 controladores.</p>
 <p><strong>Hallazgos clave:</strong></p>
 <ol type="1">
-<li><strong>LQR logra el mayor rendimiento</strong> (0.96) pero carece
-de término integral (RI alto).</li>
-<li><strong>PID/LQI eliminan la rumiación</strong> (RI=0).</li>
+<li><strong>LQR logra el mayor rendimiento</strong> (0.96) pero a costa
+de alta rumiación (RI &gt; 1.3), demostrando que optimizar ciegamente el
+estado matemático no elimina necesariamente los bucles patológicos.</li>
+<li><strong>PID/LQI eliminan la rumiación</strong> (RI=0) en entornos
+estocásticos, pero son frágiles ante adversarios.</li>
 <li><strong>Meta-control es el más eficiente</strong> (0.61
 esfuerzo).</li>
 <li><strong>H∞ Robusto logra el mejor equilibrio</strong> (0.95
@@ -1357,16 +1376,15 @@ vs 0.94 de desempeño) y requirió un mayor esfuerzo de control. Esto
 sugiere que para la regulación homeostática, el control reactivo robusto
 es superior al modelado predictivo complejo—“más inteligente” no siempre
 es más seguro.</p>
-<p><strong>4. La Paradoja de la Adaptación:</strong> Observamos que
-<code>arc_adaptive</code> tiene un desempeño pobre en la línea base “Sin
-Perturbación” (ver Apéndice G) pero sobresale en entornos caóticos como
-“Dopamina Aleatoria”. Esto ilustra el tensión exploración-explotación en
-control adaptativo”: en entornos benignos, la falta de excitación
-provoca deriva en la estimación de parámetros (falta de persistencia de
-excitación), lo que lleva a acciones de control ruidosas que
-desestabilizan el sistema. Por el contrario, los entornos de alta
-varianza excitan continuamente el sistema, permitiendo que el mecanismo
-adaptativo converja eficazmente.</p>
+<p><strong>4. La Paradoja de la Adaptación y Persistencia de
+Excitación:</strong> Observamos que <code>arc_adaptive</code> tiene un
+desempeño pobre en la línea base “Sin Perturbación” pero sobresale en
+entornos caóticos. Esto ilustra el problema clásico de
+<strong>persistencia de excitación</strong> (Åström &amp; Murray, 2008):
+en entornos benignos, la falta de variación impide que el estimador
+identifique los parámetros correctos, llevando a una deriva de control.
+Los entornos ruidosos paradójicamente estabilizan al controlador
+adaptativo proveyendo la excitación necesaria.</p>
 <h3 id="limitaciones">7.4 Limitaciones</h3>
 <p>Aunque ARC demuestra resultados empíricos sólidos, varias
 limitaciones merecen discusión:</p>
@@ -1490,6 +1508,7 @@ Annals of the New York Academy of Sciences, 1124.</li>
 conceptual framework for personality-social, clinical, and health
 psychology. Psychological Bulletin, 92(1), 111–135.</li>
 <li>Damasio, A.R. (1994). Descartes’ Error. Putnam.</li>
+<li>Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.</li>
 <li>Friston, K. (2010). The free-energy principle. Nature Reviews
 Neuroscience, 11(2).</li>
 <li>Garcia, J. &amp; Fernández, F. (2015). A comprehensive survey on
@@ -1629,8 +1648,9 @@ https://github.com/edamianreynoso/arc-assb-controller</p>
 <tr>
 <td></td>
 <td>s_safe</td>
-<td>0.60</td>
-<td>Umbral de seguridad narrativa</td>
+<td>0.55</td>
+<td>Umbral de seguridad narrativa (ajustado para consistencia con
+s_rum_tau)</td>
 </tr>
 <tr>
 <td><strong>Ganancias ARC</strong></td>

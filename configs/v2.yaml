@@ -21,7 +21,7 @@ mf0: 0.25
 ms0: 0.20
 
 a_safe: 0.60
-s_safe: 0.60
+s_safe: 0.55
 
 omega_s: 0.35
 perf_bias: 0.25

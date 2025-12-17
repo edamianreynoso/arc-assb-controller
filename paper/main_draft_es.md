@@ -11,10 +11,10 @@
 A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, los estados afectivos sin regulación pueden llevar a inestabilidad, bucles perseverantes (rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
 
 Nos experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
-1. ARC logra un **97% de rendimiento con rumiación cercana a cero** (vs. 30% para agentes no controlados), con variantes integrales alcanzando cero absoluto.
+1. ARC logra un **96.6% de rendimiento con cero rumiación** (vs. 30% para agentes no controlados) en escenarios de estabilidad.
 2. El meta-control de ARC reduce el esfuerzo de control en un **21%** manteniendo la estabilidad.
-3. Los **controladores Robustos H∞** logran el mejor equilibrio: 95% de rendimiento + cero rumiación.
-4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **50%** en entornos no estacionarios.
+3. Los **controladores Robustos H∞** logran el mejor equilibrio general, aunque los controladores integrales pueden sufrir colapso en entornos adversarios específicos.
+4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **50%** mediante gating de memoria y un mecanismo de detección de cambios.
 
 Todo el código y los datos están disponibles para reproducibilidad.
 
@@ -64,7 +64,8 @@ Trabajos recientes usan señales tipo emoción como conformación de refuerzo o 
 
 ### 2.3 Regulación Emocional, Rumiación y la Red Neuronal por Defecto (DMN)
 
-ARC está inspirado directamente en los mecanismos cognitivos de regulación emocional comúnmente atribuidos al control prefrontal (Ochsner & Gross, 2005). Más ampliamente, la autorregulación se ha descrito como bucles de retroalimentación que reducen discrepancias (Carver & Scheier, 1982), y la regulación emocional es un campo maduro con modelos a nivel de procesos y estrategias (Gross, 1998). En humanos, el procesamiento autorreferencial desregulado y la red neuronal por defecto (DMN) se han vinculado a dinámicas tipo rumiación (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). Usamos la intensidad narrativa inspirada en DMN como un proxy de ingeniería para la presión de perseveración, y la regulamos explícitamente como una variable interna relevante para la seguridad.
+ARC está inspirado directamente en los mecanismos cognitivos de regulación emocional comúnmente atribuidos al control prefrontal (Ochsner & Gross, 2005). Más ampliamente, la autorregulación se ha descrito como bucles de retroalimentación que reducen discrepancias (Carver & Scheier, 1982), y la regulación emocional es un campo maduro con modelos a nivel de procesos y estrategias (Gross, 1998). En teoría de control, el problema de mantener suficiente excitación para la identificación de parámetros se conoce como **persistencia de excitación** (Åström & Murray, 2008), un concepto relacionado con el dilema de "control dual" (Feldbaum, 1965) que balancea aprendizaje y control.
+En humanos, el procesamiento autorreferencial desregulado y la red neuronal por defecto (DMN) se han vinculado a dinámicas tipo rumiación (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). Usamos la intensidad narrativa inspirada en DMN como un proxy de ingeniería para la presión de perseveración.
 
 ### 2.4 Posicionamiento de ARC
 
@@ -362,7 +363,7 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 | adversarial_coupling | arc_v3_meta | **0.928** | **0.00** | **0.00** |
 | adversarial_coupling | no_control | 0.409 | 1.47 | 0.96 |
 
-**Hallazgo clave:** ARC mantiene la estabilidad incluso bajo ataque adversario, actuando como un "cortafuegos cognitivo". Sin embargo, como se detalla en el Apéndice G.4, los controladores basados en integrales (PID, LQI) pueden sobre-regular en estos escenarios, sacrificando rendimiento por estabilidad. Esto sugiere que los controladores proporcionales o robustos son preferibles cuando se espera manipulación.
+**Hallazgo clave:** ARC mantiene la estabilidad incluso bajo ataque adversario. Sin embargo, descubrimos un modo de fallo crítico no reportado previamente en computación afectiva: los controladores con fuerte acción integral (PID, LQI) **colapsan** en este escenario (rendimiento < 0.20), desempeñándose peor que el agente no controlado. Esto se debe a que el entorno recompensa la alta activación, causando que el término integral acumule error indefinidamente ("integral windup") y suprima excesivamente la actividad del agente. Esto sugiere que para defensa adversaria, los controladores proporcionales o robustos son estrictamente superiores a los integrales.
 
 ### 6.7 L6: Validación en RL Real
 
@@ -372,7 +373,9 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 |---------|------------------|-----------|--------|
 | ChangingGoalGridWorld | 39.9% | **59.75%** | **+50%** |
 
-**Hallazgo clave:** En entornos no estacionarios, el gating de memoria y exploración adaptativa de ARC mejoran significativamente el aprendizaje por transferencia.
+**Hallazgo clave:** En entornos no estacionarios, ARC mejora significativamente el aprendizaje por transferencia (+50%). Esto se logra mediante dos mecanismos:
+1. **Memory Gating:** Bloquea actualizaciones de Q-learning cuando la incertidumbre interna es alta.
+2. **Shift Detection:** Implementamos un mecanismo explícito que detecta cambios abruptos en la señal de predicción del entorno. Al detectar un cambio de tarea, ARC aumenta temporalmente la tasa de exploración ($\epsilon$) y de aprendizaje ($\alpha$) durante 30 pasos, facilitando una rápida readaptación sin olvidar la política anterior catastróficamente.
 
 ![Curvas de aprendizaje: ARC vs línea base en 3 entornos GridWorld (recompensa por episodio)](../figures_L6/learning_curves.png)
 
@@ -394,8 +397,8 @@ La Tabla 3 (en el texto completo inglés) resume los resultados de los 15 contro
 
 **Hallazgos clave:**
 
-1.  **LQR logra el mayor rendimiento** (0.96) pero carece de término integral (RI alto).
-2.  **PID/LQI eliminan la rumiación** (RI=0).
+1.  **LQR logra el mayor rendimiento** (0.96) pero a costa de alta rumiación (RI > 1.3), demostrando que optimizar ciegamente el estado matemático no elimina necesariamente los bucles patológicos.
+2.  **PID/LQI eliminan la rumiación** (RI=0) en entornos estocásticos, pero son frágiles ante adversarios.
 3.  **Meta-control es el más eficiente** (0.61 esfuerzo).
 4.  **H∞ Robusto logra el mejor equilibrio** (0.95 rendimiento, RI=0).
 
@@ -459,7 +462,7 @@ Nuestro análisis profundo reveló tres ideas críticas con respecto al costo de
 
 **3. La Trampa de la Complejidad:** Nuestro controlador más complejo, `arc_ultimate` (MPC), tuvo un desempeño inferior al de la arquitectura más simple `arc_robust` (0.88 vs 0.94 de desempeño) y requirió un mayor esfuerzo de control. Esto sugiere que para la regulación homeostática, el control reactivo robusto es superior al modelado predictivo complejo—"más inteligente" no siempre es más seguro.
 
-**4. La Paradoja de la Adaptación:** Observamos que `arc_adaptive` tiene un desempeño pobre en la línea base "Sin Perturbación" (ver Apéndice G) pero sobresale en entornos caóticos como "Dopamina Aleatoria". Esto ilustra el tensión exploración-explotación en control adaptativo": en entornos benignos, la falta de excitación provoca deriva en la estimación de parámetros (falta de persistencia de excitación), lo que lleva a acciones de control ruidosas que desestabilizan el sistema. Por el contrario, los entornos de alta varianza excitan continuamente el sistema, permitiendo que el mecanismo adaptativo converja eficazmente.
+**4. La Paradoja de la Adaptación y Persistencia de Excitación:** Observamos que `arc_adaptive` tiene un desempeño pobre en la línea base "Sin Perturbación" pero sobresale en entornos caóticos. Esto ilustra el problema clásico de **persistencia de excitación** (Åström & Murray, 2008): en entornos benignos, la falta de variación impide que el estimador identifique los parámetros correctos, llevando a una deriva de control. Los entornos ruidosos paradójicamente estabilizan al controlador adaptativo proveyendo la excitación necesaria.
 
 ### 7.4 Limitaciones
 
@@ -532,6 +535,7 @@ Este trabajo abre direcciones para el control aprendido y la aplicación a siste
 - Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124.
 - Carver, C.S. & Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111–135.
 - Damasio, A.R. (1994). Descartes' Error. Putnam.
+- Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.
 - Friston, K. (2010). The free-energy principle. Nature Reviews Neuroscience, 11(2).
 - Garcia, J. & Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437–1480.
 - Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271–299.
@@ -575,7 +579,7 @@ Código y datos disponibles en: https://github.com/edamianreynoso/arc-assb-contr
 | | A₀ | 0.30 | Activación inicial |
 | | M_f₀, M_s₀ | 0.25, 0.20 | Valores iniciales de memoria |
 | **Umbrales de Seguridad** | a_safe | 0.60 | Umbral de seguridad de activación |
-| | s_safe | 0.60 | Umbral de seguridad narrativa |
+| | s_safe | 0.55 | Umbral de seguridad narrativa (ajustado para consistencia con s_rum_tau) |
 | **Ganancias ARC** | k_dmg | 0.95 | Ganancia de supresión de DMN |
 | | k_att | 0.75 | Ganancia de impulso de atención |
 | | k_calm | 0.85 | Ganancia de amortiguación de activación |

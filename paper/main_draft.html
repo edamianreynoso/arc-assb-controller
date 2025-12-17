@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Affective Regulation Core</title>
+  <title>main_draft</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -261,13 +261,14 @@ metrics for recovery time, rumination index, and control effort.</p>
 <p>Our experiments across 6 research lines and <strong>15 controller
 architectures</strong> (including P, PID, LQR, LQI, hierarchical,
 meta-control, H∞ robust, and adaptive variants) demonstrate that: 1. ARC
-achieves <strong>97% performance with near-zero rumination</strong>
-(vs. 30% for uncontrolled agents), with integral variants achieving
-strictly zero rumination. 2. ARC meta-control reduces control effort by
-<strong>21%</strong> while maintaining stability 3. <strong>H∞ Robust
-controllers</strong> achieve the best balance: 95% performance + zero
-rumination 4. In reinforcement learning, ARC improves transfer learning
-success by <strong>50%</strong> in non-stationary environments</p>
+achieves <strong>96.6% average performance with zero rumination</strong>
+(vs. 30% for uncontrolled agents) in stability scenarios. 2. ARC
+meta-control reduces control effort by <strong>21%</strong> while
+maintaining stability 3. <strong>H∞ Robust controllers</strong> achieve
+the best overall balance, although integral controllers can suffer
+collapse in specific adversarial environments 4. In reinforcement
+learning, ARC improves transfer learning success by <strong>50%</strong>
+via memory gating and a shift detection mechanism</p>
 <p>All code and data are available for reproducibility.</p>
 <p><strong>Keywords:</strong> Affective Computing, AI Safety,
 Homeostatic Control, Reinforcement Learning, Emotion Regulation, PID
@@ -342,12 +343,15 @@ commonly attributed to prefrontal control (Ochsner &amp; Gross, 2005).
 More broadly, self-regulation has been described as discrepancy-reducing
 feedback loops (Carver &amp; Scheier, 1982), and emotion regulation is a
 mature field with process-level and strategy models (Gross, 1998). In
-humans, dysregulated self-referential processing and the default mode
-network (DMN) have been linked to rumination-like dynamics (Raichle et
-al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We use
-DMN-inspired narrative intensity as an engineering proxy for
-perseveration pressure, and explicitly regulate it as a safety-relevant
-internal variable.</p>
+control theory, the problem of maintaining sufficient excitation for
+parameter identification is known as <strong>persistence of
+excitation</strong> (Åström &amp; Murray, 2008), a concept related to
+the “dual control” dilemma (Feldbaum, 1965) balancing learning and
+control. In humans, dysregulated self-referential processing and the
+default mode network (DMN) have been linked to rumination-like dynamics
+(Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We
+use DMN-inspired narrative intensity as an engineering proxy for
+perseveration pressure.</p>
 <h3 id="positioning-arc">2.4 Positioning ARC</h3>
 <p>We position ARC as a <em>regulation-first</em> approach: affect is
 treated as an internal dynamical system requiring explicit control. Most
@@ -1303,11 +1307,15 @@ seeds</p>
 </tbody>
 </table>
 <p><strong>Key finding:</strong> ARC maintains stability even under
-adversarial attack, acting as a “cognitive firewall.” However, as
-detailed in Appendix G.4, integral-based controllers (PID, LQI) can
-over-regulate in these scenarios, sacrificing performance for stability.
-This suggests proportional or robust controllers are preferable when
-manipulation is expected.</p>
+adversarial attack. However, we discovered a critical failure mode not
+previously reported in affective computing: controllers with strong
+integral action (PID, LQI) <strong>collapse</strong> in this scenario
+(performance &lt; 0.20), performing worse than the uncontrolled agent.
+This occurs because the environment rewards high arousal, causing the
+integral term to accumulate error indefinitely (“integral windup”) and
+excessively suppress agent activity. This suggests that for adversarial
+defense, proportional or robust controllers are strictly superior to
+integral ones.</p>
 <h3 id="l6-real-rl-validation">6.7 L6: Real RL Validation</h3>
 <p><strong>Hypothesis (H6):</strong> ARC-modulated learning improves
 non-stationary transfer (higher success/reward) while keeping affective
@@ -1345,10 +1353,16 @@ episodes; see <code>outputs_L6_robust/final_metrics.csv</code>)</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Key finding:</strong> In non-stationary environments where
-the goal changes, ARC’s memory gating and adaptive exploration
-significantly improve transfer learning. Learning curves are shown
-below; additional plots are provided in Appendix E.</p>
+<p><strong>Key finding:</strong> In non-stationary environments, ARC
+significantly improves transfer learning (+50%). This is achieved via
+two mechanisms: 1. <strong>Memory Gating:</strong> Blocks Q-learning
+updates when internal uncertainty is high. 2. <strong>Shift
+Detection:</strong> We implement an explicit mechanism that detects
+abrupt changes in the environment’s prediction signal. Upon detecting a
+task shift, ARC temporarily boosts exploration rate (<span
+class="math inline">\(\epsilon\)</span>) and learning rate (<span
+class="math inline">\(\alpha\)</span>) for 30 steps, facilitating rapid
+adaptation without catastrophic forgetting of the prior policy.</p>
 <figure>
 <img src="../figures_L6/learning_curves.png"
 alt="Learning Curves: ARC vs Baseline across 3 GridWorld environments showing episode reward over 200 episodes" />
@@ -1648,10 +1662,12 @@ scenarios)</strong></p>
 </table>
 <p><strong>Key findings:</strong></p>
 <ol type="1">
-<li><strong>LQR (optimal) achieves highest performance</strong> (0.96)
-but lacks integral term, resulting in high RI</li>
-<li><strong>PID/LQI variants eliminate rumination</strong> (RI=0)
-through integral action on narrative state</li>
+<li><strong>LQR achieves highest performance</strong> (0.96) but at the
+cost of high rumination (RI &gt; 1.3), demonstrating that blindly
+optimizing the mathematical state does not necessarily eliminate
+pathological loops.</li>
+<li><strong>PID/LQI variants eliminate rumination</strong> (RI=0) in
+stochastic environments but are fragile against adversaries.</li>
 <li><strong>Meta-control is most efficient</strong> (0.61 effort) while
 maintaining high performance</li>
 <li><strong>H∞ Robust achieves best balance</strong>: high performance
@@ -1757,15 +1773,15 @@ agents than resisting uncertainty or shock.</p>
 control effort. This suggests that for homeostatic regulation, robust
 reactive control is superior to complex predictive modeling—“smarter” is
 not always safer.</p>
-<p><strong>4. The Adaptation Paradox:</strong> We observed that
-<code>arc_adaptive</code> performs poorly in the “No Perturbation”
-baseline (see Appendix G) but excels in chaotic environments like
-“Random Dopamine”. This illustrates the exploration-exploitation tension
-in adaptive control: in benign environments, lack of excitation causes
-parameter estimation drift (lack of persistence of excitation), leading
-to noisy control actions that destabilize the system. Conversely,
-high-variance environments continuously excite the system, allowing the
-adaptive mechanism to converge effectively.</p>
+<p><strong>4. The Adaptation Paradox and Persistence of
+Excitation:</strong> We observed that <code>arc_adaptive</code> performs
+poorly in the “No Perturbation” baseline but excels in chaotic
+environments. This illustrates the classic <strong>persistence of
+excitation</strong> problem (Åström &amp; Murray, 2008): in benign
+environments, lack of variation prevents the estimator from identifying
+correct parameters, leading to control drift. Noisy environments
+paradoxically stabilize the adaptive controller by providing necessary
+excitation.</p>
 <h3 id="limitations">7.4 Limitations</h3>
 <ol start="3" type="1">
 <li><strong>Proportional control:</strong> Learned controllers may
@@ -1843,6 +1859,7 @@ Annals of the New York Academy of Sciences, 1124.</li>
 conceptual framework for personality-social, clinical, and health
 psychology. Psychological Bulletin, 92(1), 111–135.</li>
 <li>Damasio, A.R. (1994). Descartes’ Error. Putnam.</li>
+<li>Feldbaum, A.A. (1965). Optimal Control Systems. Academic Press.</li>
 <li>Friston, K. (2010). The free-energy principle. Nature Reviews
 Neuroscience, 11(2).</li>
 <li>Garcia, J. &amp; Fernández, F. (2015). A comprehensive survey on
@@ -1982,7 +1999,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a h
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> RT_MAX  <span class="co"># No recovery</span></span></code></pre></div>
 <h3 id="d.3-rumination-index-ri">D.3 Rumination Index (RI)</h3>
 <div class="sourceCode" id="cb11"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rumination_index(s, s_rum_tau<span class="op">=</span><span class="fl">0.6</span>, persistence_weight<span class="op">=</span><span class="fl">1.0</span>):</span>
+class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> rumination_index(s, s_rum_tau<span class="op">=</span><span class="fl">0.55</span>, persistence_weight<span class="op">=</span><span class="fl">1.0</span>):</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    above <span class="op">=</span> [<span class="dv">1</span> <span class="cf">if</span> x <span class="op">&gt;</span> s_rum_tau <span class="cf">else</span> <span class="dv">0</span> <span class="cf">for</span> x <span class="kw">in</span> s]</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    frac <span class="op">=</span> mean(above)</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    runs <span class="op">=</span> consecutive_run_lengths(above)</span>
