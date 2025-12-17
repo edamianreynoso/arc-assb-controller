@@ -11,8 +11,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-# Style
-plt.style.use('dark_background')
+# Style (white background for paper figures)
+plt.style.use("seaborn-v0_8-whitegrid")
 
 def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
     """Create and save a correlation heatmap."""
@@ -30,6 +30,8 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
     
     # Create figure
     fig, ax = plt.subplots(figsize=(12, 10))
+    fig.patch.set_facecolor("white")
+    ax.set_facecolor("white")
     
     # Create heatmap
     mask = np.triu(np.ones_like(corr_df, dtype=bool))  # Upper triangle mask
@@ -46,10 +48,11 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
                 vmin=-1, vmax=1,
                 annot_kws={'size': 10})
     
-    ax.set_title(title, fontsize=14, color='white', pad=20)
+    ax.set_title(title, fontsize=14, color="black", pad=20)
+    ax.tick_params(colors="black")
     
     plt.tight_layout()
-    plt.savefig(save_path, dpi=150, facecolor='#0d1117', edgecolor='none')
+    plt.savefig(save_path, dpi=150, facecolor="white", edgecolor="none")
     plt.close()
     print(f"  Saved: {save_path}")
 
@@ -79,7 +82,7 @@ def main():
         if not filepath.exists():
             continue
             
-        print(f"\n📊 {line_name}: {filepath.name}")
+        print(f"\n[Line] {line_name}: {filepath.name}")
         
         df = pd.read_csv(filepath)
         df['line'] = line_name
@@ -92,7 +95,7 @@ def main():
     # Combined heatmap
     if all_dfs:
         combined_df = pd.concat(all_dfs, ignore_index=True)
-        print(f"\n📊 Combined Analysis ({len(combined_df)} total runs)")
+        print(f"\n[Combined] {len(combined_df)} total runs")
         create_correlation_heatmap(combined_df, 'Metric Correlations - All Lines Combined',
                                   output_dir / "correlation_combined.png")
         
@@ -113,9 +116,11 @@ def main():
                     if abs(r) > 0.5:
                         direction = "positive" if r > 0 else "negative"
                         strength = "strong" if abs(r) > 0.7 else "moderate"
-                        print(f"  {available_cols[i]} ↔ {available_cols[j]}: r={r:.3f} ({strength} {direction})")
+                        print(
+                            f"  {available_cols[i]} <-> {available_cols[j]}: r={r:.3f} ({strength} {direction})"
+                        )
     
-    print("\n✅ Correlation analysis complete!")
+    print("\nCorrelation analysis complete.")
     print(f"   Outputs saved to: {output_dir}")
 
 if __name__ == "__main__":
