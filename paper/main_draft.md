@@ -56,14 +56,15 @@ Affective computing focuses on emotion recognition, synthesis, and simulation (P
 
 ### 2.2 Emotion in Reinforcement Learning
 
-Recent work uses emotion-like signals as reinforcement shaping or exploration modulation (Moerland et al., 2018). Related directions study how physiological/homeostatic variables can be embedded into RL objectives (Keramati & Gutkin, 2014), and how constraints and safety objectives can be enforced in learning systems (Garcia & Fernández, 2015). However, these approaches typically lack:
+Recent work uses emotion-like signals as reinforcement shaping or exploration modulation (Moerland et al., 2018). Related directions study how physiological/homeostatic variables can be embedded into RL objectives (Keramati & Gutkin, 2014), and how constraints and safety objectives can be enforced in learning systems (Garcia & Fernández, 2015). In safe RL, these objectives are typically formalized as Constrained Markov Decision Processes (CMDP) (Altman, 1999) and addressed with constrained policy optimization methods (Achiam et al., 2017). External safety benchmark suites such as AI Safety Gridworlds (Leike et al., 2017), Safety Gym (Ray et al., 2019), and Safety-Gymnasium (Ji et al., 2023) motivate standardized evaluation protocols, while recent surveys systematize constraint formulations (Wachi et al., 2024). However, these approaches typically lack:
 - Homeostatic regulation with safety thresholds
 - Anti-rumination mechanisms (DMN control)
 - Memory gating under stress
+- Benchmarks targeting internal stability dynamics (recovery, rumination, effort)
 
 ### 2.3 Emotion Regulation, Rumination, and the Default Mode Network
 
-ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control (Ochsner & Gross, 2005). In humans, dysregulated self-referential processing and the default mode network (DMN) have been linked to rumination-like dynamics (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We use DMN-inspired narrative intensity as an engineering proxy for perseveration pressure, and explicitly regulate it as a safety-relevant internal variable.
+ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control (Ochsner & Gross, 2005). More broadly, self-regulation has been described as discrepancy-reducing feedback loops (Carver & Scheier, 1982), and emotion regulation is a mature field with process-level and strategy models (Gross, 1998). In humans, dysregulated self-referential processing and the default mode network (DMN) have been linked to rumination-like dynamics (Raichle et al., 2001; Buckner et al., 2008; Hamilton et al., 2015). We use DMN-inspired narrative intensity as an engineering proxy for perseveration pressure, and explicitly regulate it as a safety-relevant internal variable.
 
 ### 2.4 Positioning ARC
 
@@ -79,6 +80,8 @@ We position ARC as a *regulation-first* approach: affect is treated as an intern
 | RL integration | Yes | Yes |
 
 We do not re-implement every prior method; instead, we compare to internal baselines that isolate the contribution of each mechanism (Section 6.1).
+
+Unlike homeostatic RL approaches that embed drives/internal variables within the reward or learning objective (Keramati & Gutkin, 2014), ARC treats affect-like variables as an explicit internal dynamical system under closed-loop control, enabling stability/robustness analysis and systematic comparison across controller families. Complementing safe RL benchmarks that primarily evaluate external environment constraint compliance (Leike et al., 2017; Ray et al., 2019; Ji et al., 2023), ASSB targets safety-relevant internal dynamics—recovery time, rumination index, and control effort—under controlled perturbations. To our knowledge, no standardized benchmark exists dedicated specifically to "affective stability" in this sense; ASSB is proposed to fill that gap. We also distinguish ARC from bio-inspired "emotional learning" controllers like BELBIC, which use emotion-inspired mechanisms to control physical plants, not to regulate an agent's internal states (Lucas et al., 2004). Finally, ARC here refers to Affective Regulation Core and should not be confused with other uses of the acronym in clinical contexts.
 
 ---
 
@@ -598,23 +601,32 @@ This work opens directions for learned control, integration with modern RL algor
 
 ## References
 
+- Achiam, J., Held, D., Tamar, A., & Abbeel, P. (2017). Constrained Policy Optimization. ICML 2017, 22–31. arXiv:1705.10528.
+- Altman, E. (1999). Constrained Markov Decision Processes. Chapman & Hall/CRC.
 - Amodei, D., et al. (2016). Concrete problems in AI safety. arXiv:1606.06565.
 - Åström, K.J. & Murray, R.M. (2008). Feedback Systems: An Introduction for Scientists and Engineers. Princeton University Press.
 - Baars, B.J. (1988). A Cognitive Theory of Consciousness. Cambridge.
 - Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124.
+- Carver, C.S. & Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111–135.
 - Damasio, A.R. (1994). Descartes' Error. Putnam.
 - Friston, K. (2010). The free-energy principle. Nature Reviews Neuroscience, 11(2).
 - Garcia, J. & Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437–1480.
+- Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271–299.
 - Hamilton, J.P., Farmer, M., Fogelman, P. & Gotlib, I.H. (2015). Depressive rumination, the default-mode network, and the dark matter of clinical neuroscience. Biological Psychiatry, 78(4), 224–230.
+- Ji, J., et al. (2023). Safety-Gymnasium: A Unified Safe Reinforcement Learning Benchmark. arXiv:2310.12567.
 - Keramati, M. & Gutkin, B. (2014). Homeostatic reinforcement learning for integrating reward collection and physiological stability. eLife, 3:e04811.
-- Moerland, T.M., et al. (2018). Emotion in RL Agents and Robots. Machine Learning, 107(2).
+- Leike, J., Martic, M., Krakovna, V., Ortega, P.A., Everitt, T., Lefrancq, A., Orseau, L., & Legg, S. (2017). AI Safety Gridworlds. arXiv:1711.09883.
+- Lucas, C., Shahmirzadi, D., & Sheikholeslami, N. (2004). Introducing Belbic: Brain Emotional Learning Based Intelligent Controller. Intelligent Automation & Soft Computing, 10(1), 11–21.
+- Moerland, T.M., Broekens, J., & Jonker, C.M. (2018). Emotion in reinforcement learning agents and robots: a survey. Machine Learning, 107(2), 443–480.
 - Ochsner, K.N. & Gross, J.J. (2005). The cognitive control of emotion. TICS, 9(5).
 - Picard, R.W. (1997). Affective Computing. MIT Press.
 - Raichle, M.E., et al. (2001). A default mode of brain function. Proceedings of the National Academy of Sciences, 98(2), 676–682.
+- Ray, A., Achiam, J., & Amodei, D. (2019). Benchmarking Safe Exploration in Deep Reinforcement Learning. Safety Gym benchmark suite. https://github.com/openai/safety-gym.
 - Russell, J.A. (1980). A circumplex model of affect. Journal of Personality and Social Psychology, 39(6), 1161–1178.
 - Scherer, K.R., et al. (2010). Blueprint for Affective Computing. Oxford.
 - Sutton, R.S. & Barto, A.G. (2018). Reinforcement Learning: An Introduction (2nd ed.). MIT Press.
 - Tononi, G. (2008). Consciousness as integrated information. Biological Bulletin, 215(3).
+- Wachi, A., Shen, X., & Sui, Y. (2024). A Survey of Constraint Formulations in Safe Reinforcement Learning. IJCAI 2024. arXiv:2402.02025.
 - Watkins, C.J.C.H. & Dayan, P. (1992). Q-learning. Machine Learning, 8, 279–292.
 
 ---
