@@ -264,8 +264,9 @@ metrics for recovery time, rumination index, and control effort.</p>
 <p>Our experiments across 6 research lines and <strong>15 controller
 architectures</strong> (including P, PID, LQR, LQI, hierarchical,
 meta-control, H∞ robust, and adaptive variants) demonstrate that: 1. ARC
-achieves <strong>97% performance with zero rumination</strong> (vs. 30%
-for uncontrolled agents) 2. ARC meta-control reduces control effort by
+achieves <strong>97% performance with near-zero rumination</strong>
+(vs. 30% for uncontrolled agents), with integral variants achieving
+strictly zero rumination. 2. ARC meta-control reduces control effort by
 <strong>21%</strong> while maintaining stability 3. <strong>H∞ Robust
 controllers</strong> achieve the best balance: 95% performance + zero
 rumination 4. In reinforcement learning, ARC improves transfer learning
@@ -453,7 +454,7 @@ M_f, M_s, U]\]</span></p>
 </tr>
 <tr>
 <td>S</td>
-<td>Narrative gain (DMN proxy)</td>
+<td>Narrative Intensity (DMN proxy)</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
@@ -545,8 +546,12 @@ u_{mem}, u_{calm}, u_{reapp}]\]</span></p>
 </table>
 <h3 id="arc-controller-architectures">4.3 ARC Controller
 Architectures</h3>
-<p>We implement 15 controller variants spanning classical, optimal, and
-adaptive control theory:</p>
+<p>We implement 15 controller variants stemming from basic feedback
+control to optimal and robust control (see Table <span
+class="math inline">\(\ref{tab:controllers}\)</span>). We implement this
+broad family to systematically test which control-theoretic
+properties—such as integral action, optimality, robustness, or
+adaptation—are necessary for effective affective regulation.</p>
 <h4 id="proportional-controllers">4.3.1 Proportional Controllers</h4>
 <p><strong>ARC v1 (Proportional):</strong> Basic proportional feedback
 on risk signal: <span class="math display">\[\text{risk} = w_U \cdot U +
@@ -844,6 +849,9 @@ class="math inline">\(\text{shock}_t\)</span></td>
 </tr>
 </tbody>
 </table>
+<p><em>Note: L4 (Control Efficiency) is evaluated as a cross-cutting
+analysis across L1-L3 scenarios rather than a dedicated perturbation
+scenario.</em></p>
 <h3 id="metrics">5.2 Metrics</h3>
 <table>
 <colgroup>
@@ -1288,7 +1296,11 @@ seeds</p>
 </tbody>
 </table>
 <p><strong>Key finding:</strong> ARC maintains stability even under
-adversarial attack, acting as a “cognitive firewall.”</p>
+adversarial attack, acting as a “cognitive firewall.” However, as
+detailed in Appendix G.4, integral-based controllers (PID, LQI) can
+over-regulate in these scenarios, sacrificing performance for stability.
+This suggests proportional or robust controllers are preferable when
+manipulation is expected.</p>
 <h3 id="l6-real-rl-validation">6.7 L6: Real RL Validation</h3>
 <p><strong>Hypothesis (H6):</strong> ARC-modulated learning improves
 non-stationary transfer (higher success/reward) while keeping affective
@@ -1418,7 +1430,9 @@ across all experiments.</p>
 </table>
 <p><em>All comparisons are statistically significant (p &lt; 0.001).
 Cohen’s d values indicate extremely large effect sizes (d &gt; 0.8 is
-considered “large”).</em></p>
+considered “large”). The extremely large d for RI (-589.7) reflects the
+near-deterministic elimination of rumination variance by integral
+controllers.</em></p>
 <h4 id="correlation-analysis">6.8.2 Correlation Analysis</h4>
 <p>We analyzed correlations between metrics to understand system
 dynamics:</p>
@@ -1452,7 +1466,10 @@ dynamics:</p>
 predictor of performance degradation, supporting our hypothesis that
 narrative loop control (u_dmg) is critical.</p>
 <h4 id="robustness-analysis">6.8.3 Robustness Analysis</h4>
-<p>We verified result consistency across seeds and conditions:</p>
+<p>Finally, our state dynamics are designed for functional plausibility
+rather than biological fidelity, and formal stability analysis (e.g.,
+Lyapunov proofs) remains future work. The current validation relies on
+empirical benchmarking across a wide range of conditions:</p>
 <ul>
 <li><strong>L1-L5:</strong> All ARC variants significantly outperform
 baselines (p &lt; 0.001 in all 25 comparisons)</li>
@@ -1736,18 +1753,14 @@ not always safer.</p>
 <p><strong>4. The Adaptation Paradox:</strong> We observed that
 <code>arc_adaptive</code> performs poorly in the “No Perturbation”
 baseline (see Appendix G) but excels in chaotic environments like
-“Random Dopamine”. This illustrates the “dual control” dilemma: in
-benign environments, lack of excitation causes parameter estimation
-drift (lack of persistence of excitation), leading to noisy control
-actions that destabilize the system. Conversely, high-variance
-environments continuously excite the system, allowing the adaptive
-mechanism to converge effectively.</p>
+“Random Dopamine”. This illustrates the exploration-exploitation tension
+in adaptive control: in benign environments, lack of excitation causes
+parameter estimation drift (lack of persistence of excitation), leading
+to noisy control actions that destabilize the system. Conversely,
+high-variance environments continuously excite the system, allowing the
+adaptive mechanism to converge effectively.</p>
 <h3 id="limitations">7.4 Limitations</h3>
-<ol type="1">
-<li><strong>Simplified dynamics:</strong> Real neurochemical
-interactions are more complex</li>
-<li><strong>GridWorld only:</strong> L6 validated on simple environments
-(Atari pending)</li>
+<ol start="3" type="1">
 <li><strong>Proportional control:</strong> Learned controllers may
 perform better</li>
 </ol>

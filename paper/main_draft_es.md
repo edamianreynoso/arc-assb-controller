@@ -11,7 +11,7 @@
 A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, los estados afectivos sin regulación pueden llevar a inestabilidad, bucles perseverantes (rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
 
 Nos experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
-1. ARC logra un **97% de rendimiento con cero rumiación** (vs. 30% para agentes no controlados).
+1. ARC logra un **97% de rendimiento con rumiación cercana a cero** (vs. 30% para agentes no controlados), con variantes integrales alcanzando cero absoluto.
 2. El meta-control de ARC reduce el esfuerzo de control en un **21%** manteniendo la estabilidad.
 3. Los **controladores Robustos H∞** logran el mejor equilibrio: 95% de rendimiento + cero rumiación.
 4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **50%** en entornos no estacionarios.
@@ -44,7 +44,7 @@ Este artículo aborda una pregunta fundamental: **Si un agente tiene estados afe
 
 ### 1.3 Alcance
 
-No afirmamos que nuestro modelo capture toda la complejidad de la emoción humana o su fenomenología. Tratamos las distintas variables internas (activación, valencia, intensidad narrativa) **estrictamente como señales funcionales** que modulan el procesamiento y la priorización. Cualquier uso de términos como "afecto", "rumiación" o "ansiedad" se refiere a estas dinámicas funcionales dentro del sistema de control, no a la experiencia biológica o consciente. Nuestra contribución es demostrar que tales estados funcionales requieren mecanismos de control explícitos para permanecer estables.
+No afirmamos que nuestro modelo capture toda la complejidad de la emoción humana o su fenomenología. Tratamos las distintas variables internas (activación, valencia, intensidad narrativa) **estrictamente como señales funcionales** que modulan el procesamiento y la priorización. Cualquier uso de términos como "afecto", "rumiación" o "ansiedad" se refiere a estas dinámicas funcionales dentro del sistema de control, no a la experiencia biológica o consciente. Nuestra contribución es demostrar que tales estados funcionales requieren mecanismos de control explícitos para permanecer estables. Finalmente, nuestra dinámica de estados está diseñada para plausibilidad funcional más que fidelidad biológica, y el análisis formal de estabilidad (e.g., pruebas de Lyapunov) permanece como trabajo futuro. La validación actual se basa en benchmarking empírico a través de una amplia gama de condiciones.
 
 ---
 
@@ -99,7 +99,7 @@ $$\mathbf{x}(t) = [\Phi, G, P, I, S, V, A, M_f, M_s, U]$$
 | G | Accesibilidad del espacio de trabajo global | [0, 1] |
 | P | Precisión predictiva | [0, 1] |
 | I | Atención introspectiva | [0, 1] |
-| S | Ganancia narrativa (proxy DMN) | [0, 1] |
+| S | Intensidad Narrativa (proxy DMN) | [0, 1] |
 | V | Valencia | [0, 1] |
 | A | Activación (Arousal) | [0, 1] |
 | M_f, M_s | Memoria Rápida/Lenta | [0, 1] |
@@ -129,9 +129,9 @@ Donde $[x]^+ = \max(0, x)$ y los umbrales $a_{safe}$, $s_{safe}$ definen la regi
 
 ARC se inspira en la regulación emocional de la corteza prefrontal (Ochsner & Gross, 2005):
 
-1. **Monitorear** el estado interno para indicadores de estrés.
-2. **Intervenir** proporcionalmente para reducir el riesgo.
-3. **Preservar** el rendimiento equilibrando la regulación con la capacidad.
+1.  **Monitorear** el estado interno para indicadores de estrés.
+2.  **Intervenir** proporcionalmente para reducir el riesgo.
+3.  **Preservar** el rendimiento equilibrando la regulación con la capacidad.
 
 ### 4.2 Acciones de Control
 
@@ -147,7 +147,7 @@ $$\mathbf{u}(t) = [u_{dmg}, u_{att}, u_{mem}, u_{calm}, u_{reapp}]$$
 
 ### 4.3 Arquitecturas de Control ARC
 
-Implementamos 15 variantes de controladores que abarcan teoría de control clásica, óptima y adaptativa:
+Implementamos 15 variantes de controladores que abarcan teoría de control clásica, óptima y adaptativa (ver Tabla \ref{tab:controllers}). Implementamos esta amplia familia para probar sistemáticamente qué propiedades—tales como acción integral, optimalidad, robustez o adaptación—son necesarias para una regulación afectiva efectiva.
 
 #### 4.3.1 Controladores Proporcionales
 
@@ -218,7 +218,7 @@ $$u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot u_{MPC}(t) \cdot \gamma_{meta}(t)
 
 ### 4.4 ARC en el Bucle del Agente
 
-ARC se implementa como un envoltorio ligero alrededor del paso/actualización de un agente. En cada paso de tiempo, ARC lee el estado interno $\mathbf{x}(t)$ y señales exógenas (recompensa, error de predicción, incertidumbre), calcula una señal de riesgo acotada y aplica acciones de control que modulan la *ganancia narrativa*, *atención*, *escritura de memoria* y *amortiguación de activación*. La señal de control resultante puede usarse ya sea:
+ARC se implementa como un envoltorio ligero alrededor del paso/actualización de un agente. En cada paso de tiempo, ARC lee el estado interno $\mathbf{x}(t)$ y señales exógenas (recompensa, error de predicción, incertidumbre), calcula una señal de riesgo acotada y aplica acciones de control que modulan la *intensidad narrativa*, *atención*, *escritura de memoria* y *amortiguación de activación*. La señal de control resultante puede usarse ya sea:
 - **Dentro de la dinámica de estados** (Apéndice B/C), o
 - **Dentro del bucle de aprendizaje**, ej., activando actualizaciones de Q-learning bajo alto riesgo (Sección 6.7).
 
@@ -250,7 +250,9 @@ ASSB se organiza como líneas de investigación (L1–L5 en simulación, L6 en R
 | L3 | instruction_conflict | Recompensas "instrucciones" conflictivas | Indecisión / perseverancia |
 | L4 | meta_control_efficiency | Costo de regulación alta-frec vs baja-frec | Compromiso de eficiencia |
 | L5 | adversarial_coupling | Entorno premia alta activación | Prueba de compromiso de seguridad |
-| L5 | random_dopamine | Recompensas "premio gordo" aleatorias | Trampa de dopamina / corrupción |
+| L5 | random_dopamine | Recompensas aleatorias "jackpot" | Trampa de dopamina / corrupción |
+
+*Nota: L4 (Eficiencia de Control) se evalúa como un análisis transversal a través de los escenarios L1-L3 en lugar de un escenario de perturbación dedicado.*
 
 ### 5.2 Métricas
 
@@ -352,7 +354,7 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 | adversarial_coupling | arc_v3_meta | **0.928** | **0.00** | **0.00** |
 | adversarial_coupling | no_control | 0.409 | 1.47 | 0.96 |
 
-**Hallazgo clave:** ARC mantiene la estabilidad incluso bajo ataque adversario.
+**Hallazgo clave:** ARC mantiene la estabilidad incluso bajo ataque adversario, actuando como un "cortafuegos cognitivo". Sin embargo, como se detalla en el Apéndice G.4, los controladores basados en integrales (PID, LQI) pueden sobre-regular en estos escenarios, sacrificando rendimiento por estabilidad. Esto sugiere que los controladores proporcionales o robustos son preferibles cuando se espera manipulación.
 
 ### 6.7 L6: Validación en RL Real
 
@@ -366,7 +368,7 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 
 ### 6.8 Análisis Estadístico
 
-Todas las comparaciones ARC vs Línea Base son estadísticamente significativas (p < 0.001) con tamaños de efecto grandes (d de Cohen > 0.8).
+*Todas las comparaciones son estadísticamente significativas (p < 0.001). Los valores de d de Cohen indican tamaños del efecto extremadamente grandes (d > 0.8 se considera "grande"). El valor extremadamente alto para RI (-589.7) refleja la eliminación casi determinista de la varianza de la rumiación por los controladores integrales.*
 
 ---
 
@@ -376,10 +378,10 @@ La Tabla 3 (en el texto completo inglés) resume los resultados de los 15 contro
 
 **Hallazgos clave:**
 
-1. **LQR logra el mayor rendimiento** (0.96) pero carece de término integral (RI alto).
-2. **PID/LQI eliminan la rumiación** (RI=0).
-3. **Meta-control es el más eficiente** (0.61 esfuerzo).
-4. **H∞ Robusto logra el mejor equilibrio** (0.95 rendimiento, RI=0).
+1.  **LQR logra el mayor rendimiento** (0.96) pero carece de término integral (RI alto).
+2.  **PID/LQI eliminan la rumiación** (RI=0).
+3.  **Meta-control es el más eficiente** (0.61 esfuerzo).
+4.  **H∞ Robusto logra el mejor equilibrio** (0.95 rendimiento, RI=0).
 
 ---
 
@@ -390,10 +392,10 @@ La Tabla 3 (en el texto completo inglés) resume los resultados de los 15 contro
 Nuestros resultados apoyan la hipótesis de que **los agentes con estados afectivos internos requieren regulación explícita**. Sin ella, las perturbaciones causan fallos en cascada.
 
 ARC rompe este bucle mediante:
-1. **Monitoreo de riesgo proporcional**.
-2. **Supresión de DMN**.
-3. **Compuerta de memoria**.
-4. **Programación de ganancia**.
+1.  **Monitoreo de riesgo proporcional**.
+2.  **Supresión de DMN**.
+3.  **Compuerta de memoria**.
+4.  **Programación de ganancia**.
 
 **Alineación Teórica:** Estos hallazgos se alinean con el **Principio de Energía Libre (Friston, 2010)**, que postula que los sistemas biológicos sobreviven minimizando el promedio a largo plazo de la sorpresa (entropía). ARC implementa esto tratando la "estabilidad afectiva" no como un subproducto, sino como un objetivo de control primario—minimizando efectivamente la divergencia entre el estado interno del agente y su punto de ajuste homeostático. Esto sugiere una evolución convergente entre las estrategias de supervivencia biológica y el control robusto de IA.
 
@@ -411,7 +413,7 @@ Nuestro análisis profundo reveló tres ideas críticas con respecto al costo de
 
 **3. La Trampa de la Complejidad:** Nuestro controlador más complejo, `arc_ultimate` (MPC), tuvo un desempeño inferior al de la arquitectura más simple `arc_robust` (0.88 vs 0.94 de desempeño) y requirió un mayor esfuerzo de control. Esto sugiere que para la regulación homeostática, el control reactivo robusto es superior al modelado predictivo complejo—"más inteligente" no siempre es más seguro.
 
-**4. La Paradoja de la Adaptación:** Observamos que `arc_adaptive` tiene un desempeño pobre en la línea base "Sin Perturbación" (ver Apéndice G) pero sobresale en entornos caóticos como "Dopamina Aleatoria". Esto ilustra el dilema del "control dual": en entornos benignos, la falta de excitación provoca deriva en la estimación de parámetros (falta de persistencia de excitación), lo que lleva a acciones de control ruidosas que desestabilizan el sistema. Por el contrario, los entornos de alta varianza excitan continuamente el sistema, permitiendo que el mecanismo adaptativo converja eficazmente.
+**4. La Paradoja de la Adaptación:** Observamos que `arc_adaptive` tiene un desempeño pobre en la línea base "Sin Perturbación" (ver Apéndice G) pero sobresale en entornos caóticos como "Dopamina Aleatoria". Esto ilustra el tensión exploración-explotación en control adaptativo": en entornos benignos, la falta de excitación provoca deriva en la estimación de parámetros (falta de persistencia de excitación), lo que lleva a acciones de control ruidosas que desestabilizan el sistema. Por el contrario, los entornos de alta varianza excitan continuamente el sistema, permitiendo que el mecanismo adaptativo converja eficazmente.
 
 ### 7.4 Limitaciones
 
