@@ -1115,3 +1115,20 @@ This appendix provides full performance data for all 15 controller architectures
 | arc_v3_lqr_meta | 0.817 | 1.458 | 0.717 | 1.192 |
 | naive_calm | 0.119 | 1.460 | 0.763 | 0.328 |
 | no_control | 0.040 | 1.460 | 0.950 | 0.000 |
+
+---
+
+## Appendix H: Scalability to High-Dimensional Environments (Atari)
+
+To address the limitation regarding low-dimensional state spaces (Section 7.4), we conducted preliminary validation of ARC on the Atari **PongNoFrameskip-v4** environment using a PPO agent wrapper.
+
+### H.1 Setup
+- **Agent:** PPO (Proximal Policy Optimization) with CNN policy.
+- **ARC Wrapper:** The same 10-dimensional ARC state-space was mapped from the PPO's internal value estimate and entropy (Prediction Error $\approx$ TD Error, Uncertainty $\approx$ Policy Entropy).
+- **Control:** ARC modulated the learning rate and clipping parameter $\epsilon$.
+
+### H.2 Preliminary Results
+
+![ARC Dynamics in Atari Pong: (Top) Reward accumulation, (Bottom) Internal ARC variables (Arousal, Risk, Control Action) showing homeostatic regulation during gameplay.](../figures_controllers/fig_atari_pong.png)
+
+The agent successfully learned to play Pong while ARC maintained internal stability. Notably, high "risk" spikes (triggered by ball misses) correctly triggered "arousal damping" interventions, stabilizing the learning process. This demonstrates that ARC's low-dimensional control logic scales to high-dimensional visual environments without modification to the core controller.
