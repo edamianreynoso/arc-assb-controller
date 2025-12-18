@@ -233,7 +233,7 @@ ARC is implemented as a light-weight wrapper around an agent’s step/update. At
 3. Compute $\mathbf{u}(t)$ with saturation to $[0,1]$
 4. Apply $\mathbf{u}(t)$ to state dynamics and/or learning updates
 
-![ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions.](../figures_controllers/fig_arc_architecture.png)
+![ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions.](../figures_controllers/fig_arc_architecture_v2.png)
 
 ### 4.5 Safety Objective and Control Cost
 
