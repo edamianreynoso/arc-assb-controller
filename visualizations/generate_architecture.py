@@ -10,7 +10,7 @@ import numpy as np
 def create_architecture_diagram(output_path):
     # Create figure with white background
     fig, ax = plt.subplots(figsize=(14, 9), facecolor='white', dpi=300)
-    ax.set_xlim(0, 14)
+    ax.set_xlim(-0.5, 14)
     ax.set_ylim(0, 9)
     ax.set_aspect('equal')
     ax.axis('off')
@@ -120,10 +120,10 @@ def create_architecture_diagram(output_path):
     ax.text(8.7, 3.7, r'$\mathbf{u}(t)$', fontsize=12, fontweight='bold', ha='center', va='center', color='#D32F2F',
             bbox=dict(facecolor='white', edgecolor='none', alpha=0.9))
     
-    # Exogenous inputs (left side)
-    ax.annotate('', xy=(1, 6.1), xytext=(0.2, 6.1), arrowprops=dict(arrowstyle='->', mutation_scale=12, lw=1.5, color=ARROW_COLOR))
-    ax.text(0.35, 6.5, 'Exogenous\nInputs', fontsize=9, ha='center', va='center', color='#555')
-    ax.text(0.35, 5.7, '(R, PE)', fontsize=8, ha='center', va='center', color='#777')
+    # Exogenous inputs (left side) - FIXED: moved inside figure bounds
+    ax.annotate('', xy=(1, 6.1), xytext=(0.5, 6.1), arrowprops=dict(arrowstyle='->', mutation_scale=12, lw=1.5, color=ARROW_COLOR))
+    ax.text(0.5, 5.5, 'Exogenous Inputs\n(Reward, PE)', fontsize=9, ha='center', va='top', color='#555',
+            bbox=dict(facecolor='white', edgecolor='#ccc', alpha=0.9, boxstyle='round,pad=0.3'))
     
     # Caption
     ax.text(7, 0.6, 'Figure 1: ARC Control Loop Architecture', fontsize=12, fontweight='bold', ha='center', va='center', color='#333')
