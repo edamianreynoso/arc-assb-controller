@@ -178,7 +178,7 @@ def plot_state_dynamics(data: dict, output_dir: str):
         print("No ASSB state data in raw results")
         return
     
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
     
     # Filter for ChangingGoalGridWorld (most interesting)
     env_filter = 'ChangingGoalGridWorld' if 'ChangingGoalGridWorld' in df['env'].values else df['env'].values[0]

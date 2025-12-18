@@ -24,8 +24,13 @@ import seaborn as sns
 plt.style.use("seaborn-v0_8-whitegrid")
 plt.rcParams.update(
     {
-        "figure.dpi": 150,
-        "savefig.dpi": 150,
+        "figure.dpi": 300,
+        "savefig.dpi": 300,
+        "font.size": 11,
+        "axes.titlesize": 14,
+        "axes.labelsize": 12,
+        "xtick.labelsize": 10,
+        "ytick.labelsize": 10,
         "savefig.facecolor": "white",
         "axes.facecolor": "white",
     }
@@ -100,6 +105,9 @@ def plot_heatmap(
         cmap=cmap,
         vmin=vmin,
         vmax=vmax,
+        annot=True,
+        fmt=".2f",
+        annot_kws={"size": 9, "weight": "normal"},
         linewidths=0.5,
         linecolor="#e6e6e6",
         cbar_kws={"label": cbar_label},
