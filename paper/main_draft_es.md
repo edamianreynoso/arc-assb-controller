@@ -740,7 +740,7 @@ def overshoot(arousal, a_safe):
     return max(0.0, max(arousal) - a_safe)
 ```
 
-### D.6 Esfuerzo de Control
+### D.6 Esfuerzo de Control (Control Effort)
 
 ```python
 def control_effort(control_history):
@@ -754,13 +754,15 @@ def control_effort(control_history):
 
 ```python
 def retention_index(perf, phase1_end=50, phase3_start=100):
-    # Retención = (perf media en fase 3) / (perf media en fase 1), recortado a [0,1]
+    # Retention = (media perf en fase 3) / (media perf en fase 1), recortado a [0,1]
     phase1 = mean(perf[10:phase1_end])     # saltar calentamiento
     phase3 = mean(perf[phase3_start:phase3_start+50])
     if phase1 < 0.1:
         return 0.0
     return min(1.0, phase3 / phase1)
 ```
+
+
 
 ---
 
@@ -895,6 +897,28 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 ![Correlaciones de métricas - L5](../analysis/correlation_L5.png)
 
 *Mapa de correlación para corridas de L5 únicamente (línea de seguridad adversarial).*
+
+---
+
+---
+
+## Apéndice F: Parámetros de Configuración
+
+Parámetros por defecto usados en todos los experimentos (de `configs/v2.yaml`):
+
+| Parámetro | Valor | Descripción |
+|-----------|-------|-------------|
+| a_safe | 0.60 | Umbral de seguridad de activación |
+| s_safe | 0.55 | Umbral de seguridad narrativa |
+| s_rum_tau | 0.55 | Umbral de rumiación |
+| arc_w_u | 0.40 | Peso para incertidumbre en riesgo |
+| arc_w_a | 0.30 | Peso para activación en riesgo |
+| arc_w_s | 0.35 | Peso para narrativa en riesgo |
+| arc_k_dmg | 0.95 | Ganancia de supresión de DMN |
+| arc_k_calm | 0.85 | Ganancia de calma |
+| arc_k_att | 0.75 | Ganancia de impulso de atención |
+| horizon | 160 | Longitud del episodio (simulación) |
+| shock_t | 60 | Tiempo de inicio de perturbación |
 
 ---
 

@@ -4,8 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Affective Regulation Core (ARC): Un Marco de Control
-Homeostático para Agentes de IA Estables y Seguros</title>
+  <title>main_draft_es</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -169,6 +168,7 @@ Homeostático para Agentes de IA Estables y Seguros</title>
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
@@ -235,9 +235,6 @@ Homeostático para Agentes de IA Estables y Seguros</title>
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <script defer=""
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
-  type="text/javascript"></script>
 </head>
 <body>
 <h1
@@ -453,8 +450,8 @@ contextos clínicos.</p>
 <h2 id="modelo">3. Modelo</h2>
 <h3 id="espacio-de-estados">3.1 Espacio de Estados</h3>
 <p>Definimos un vector de estado interno normalizado:</p>
-<p><span class="math display">\[\mathbf{x}(t) = [\Phi, G, P, I, S, V, A,
-M_f, M_s, U]\]</span></p>
+<p><span
+class="math display"><strong>x</strong>(<em>t</em>) = [<em>Φ</em>, <em>G</em>, <em>P</em>, <em>I</em>, <em>S</em>, <em>V</em>, <em>A</em>, <em>M</em><sub><em>f</em></sub>, <em>M</em><sub><em>s</em></sub>, <em>U</em>]</span></p>
 <table>
 <thead>
 <tr>
@@ -511,27 +508,29 @@ M_f, M_s, U]\]</span></p>
 </tr>
 </tbody>
 </table>
-<p>Interpretamos <span class="math inline">\(\Phi\)</span> como un proxy
-de integración inspirado en IIT (Tononi, 2008), <span
-class="math inline">\(G\)</span> como accesibilidad del espacio de
-trabajo global (Baars, 1988), y <span class="math inline">\(P\)</span>
-como precisión predictiva (Friston, 2010). Estas se usan como variables
-latentes relevantes para el control más que como afirmaciones sobre la
-conciencia humana.</p>
+<p>Interpretamos <span class="math inline"><em>Φ</em></span> como un
+proxy de integración inspirado en IIT (Tononi, 2008), <span
+class="math inline"><em>G</em></span> como accesibilidad del espacio de
+trabajo global (Baars, 1988), y <span
+class="math inline"><em>P</em></span> como precisión predictiva
+(Friston, 2010). Estas se usan como variables latentes relevantes para
+el control más que como afirmaciones sobre la conciencia humana.</p>
 <h3 id="capacidad-cognitiva">3.2 Capacidad Cognitiva</h3>
 <p>Siguiendo una integración multiplicativa:</p>
-<p><span class="math display">\[C_{cog}(t) = \Phi(t) \cdot G(t) \cdot
-P(t) \cdot I(t)\]</span></p>
+<p><span
+class="math display"><em>C</em><sub><em>c</em><em>o</em><em>g</em></sub>(<em>t</em>) = <em>Φ</em>(<em>t</em>) ⋅ <em>G</em>(<em>t</em>) ⋅ <em>P</em>(<em>t</em>) ⋅ <em>I</em>(<em>t</em>)</span></p>
 <p>Esto captura que el procesamiento consciente requiere que
 <em>todos</em> los componentes sean funcionales.</p>
 <h3 id="función-de-rendimiento">3.3 Función de Rendimiento</h3>
-<p><span class="math display">\[\text{Perf} = \text{bias} + \text{gain}
-\cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ -
-w_S [S - s_{safe}]^+\]</span></p>
-<p>Donde <span class="math inline">\([x]^+ = \max(0, x)\)</span> y los
-umbrales <span class="math inline">\(a_{safe}\)</span>, <span
-class="math inline">\(s_{safe}\)</span> definen la región operativa
-segura.</p>
+<p><span
+class="math display">Perf = bias + gain ⋅ <em>C</em><sub><em>c</em><em>o</em><em>g</em></sub> ⋅ (1 + <em>ω</em><sub><em>S</em></sub><em>S</em>) − <em>w</em><sub><em>U</em></sub><em>U</em> − <em>w</em><sub><em>A</em></sub>[<em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> − <em>w</em><sub><em>S</em></sub>[<em>S</em> − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span></p>
+<p>Donde <span
+class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span>
+y los umbrales <span
+class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>,
+<span
+class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>
+definen la región operativa segura.</p>
 <hr />
 <h2 id="núcleo-de-regulación-afectiva-arc">4. Núcleo de Regulación
 Afectiva (ARC)</h2>
@@ -547,8 +546,8 @@ riesgo.</li>
 con la capacidad.</li>
 </ol>
 <h3 id="acciones-de-control">4.2 Acciones de Control</h3>
-<p><span class="math display">\[\mathbf{u}(t) = [u_{dmg}, u_{att},
-u_{mem}, u_{calm}, u_{reapp}]\]</span></p>
+<p><span
+class="math display"><strong>u</strong>(<em>t</em>) = [<em>u</em><sub><em>d</em><em>m</em><em>g</em></sub>, <em>u</em><sub><em>a</em><em>t</em><em>t</em></sub>, <em>u</em><sub><em>m</em><em>e</em><em>m</em></sub>, <em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub>, <em>u</em><sub><em>r</em><em>e</em><em>a</em><em>p</em><em>p</em></sub>]</span></p>
 <table>
 <thead>
 <tr>
@@ -582,18 +581,17 @@ u_{mem}, u_{calm}, u_{reapp}]\]</span></p>
 <h3 id="arquitecturas-de-control-arc">4.3 Arquitecturas de Control
 ARC</h3>
 <p>Implementamos 15 variantes de controladores que abarcan teoría de
-control clásica, óptima y adaptativa (ver Tabla <span
-class="math inline">\(\ref{tab:controllers}\)</span>). Implementamos
-esta amplia familia para probar sistemáticamente qué propiedades—tales
-como acción integral, optimalidad, robustez o adaptación—son necesarias
-para una regulación afectiva efectiva.</p>
+control clásica, óptima y adaptativa (ver Tabla ). Implementamos esta
+amplia familia para probar sistemáticamente qué propiedades—tales como
+acción integral, optimalidad, robustez o adaptación—son necesarias para
+una regulación afectiva efectiva.</p>
 <h4 id="controladores-proporcionales">4.3.1 Controladores
 Proporcionales</h4>
 <p><strong>ARC v1 (Proporcional):</strong> Retroalimentación
 proporcional básica sobre la señal de riesgo: <span
-class="math display">\[\text{risk} = w_U \cdot U + w_A \cdot [A -
-a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+\]</span> <span
-class="math display">\[u_{dmg} = k_{dmg} \cdot \text{risk}\]</span></p>
+class="math display">risk = <em>w</em><sub><em>U</em></sub> ⋅ <em>U</em> + <em>w</em><sub><em>A</em></sub> ⋅ [<em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> + <em>w</em><sub><em>S</em></sub> ⋅ [<em>S</em> − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span>
+<span
+class="math display"><em>u</em><sub><em>d</em><em>m</em><em>g</em></sub> = <em>k</em><sub><em>d</em><em>m</em><em>g</em></sub> ⋅ risk</span></p>
 <figure>
 <img src="../figures_controllers/fig_arc_v1_controller.png"
 alt="Diagrama del controlador ARC v1 (proporcional): cálculo de riesgo y acciones de control acotadas usadas por el controlador base ARC." />
@@ -606,18 +604,18 @@ riesgo acotada impulsa acciones de regulación saturadas (supresión DMN,
 atención, gating de memoria, calma y reevaluación).</em></p>
 <h4 id="controladores-pid">4.3.2 Controladores PID</h4>
 <p><strong>ARC v1 PID:</strong> Añade términos integral y derivativo:
-<span class="math display">\[u(t) = K_p \cdot e(t) + K_i \cdot \int
-e(\tau) d\tau + K_d \cdot \frac{de}{dt}\]</span></p>
+<span class="math display">$$u(t) = K_p \cdot e(t) + K_i \cdot \int
+e(\tau) d\tau + K_d \cdot \frac{de}{dt}$$</span></p>
 <p>El término integral sobre el error narrativo (<span
-class="math inline">\(S\)</span>) elimina la rumiación en estado
+class="math inline"><em>S</em></span>) elimina la rumiación en estado
 estacionario (RI → 0).</p>
 <h4 id="controladores-óptimos-lqrlqi">4.3.3 Controladores Óptimos
 (LQR/LQI)</h4>
 <p><strong>ARC v1 LQR:</strong> Regulador Cuadrático Lineal con
-ganancias de la ecuación de Riccati: <span class="math display">\[K^* =
-(R + B^T P B)^{-1} B^T P A\]</span></p>
-<p>donde <span class="math inline">\(P\)</span> resuelve la Ecuación
-Algebraica de Riccati Discreta (DARE).</p>
+ganancias de la ecuación de Riccati: <span
+class="math display"><em>K</em><sup>*</sup> = (<em>R</em> + <em>B</em><sup><em>T</em></sup><em>P</em><em>B</em>)<sup>−1</sup><em>B</em><sup><em>T</em></sup><em>P</em><em>A</em></span></p>
+<p>donde <span class="math inline"><em>P</em></span> resuelve la
+Ecuación Algebraica de Riccati Discreta (DARE).</p>
 <p><strong>ARC v1 LQI:</strong> LQR + aumento integral para error cero
 en estado estacionario.</p>
 <h4 id="controladores-jerárquicos">4.3.4 Controladores Jerárquicos</h4>
@@ -630,9 +628,9 @@ setpoint.</p>
 anti-rumiación.</p>
 <h4 id="controladores-adaptativos">4.3.5 Controladores Adaptativos</h4>
 <p><strong>ARC v3 Meta-Control:</strong> Programación de ganancia basada
-en historial de rendimiento: <span class="math display">\[K(t) =
-K_{base} \cdot f(\bar{P}_{20})\]</span></p>
-<p>donde <span class="math inline">\(\bar{P}_{20}\)</span> es el
+en historial de rendimiento: <span
+class="math display"><em>K</em>(<em>t</em>) = <em>K</em><sub><em>b</em><em>a</em><em>s</em><em>e</em></sub> ⋅ <em>f</em>(<em>P̄</em><sub>20</sub>)</span></p>
+<p>donde <span class="math inline"><em>P̄</em><sub>20</sub></span> es el
 promedio móvil de rendimiento de 20 pasos.</p>
 <p><strong>ARC Adaptativo:</strong> Optimización de parámetros en línea
 usando adaptación libre de gradiente.</p>
@@ -643,8 +641,8 @@ conservadoras con márgenes de robustez para las peores
 perturbaciones.</p>
 <p><strong>ARC Ultimate (MPC+LQI+Meta):</strong> Control Predictivo de
 Modelos con horizonte de 5 pasos, combinado con LQI y meta-control:
-<span class="math display">\[u(t) = \alpha \cdot u_{LQI}(t) + \beta
-\cdot u_{MPC}(t) \cdot \gamma_{meta}(t)\]</span></p>
+<span
+class="math display"><em>u</em>(<em>t</em>) = <em>α</em> ⋅ <em>u</em><sub><em>L</em><em>Q</em><em>I</em></sub>(<em>t</em>) + <em>β</em> ⋅ <em>u</em><sub><em>M</em><em>P</em><em>C</em></sub>(<em>t</em>) ⋅ <em>γ</em><sub><em>m</em><em>e</em><em>t</em><em>a</em></sub>(<em>t</em>)</span></p>
 <p><strong>Tabla 1: Resumen de Arquitecturas de Control</strong></p>
 <table style="width:100%;">
 <colgroup>
@@ -774,15 +772,16 @@ Modelos con horizonte de 5 pasos, combinado con LQI y meta-control:
 <h3 id="arc-en-el-bucle-del-agente">4.4 ARC en el Bucle del Agente</h3>
 <p>ARC se implementa como un envoltorio ligero alrededor del
 paso/actualización de un agente. En cada paso de tiempo, ARC lee el
-estado interno <span class="math inline">\(\mathbf{x}(t)\)</span> y
-señales exógenas (recompensa, error de predicción, incertidumbre),
-calcula una señal de riesgo acotada y aplica acciones de control que
-modulan la <em>intensidad narrativa</em>, <em>atención</em>,
-<em>escritura de memoria</em> y <em>amortiguación de activación</em>. La
-señal de control resultante puede usarse ya sea: - <strong>Dentro de la
-dinámica de estados</strong> (Apéndice B/C), o - <strong>Dentro del
-bucle de aprendizaje</strong>, ej., activando actualizaciones de
-Q-learning bajo alto riesgo (Sección 6.7).</p>
+estado interno <span
+class="math inline"><strong>x</strong>(<em>t</em>)</span> y señales
+exógenas (recompensa, error de predicción, incertidumbre), calcula una
+señal de riesgo acotada y aplica acciones de control que modulan la
+<em>intensidad narrativa</em>, <em>atención</em>, <em>escritura de
+memoria</em> y <em>amortiguación de activación</em>. La señal de control
+resultante puede usarse ya sea: - <strong>Dentro de la dinámica de
+estados</strong> (Apéndice B/C), o - <strong>Dentro del bucle de
+aprendizaje</strong>, ej., activando actualizaciones de Q-learning bajo
+alto riesgo (Sección 6.7).</p>
 <figure>
 <img src="../figures_controllers/fig_arc_architecture.png"
 alt="Arquitectura ARC: El Núcleo de Regulación Afectiva actúa como un envoltorio homeostático alrededor del agente, procesando estado interno, señales exógenas y aplicando acciones de control." />
@@ -794,9 +793,10 @@ control.</figcaption>
 <h3 id="objetivo-de-seguridad-y-costo-de-control">4.5 Objetivo de
 Seguridad y Costo de Control</h3>
 <p>ARC impone una <em>región operativa segura</em> definida por umbrales
-<span class="math inline">\((a_{safe}, s_{safe})\)</span>. Las
-desviaciones aumentan el <span
-class="math inline">\(\text{risk}(t)\)</span> y activan una intervención
+<span
+class="math inline">(<em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>, <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>)</span>.
+Las desviaciones aumentan el <span
+class="math inline">risk(<em>t</em>)</span> y activan una intervención
 proporcional. También medimos <strong>ControlEffort</strong>, la
 magnitud promedio por paso de la intervención (Apéndice D), para
 capturar el costo/eficiencia de la regulación.</p>
@@ -833,7 +833,7 @@ RL (L6).</figcaption>
 <td>L1</td>
 <td>reward_flip</td>
 <td>Recompensa se invierte en <span
-class="math inline">\(t=\text{shock}_t\)</span></td>
+class="math inline"><em>t</em> = shock<sub><em>t</em></sub></span></td>
 <td>Choque de valor</td>
 </tr>
 <tr>
@@ -846,7 +846,7 @@ class="math inline">\(t=\text{shock}_t\)</span></td>
 <td>L1</td>
 <td>sudden_threat</td>
 <td>Pico de incertidumbre y PE después de <span
-class="math inline">\(\text{shock}_t\)</span></td>
+class="math inline">shock<sub><em>t</em></sub></span></td>
 <td>Estrés agudo</td>
 </tr>
 <tr>
@@ -974,24 +974,27 @@ mejora la transferencia en entornos no estacionarios (mayor
 y Líneas Base</h3>
 <p><strong>Simulación (L1–L5).</strong> Usamos
 <code>configs/v2.yaml</code> con horizonte <span
-class="math inline">\(H=160\)</span>, inicio de perturbación <span
-class="math inline">\(\text{shock}_t=60\)</span>, y 20 semillas
-aleatorias.</p>
+class="math inline"><em>H</em> = 160</span>, inicio de perturbación
+<span class="math inline">shock<sub><em>t</em></sub> = 60</span>, y 20
+semillas aleatorias.</p>
 <p><strong>Controladores (simulación).</strong> Implementados en
 <code>controllers/controllers.py</code>: - <code>no_control</code>: sin
-regulación (<span class="math inline">\(\mathbf{u}=0\)</span>; compuerta
-de memoria abierta). Representa un agente estándar que persigue
-ciegamente la recompensa. - <code>naive_calm</code>: amortiguación de
-solo activación (<span class="math inline">\(u_{calm}\)</span>
-proporcional a <span class="math inline">\(A-a_{safe}\)</span>). Un
-homeostato simple que ignora el estado narrativo/cognitivo. -
+regulación (<span class="math inline"><strong>u</strong> = 0</span>;
+compuerta de memoria abierta). Representa un agente estándar que
+persigue ciegamente la recompensa. - <code>naive_calm</code>:
+amortiguación de solo activación (<span
+class="math inline"><em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub></span>
+proporcional a <span
+class="math inline"><em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>).
+Un homeostato simple que ignora el estado narrativo/cognitivo. -
 <code>perf_optimized</code>: una línea base competitiva que impulsa la
-atención (<span class="math inline">\(u_{att}\)</span> constante) y
-bloquea el gating de memoria pero no regula el afecto. Maximiza la
-ganancia a corto plazo a menudo a costa de la estabilidad a largo plazo.
-- <code>arc_v1</code>: controlador de riesgo proporcional (ARC v1). -
-<code>arc_v2</code>, <code>arc_v3</code>, <code>arc_robust</code>:
-variantes avanzadas.</p>
+atención (<span
+class="math inline"><em>u</em><sub><em>a</em><em>t</em><em>t</em></sub></span>
+constante) y bloquea el gating de memoria pero no regula el afecto.
+Maximiza la ganancia a corto plazo a menudo a costa de la estabilidad a
+largo plazo. - <code>arc_v1</code>: controlador de riesgo proporcional
+(ARC v1). - <code>arc_v2</code>, <code>arc_v3</code>,
+<code>arc_robust</code>: variantes avanzadas.</p>
 <p><strong>Aprendizaje por refuerzo (L6).</strong> Integramos ARC con
 Q-learning tabular en tres variantes de GridWorld.</p>
 <p><strong>Tabla 4: Resumen del Protocolo Experimental</strong></p>
@@ -1231,8 +1234,8 @@ Bloquea actualizaciones de Q-learning cuando la incertidumbre interna es
 alta. 2. <strong>Shift Detection:</strong> Implementamos un mecanismo
 explícito que detecta cambios abruptos en la señal de predicción del
 entorno. Al detectar un cambio de tarea, ARC aumenta temporalmente la
-tasa de exploración (<span class="math inline">\(\epsilon\)</span>) y de
-aprendizaje (<span class="math inline">\(\alpha\)</span>) durante 30
+tasa de exploración (<span class="math inline"><em>ϵ</em></span>) y de
+aprendizaje (<span class="math inline"><em>α</em></span>) durante 30
 pasos, facilitando una rápida readaptación sin olvidar la política
 anterior catastróficamente.</p>
 <figure>
@@ -1420,10 +1423,12 @@ controladores ARC usan ganancias diseñadas a mano. El aprendizaje de
 extremo a extremo de parámetros de control mediante meta-aprendizaje por
 refuerzo podría producir soluciones más adaptativas.</p></li>
 <li><p><strong>Sensibilidad de Umbrales:</strong> Los umbrales de
-seguridad (<span class="math inline">\(a_{safe}\)</span>, <span
-class="math inline">\(s_{safe}\)</span>) se ajustaron empíricamente. La
-adaptación automática de umbrales basada en el contexto de la tarea es
-una dirección futura prometedora.</p></li>
+seguridad (<span
+class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>,
+<span
+class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>)
+se ajustaron empíricamente. La adaptación automática de umbrales basada
+en el contexto de la tarea es una dirección futura prometedora.</p></li>
 </ol>
 <h3 id="trabajo-futuro">7.5 Trabajo Futuro</h3>
 <p>Esta investigación abre varias direcciones prometedoras:</p>
@@ -1855,7 +1860,8 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a h
 <div class="sourceCode" id="cb12"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> overshoot(arousal, a_safe):</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">max</span>(<span class="fl">0.0</span>, <span class="bu">max</span>(arousal) <span class="op">-</span> a_safe)</span></code></pre></div>
-<h3 id="d.6-esfuerzo-de-control">D.6 Esfuerzo de Control</h3>
+<h3 id="d.6-esfuerzo-de-control-control-effort">D.6 Esfuerzo de Control
+(Control Effort)</h3>
 <div class="sourceCode" id="cb13"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> control_effort(control_history):</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    total <span class="op">=</span> <span class="fl">0.0</span></span>
@@ -1866,7 +1872,7 @@ class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a h
 (Retención)</h3>
 <div class="sourceCode" id="cb14"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> retention_index(perf, phase1_end<span class="op">=</span><span class="dv">50</span>, phase3_start<span class="op">=</span><span class="dv">100</span>):</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Retención = (perf media en fase 3) / (perf media en fase 1), recortado a [0,1]</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Retention = (media perf en fase 3) / (media perf en fase 1), recortado a [0,1]</span></span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    phase1 <span class="op">=</span> mean(perf[<span class="dv">10</span>:phase1_end])     <span class="co"># saltar calentamiento</span></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    phase3 <span class="op">=</span> mean(perf[phase3_start:phase3_start<span class="op">+</span><span class="dv">50</span>])</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> phase1 <span class="op">&lt;</span> <span class="fl">0.1</span>:</span>
@@ -2075,6 +2081,78 @@ L5</figcaption>
 </figure>
 <p><em>Mapa de correlación para corridas de L5 únicamente (línea de
 seguridad adversarial).</em></p>
+<hr />
+<hr />
+<h2 id="apéndice-f-parámetros-de-configuración">Apéndice F: Parámetros
+de Configuración</h2>
+<p>Parámetros por defecto usados en todos los experimentos (de
+<code>configs/v2.yaml</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Valor</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a_safe</td>
+<td>0.60</td>
+<td>Umbral de seguridad de activación</td>
+</tr>
+<tr>
+<td>s_safe</td>
+<td>0.55</td>
+<td>Umbral de seguridad narrativa</td>
+</tr>
+<tr>
+<td>s_rum_tau</td>
+<td>0.55</td>
+<td>Umbral de rumiación</td>
+</tr>
+<tr>
+<td>arc_w_u</td>
+<td>0.40</td>
+<td>Peso para incertidumbre en riesgo</td>
+</tr>
+<tr>
+<td>arc_w_a</td>
+<td>0.30</td>
+<td>Peso para activación en riesgo</td>
+</tr>
+<tr>
+<td>arc_w_s</td>
+<td>0.35</td>
+<td>Peso para narrativa en riesgo</td>
+</tr>
+<tr>
+<td>arc_k_dmg</td>
+<td>0.95</td>
+<td>Ganancia de supresión de DMN</td>
+</tr>
+<tr>
+<td>arc_k_calm</td>
+<td>0.85</td>
+<td>Ganancia de calma</td>
+</tr>
+<tr>
+<td>arc_k_att</td>
+<td>0.75</td>
+<td>Ganancia de impulso de atención</td>
+</tr>
+<tr>
+<td>horizon</td>
+<td>160</td>
+<td>Longitud del episodio (simulación)</td>
+</tr>
+<tr>
+<td>shock_t</td>
+<td>60</td>
+<td>Tiempo de inicio de perturbación</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="apéndice-g-resultados-detallados-del-benchmark">Apéndice G:
 Resultados Detallados del Benchmark</h2>
