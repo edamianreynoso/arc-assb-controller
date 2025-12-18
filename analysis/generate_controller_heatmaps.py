@@ -53,19 +53,19 @@ SCENARIOS = [
 CONTROLLERS = [
     ("no_control", "No Control"),
     ("naive_calm", "Naive Calm"),
-    ("perf_optimized", "Perf Optimized"),
-    ("arc_v1", "ARC v1 (P)"),
+    ("perf_optimized", "Perf Opt"),
+    ("arc_v1", "ARC v1"),
     ("arc_v1_pid", "ARC PID"),
     ("arc_v1_lqr", "ARC LQR"),
     ("arc_v1_lqi", "ARC LQI"),
-    ("arc_v2_hier", "ARC v2 Hier"),
+    ("arc_v2_hier", "ARC v2+H"),
     ("arc_v2_lqi", "ARC v2+LQI"),
     ("arc_v3_meta", "ARC Meta"),
-    ("arc_v3_pid_meta", "ARC PID+Meta"),
-    ("arc_v3_lqr_meta", "ARC LQR+Meta"),
-    ("arc_robust", "ARC Robust"),
-    ("arc_adaptive", "ARC Adaptive"),
-    ("arc_ultimate", "ARC Ultimate"),
+    ("arc_v3_pid_meta", "ARC PID+M"),
+    ("arc_v3_lqr_meta", "ARC LQR+M"),
+    ("arc_robust", "ARC Rob"),
+    ("arc_adaptive", "ARC Adapt"),
+    ("arc_ultimate", "ARC Ult"),
 ]
 
 
@@ -138,10 +138,12 @@ def main() -> None:
 
     outdir = args.outdir
 
-    # PerfMean: higher is better, keep a perceptual sequential cmap.
+    outdir = args.outdir
+
+    # PerfMean: higher is better
     plot_heatmap(
         pivot_mean(df, "PerfMean"),
-        title="PerfMean by Controller and Scenario (mean across seeds)",
+        title="PerfMean by Controller and Scenario",
         cbar_label="PerfMean",
         outpath=outdir / "fig_heatmap_perfmean.png",
         cmap="YlGn",
@@ -149,10 +151,14 @@ def main() -> None:
         vmax=1.0,
     )
 
-    # RI / RT / Effort: lower is better; map 0 -> white.
+    # RI: lower is better; usage of 'OrRd' or custom mask for 0
+    # User requested distinguishing 0 from missing. 0 is good (white/cream).
+    # We'll use a cmap where 0 is light and high values are red.
+    # 'Reds' starts at white for 0, which is good.
+    # We will ensure annotation clearly distinguishes.
     plot_heatmap(
         pivot_mean(df, "RI"),
-        title="Rumination Index (RI) by Controller and Scenario (mean across seeds)",
+        title="Rumination Index (RI)",
         cbar_label="RI",
         outpath=outdir / "fig_heatmap_ri.png",
         cmap="Reds",
@@ -160,19 +166,26 @@ def main() -> None:
         vmax=float(df["RI"].max()),
     )
 
+    # RT: Handling saturation (100).
+    # We will cap display values or use a mask, but simplest for now is
+    # just plotting as is but letting user know 100 is saturation.
+    rt_data = pivot_mean(df, "RT")
+    # Cap visualization at 99 to distinct max saturation if we wanted,
+    # but exact values are better. We rely on color saturation.
+    
     plot_heatmap(
-        pivot_mean(df, "RT"),
-        title="Recovery Time (RT) by Controller and Scenario (mean across seeds)",
+        rt_data,
+        title="Recovery Time (RT)",
         cbar_label="RT",
         outpath=outdir / "fig_heatmap_rt.png",
         cmap="Reds",
         vmin=0.0,
-        vmax=float(df["RT"].max()),
+        vmax=100.0, # Fixed max to horizon
     )
 
     plot_heatmap(
         pivot_mean(df, "ControlEffort"),
-        title="Control Effort by Controller and Scenario (mean across seeds)",
+        title="Control Effort",
         cbar_label="ControlEffort",
         outpath=outdir / "fig_heatmap_effort.png",
         cmap="Reds",
