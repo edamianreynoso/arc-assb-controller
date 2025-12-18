@@ -1,90 +1,130 @@
+"""
+Professional ARC v1 Control Law Diagram Generator
+Publication-quality figure for scientific papers
+"""
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-import argparse
+from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+import numpy as np
 
 def create_control_law_diagram(output_path):
-    fig, ax = plt.subplots(figsize=(16, 8), dpi=300)
-    ax.set_xlim(0, 20)
-    ax.set_ylim(0, 10)
+    # Create figure with white background
+    fig, ax = plt.subplots(figsize=(16, 7), facecolor='white', dpi=300)
+    ax.set_xlim(0, 16)
+    ax.set_ylim(0, 7)
+    ax.set_aspect('equal')
     ax.axis('off')
     
-    # Styles
-    box_style = dict(boxstyle='round,pad=1', facecolor='#e0f7fa', edgecolor='#006064', linewidth=2)
-    saturate_style = dict(boxstyle='round,pad=0.5', facecolor='#b2ebf2', edgecolor='#006064', linewidth=2)
-    action_style = dict(boxstyle='round,pad=1', facecolor='#e1f5fe', edgecolor='#01579b', linewidth=2)
+    # Color scheme - professional cyan/teal
+    BOX_FILL = '#E0F7FA'
+    BOX_EDGE = '#00838F'
+    ACTION_FILL = '#E8F5E9'
+    ACTION_EDGE = '#2E7D32'
+    ARROW_COLOR = '#37474F'
     
-    # 1. INPUTS Box (Left)
-    input_box = patches.FancyBboxPatch((1, 1), 4, 8, **box_style)
-    ax.add_patch(input_box)
+    # Title
+    ax.text(8, 6.7, 'ARC v1: Proportional Risk Controller', fontsize=16, fontweight='bold', 
+            ha='center', va='center', color='#333')
+    ax.text(8, 6.3, '(Control Law Overview)', fontsize=12, ha='center', va='center', color='#666')
     
-    ax.text(3, 8, "Inputs", ha='center', va='center', fontsize=16, fontweight='bold', color='#006064')
+    # ===== BOX 1: INPUTS =====
+    inputs_box = FancyBboxPatch(
+        (0.5, 1.5), 3.5, 4,
+        boxstyle="round,pad=0.05,rounding_size=0.2",
+        facecolor=BOX_FILL, edgecolor=BOX_EDGE, linewidth=2
+    )
+    ax.add_patch(inputs_box)
+    
+    ax.text(2.25, 5.2, 'Inputs', fontsize=13, fontweight='bold', ha='center', va='center', color=BOX_EDGE)
+    
     input_text = (
-        "From internal state x(t):\n"
-        "  U   (uncertainty)\n"
-        "  A   (arousal)\n"
-        "  S   (narrative)\n\n"
-        "Safety thresholds:\n"
+        "From state x(t):\n"
+        "  U (uncertainty)\n"
+        "  A (arousal)\n"
+        "  S (narrative)\n\n"
+        "Thresholds:\n"
         "  a_safe, s_safe"
     )
-    ax.text(3, 5, input_text, ha='center', va='center', fontsize=12, family='monospace')
-
-    # Arrow 1: Inputs -> Risk
-    ax.annotate("", xy=(6.5, 5), xytext=(5, 5), arrowprops=dict(arrowstyle='->', lw=2, color='#333333'))
-
-    # 2. COMPUTE RISK Box (Middle)
-    risk_box = patches.FancyBboxPatch((6.5, 1), 5, 8, **box_style)
+    ax.text(2.25, 3.2, input_text, fontsize=10, ha='center', va='center', family='monospace', color='#333')
+    
+    # ===== ARROW 1 =====
+    ax.annotate('', xy=(4.5, 3.5), xytext=(4.0, 3.5), 
+                arrowprops=dict(arrowstyle='->', mutation_scale=15, lw=2, color=ARROW_COLOR))
+    
+    # ===== BOX 2: COMPUTE RISK =====
+    risk_box = FancyBboxPatch(
+        (4.5, 1.5), 4, 4,
+        boxstyle="round,pad=0.05,rounding_size=0.2",
+        facecolor=BOX_FILL, edgecolor=BOX_EDGE, linewidth=2
+    )
     ax.add_patch(risk_box)
     
-    ax.text(9, 8, "Compute risk(t)", ha='center', va='center', fontsize=16, fontweight='bold', color='#006064')
+    ax.text(6.5, 5.2, 'Compute Risk', fontsize=13, fontweight='bold', ha='center', va='center', color=BOX_EDGE)
+    
     risk_eq = (
-        r"risk = w_U * U" + "\n" +
-        r"     + w_A * [A - a_safe]^+" + "\n" +
-        r"     + w_S * [S - s_safe]^+" + "\n\n" +
-        r"[x]^+ = max(0, x)"
+        r"$risk = w_U \cdot U$" + "\n" +
+        r"$\quad + w_A \cdot [A - a_{safe}]^+$" + "\n" +
+        r"$\quad + w_S \cdot [S - s_{safe}]^+$" + "\n\n" +
+        r"$[x]^+ = \max(0, x)$"
     )
-    ax.text(9, 5, risk_eq, ha='center', va='center', fontsize=12, family='monospace')
-
-    # Arrow 2: Risk -> Saturate
-    ax.annotate("", xy=(12.5, 5), xytext=(11.5, 5), arrowprops=dict(arrowstyle='->', lw=2, color='#333333'))
-
-    # 3. SATURATE Box (Middle-Right, smaller)
-    # Fixed spacing: moved to x=12.5
-    sat_box = patches.FancyBboxPatch((12.5, 3.5), 2.5, 3, **saturate_style)
+    ax.text(6.5, 3.2, risk_eq, fontsize=11, ha='center', va='center', color='#333')
+    
+    # ===== ARROW 2 =====
+    ax.annotate('', xy=(9.0, 3.5), xytext=(8.5, 3.5), 
+                arrowprops=dict(arrowstyle='->', mutation_scale=15, lw=2, color=ARROW_COLOR))
+    
+    # ===== BOX 3: SATURATE =====
+    sat_box = FancyBboxPatch(
+        (9.0, 2.5), 2, 2,
+        boxstyle="round,pad=0.05,rounding_size=0.2",
+        facecolor='#FFF3E0', edgecolor='#E65100', linewidth=2
+    )
     ax.add_patch(sat_box)
     
-    ax.text(13.75, 5.5, "Saturate", ha='center', va='center', fontsize=14, fontweight='bold', color='#006064')
-    ax.text(13.75, 4.5, "clip(risk, 0, 1)", ha='center', va='center', fontsize=11, family='monospace')
-
-    # Arrow 3: Saturate -> Control Actions
-    ax.annotate("", xy=(16, 5), xytext=(15, 5), arrowprops=dict(arrowstyle='->', lw=2, color='#333333'))
-
-    # 4. CONTROL ACTIONS Box (Right)
-    # Fixed spacing: moved to x=16
-    actions_box = patches.FancyBboxPatch((16, 1), 3.5, 8, **action_style)
+    ax.text(10, 4.2, 'Saturate', fontsize=12, fontweight='bold', ha='center', va='center', color='#E65100')
+    ax.text(10, 3.5, r'$risk = $', fontsize=10, ha='center', va='center', color='#333')
+    ax.text(10, 3.1, r'$\text{clip}(risk, 0, 1)$', fontsize=10, ha='center', va='center', color='#333')
+    
+    # ===== ARROW 3 =====
+    ax.annotate('', xy=(11.5, 3.5), xytext=(11.0, 3.5), 
+                arrowprops=dict(arrowstyle='->', mutation_scale=15, lw=2, color=ARROW_COLOR))
+    
+    # ===== BOX 4: CONTROL ACTIONS =====
+    actions_box = FancyBboxPatch(
+        (11.5, 1.2), 4, 4.6,
+        boxstyle="round,pad=0.05,rounding_size=0.2",
+        facecolor=ACTION_FILL, edgecolor=ACTION_EDGE, linewidth=2
+    )
     ax.add_patch(actions_box)
     
-    ax.text(17.75, 8, "Control Actions u(t)", ha='center', va='center', fontsize=14, fontweight='bold', color='#01579b')
+    ax.text(13.5, 5.5, 'Control Actions u(t)', fontsize=13, fontweight='bold', ha='center', va='center', color=ACTION_EDGE)
     
-    actions_text = (
-        r"$u_{dmg} = \min(1, k_{dmg} \cdot risk)$" + "\n\n" +
-        r"$u_{att} = \min(1, k_{att} \cdot U \cdot (1 - [A]_{rise}))$" + "\n\n" +
-        r"$u_{mem} = 1 - \min(1, k_{mem} \cdot risk)$" + "\n\n" +
-        r"$u_{calm} = \min(1, k_{calm} \cdot [A]_{rise})$" + "\n\n" +
-        r"$u_{reapp} = \min(1, k_{reapp} \cdot U \cdot (1-risk))$"
-    )
-    ax.text(17.75, 4.5, actions_text, ha='center', va='center', fontsize=10)
-
-    # Title
-    ax.text(10, 9.5, "ARC v1: Proportional Risk Controller (Control Law Overview)", 
-            ha='center', va='center', fontsize=18, fontweight='bold', color='#333333')
-
+    # Individual control actions - clean layout
+    actions = [
+        (r'$u_{dmg}$', r'$= \min(1, k_{dmg} \cdot risk)$'),
+        (r'$u_{att}$', r'$= \min(1, k_{att} \cdot U \cdot (1-[A]^+))$'),
+        (r'$u_{mem}$', r'$= 1 - \min(1, k_{mem} \cdot risk)$'),
+        (r'$u_{calm}$', r'$= \min(1, k_{calm} \cdot [A]^+)$'),
+        (r'$u_{reapp}$', r'$= \min(1, k_{reapp} \cdot U \cdot (1-risk))$'),
+    ]
+    
+    for i, (name, eq) in enumerate(actions):
+        y = 4.8 - i * 0.7
+        ax.text(12.0, y, name, fontsize=10, fontweight='bold', ha='left', va='center', color='#333')
+        ax.text(12.7, y, eq, fontsize=9, ha='left', va='center', color='#555')
+    
+    # Caption
+    ax.text(8, 0.6, 'ARC v1 uses proportional control on a bounded risk signal to modulate regulation channels.', 
+            fontsize=10, ha='center', va='center', color='#555', style='italic')
+    
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    print(f"Saved control law diagram to {output_path}")
+    plt.savefig(output_path, dpi=300, bbox_inches='tight', facecolor='white', edgecolor='none')
+    print(f"✓ Saved: {output_path}")
+    plt.close()
 
 if __name__ == "__main__":
+    import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default="figures_controllers/fig_arc_v1_controller.png")
     args = parser.parse_args()
-    
     create_control_law_diagram(args.output)
