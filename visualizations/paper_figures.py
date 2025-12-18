@@ -107,7 +107,7 @@ def plot_metrics_comparison(data: dict, output_dir: str):
     
     df = data['final']
     
-    fig, axes = plt.subplots(1, 3, figsize=(14, 5))
+    fig, axes = plt.subplots(1, 3, figsize=(14, 5), constrained_layout=True)
     
     metrics = [
         ('final_reward_mean', 'Final Reward', True),
@@ -142,22 +142,14 @@ def plot_metrics_comparison(data: dict, output_dir: str):
         bars2 = ax.bar(x + width/2, arc_vals, width, label='ARC', 
                        color=COLORS['arc'], edgecolor=COLORS['arc_dark'])
         
-        ax.set_ylabel(title)
+        ax.set_ylabel(title, fontsize=11)
         ax.set_xticks(x)
-        ax.set_xticklabels([e.replace('GridWorld', '\nGridWorld') for e in envs], fontsize=9)
-        ax.legend()
-        ax.set_title(title)
-        
-        # Highlight winner
-        for i, (arc, base) in enumerate(zip(arc_vals, base_vals)):
-            winner = arc if (higher_better and arc > base) or (not higher_better and arc < base) else base
-            winner_x = x[i] + width/2 if winner == arc else x[i] - width/2
-            ax.annotate('★', xy=(winner_x, winner), ha='center', va='bottom', 
-                       fontsize=14, color='gold')
+        ax.set_xticklabels([e.replace('GridWorld', '\nGridWorld') for e in envs], fontsize=10)
+        ax.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=9, framealpha=0.9)
+        ax.set_title(title, fontsize=12)
     
-    plt.suptitle('Final Metrics Comparison: ARC vs Baseline', fontsize=16, y=1.02)
-    plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, 'metrics_comparison.png'))
+    fig.suptitle('Final Metrics Comparison: ARC vs Baseline', fontsize=14)
+    plt.savefig(os.path.join(output_dir, 'metrics_comparison.png'), dpi=300, facecolor='white')
     print(f"Saved: {output_dir}/metrics_comparison.png")
     plt.close()
 
@@ -271,50 +263,37 @@ def plot_ablation_summary(output_dir: str, data_dir: str):
     metrics['Label'] = pd.Categorical(metrics['Label'], categories=order, ordered=True)
     metrics = metrics.sort_values('Label')
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 6))
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5), constrained_layout=True)
     
-    colors = ['#00d4ff', '#ff4444', '#ffa500', '#00ff88']
+    colors = ['#1565C0', '#E53935', '#FB8C00', '#43A047']  # Professional palette
     
     # Performance
     ax = axes[0]
-    bars = ax.bar(metrics['Label'], metrics['perf'], color=colors, edgecolor='black', alpha=0.8)
-    ax.set_ylabel('Performance', fontsize=12)
-    ax.set_title('Performance by Component', fontsize=14, fontweight='bold')
+    bars = ax.bar(metrics['Label'], metrics['perf'], color=colors, edgecolor='#333', linewidth=0.8)
+    ax.set_ylabel('Performance', fontsize=11)
+    ax.set_title('(a) Performance', fontsize=12)
     ax.set_ylim(0.0, 1.05)
-    ax.tick_params(axis='x', rotation=0, labelsize=11)
+    ax.tick_params(axis='x', rotation=0, labelsize=10)
     ax.grid(axis='y', linestyle='--', alpha=0.3)
     
     # Rumination Index
     ax = axes[1]
-    bars = ax.bar(metrics['Label'], metrics['rumination_index'], color=colors, edgecolor='black', alpha=0.8)
-    ax.set_ylabel('Rumination Index (RI)', fontsize=12)
-    ax.set_title('Rumination Risk\n(Lower = Better)', fontsize=14, fontweight='bold')
-    ax.tick_params(axis='x', rotation=0, labelsize=11)
+    bars = ax.bar(metrics['Label'], metrics['rumination_index'], color=colors, edgecolor='#333', linewidth=0.8)
+    ax.set_ylabel('Rumination Index (RI)', fontsize=11)
+    ax.set_title('(b) Rumination Index', fontsize=12)
+    ax.tick_params(axis='x', rotation=0, labelsize=10)
     ax.grid(axis='y', linestyle='--', alpha=0.3)
-    
-    # Highlight critical finding with a professional annotation
-    # Find the 'No DMN' bar height
-    no_dmg_row = metrics[metrics['Label'] == 'No DMN\nSuppression']
-    if not no_dmg_row.empty:
-        h = no_dmg_row['rumination_index'].values[0]
-        ax.annotate('CRITICAL:\nRemoving DMN control\ncauses rumination', 
-                   xy=(1, h), xytext=(1, h + 0.3),
-                   arrowprops=dict(arrowstyle='->', color='red', lw=1.5),
-                   fontsize=11, color='#cc0000', ha='center', fontweight='bold',
-                   bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="#cc0000", alpha=0.9))
     
     # Recovery Time
     ax = axes[2]
-    bars = ax.bar(metrics['Label'], metrics['recovery_time'], color=colors, edgecolor='black', alpha=0.8)
-    ax.set_ylabel('Recovery Time (steps)', fontsize=12)
-    ax.set_title('Recovery Speed\n(Lower = Better)', fontsize=14, fontweight='bold')
-    ax.tick_params(axis='x', rotation=0, labelsize=11)
+    bars = ax.bar(metrics['Label'], metrics['recovery_time'], color=colors, edgecolor='#333', linewidth=0.8)
+    ax.set_ylabel('Recovery Time (steps)', fontsize=11)
+    ax.set_title('(c) Recovery Time', fontsize=12)
+    ax.tick_params(axis='x', rotation=0, labelsize=10)
     ax.grid(axis='y', linestyle='--', alpha=0.3)
     
-    plt.suptitle('Ablation Study: Criticality of ARC Components', fontsize=16, y=1.05, weight='bold')
-    plt.tight_layout()
-    plt.subplots_adjust(top=0.85) # Make room for title
-    plt.savefig(os.path.join(output_dir, 'ablation_summary.png'), dpi=300, bbox_inches='tight')
+    fig.suptitle('Ablation Study: ARC Component Contributions', fontsize=13)
+    plt.savefig(os.path.join(output_dir, 'ablation_summary.png'), dpi=300, facecolor='white')
     print(f"Saved: {output_dir}/ablation_summary.png")
     plt.close()
 

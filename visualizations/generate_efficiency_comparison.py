@@ -73,12 +73,12 @@ def main() -> None:
                 linewidth=0,
             )
 
-        ax.set_title(f"{env}: Both 100% success, but who is FASTER?", fontsize=14)
+        ax.set_title(f"{env}: Learning efficiency", fontsize=14)
         ax.set_xlabel("Episode")
         ax.grid(True, alpha=0.35)
         ax.legend(loc="lower right")
 
-    axes[0].set_ylabel("Reward (higher = faster to goal)")
+    axes[0].set_ylabel("Average reward")
 
     fig.tight_layout()
     args.out.parent.mkdir(parents=True, exist_ok=True)

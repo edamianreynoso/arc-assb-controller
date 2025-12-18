@@ -165,11 +165,12 @@ def plot_scenario_difficulty(df: pd.DataFrame, outdir: Path, controller: str = "
         edgecolor="black",
         linewidth=0.6,
     )
-    axes[0].set_title("Performance by Scenario (ARC only)")
+    axes[0].set_title("Performance (Higher is Better)")
     axes[0].set_xlabel("Performance")
     axes[0].set_yticks(y)
-    axes[0].set_yticklabels(scenarios)
+    axes[0].set_yticklabels(scenarios, fontsize=11)
     axes[0].invert_yaxis()
+    axes[0].set_xlim(0, 1.05)
 
     axes[1].barh(
         y,
@@ -180,8 +181,11 @@ def plot_scenario_difficulty(df: pd.DataFrame, outdir: Path, controller: str = "
         edgecolor="black",
         linewidth=0.6,
     )
-    axes[1].set_title("Rumination Index by Scenario (ARC only)")
-    axes[1].set_xlabel("Rumination Index")
+    axes[1].set_title("Rumination (Lower is Better)")
+    axes[1].set_xlabel("RI")
+    # Auto-scale x-axis for RI but ensuring it's not empty if values are small
+    max_ri = agg["RI_mean"].max()
+    axes[1].set_xlim(0, max(0.2, max_ri * 1.2))
 
     axes[2].barh(
         y,
@@ -192,10 +196,10 @@ def plot_scenario_difficulty(df: pd.DataFrame, outdir: Path, controller: str = "
         edgecolor="black",
         linewidth=0.6,
     )
-    axes[2].set_title("Recovery Time by Scenario (ARC only)")
-    axes[2].set_xlabel("Recovery Time")
-
-    fig.suptitle("Scenario Difficulty Analysis", fontsize=16)
+    axes[2].set_title("Recovery Time (Lower is Better)")
+    axes[2].set_xlabel("Steps")
+    
+    fig.suptitle(f"Scenario Difficulty Analysis (Controller: {controller})", fontsize=16)
     fig.tight_layout()
     _savefig(outdir / "sensitivity_scenario.png")
 

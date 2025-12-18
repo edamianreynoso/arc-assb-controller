@@ -34,11 +34,18 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
     ax.set_facecolor("white")
     
     # Create heatmap
-    mask = np.triu(np.ones_like(corr_df, dtype=bool))  # Upper triangle mask
+    # Use full matrix for better readability as requested
+    mask = None 
     
+    # For combined plot (usually larger), disable annotations to avoid clutter
+    do_annot = True
+    if "Combined" in title and len(df) > 100: # Heuristic: if many data points, maybe cleaner? 
+        # Actually user said "quitar números" for combined.
+        do_annot = False
+        
     sns.heatmap(corr_df, 
                 mask=mask,
-                annot=True, 
+                annot=do_annot, 
                 fmt='.2f',
                 cmap='coolwarm',
                 center=0,
@@ -46,7 +53,7 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
                 linewidths=0.5,
                 ax=ax,
                 vmin=-1, vmax=1,
-                annot_kws={'size': 10})
+                annot_kws={'size': 9})
     
     ax.set_title(title, fontsize=14, color="black", pad=20)
     ax.tick_params(colors="black")
@@ -89,14 +96,15 @@ def main():
         all_dfs.append(df)
         
         # Individual heatmap
-        create_correlation_heatmap(df, f'Metric Correlations - {line_name}',
+        clean_name = line_name.replace("_", "-")
+        create_correlation_heatmap(df, f'Metric correlations ({clean_name})',
                                   output_dir / f"correlation_{line_name}.png")
     
     # Combined heatmap
     if all_dfs:
         combined_df = pd.concat(all_dfs, ignore_index=True)
         print(f"\n[Combined] {len(combined_df)} total runs")
-        create_correlation_heatmap(combined_df, 'Metric Correlations - All Lines Combined',
+        create_correlation_heatmap(combined_df, 'Metric correlations (Combined)',
                                   output_dir / "correlation_combined.png")
         
         # Print key correlations

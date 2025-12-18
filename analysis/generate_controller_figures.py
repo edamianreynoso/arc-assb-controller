@@ -99,9 +99,10 @@ agg = df_filt.groupby('controller').agg({
 }).round(4)
 
 
+
 def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
     """Create a professional bar chart with unified style."""
-    fig, ax = plt.subplots(figsize=(14, 6))
+    fig, ax = plt.subplots(figsize=(14, 6), constrained_layout=True)
     
     x = np.arange(len(CONTROLLERS))
     width = 0.65
@@ -118,20 +119,20 @@ def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
         for y, color, style, label in ref_lines:
             ax.axhline(y=y, color=color, linestyle=style, alpha=0.7, lw=1.5, label=label)
     
-    ax.set_ylabel(ylabel)
-    ax.set_xlabel('Controller Architecture')
-    ax.set_title(title, pad=15)
+    ax.set_ylabel(ylabel, fontsize=12)
+    ax.set_xlabel('Controller Architecture', fontsize=12)
+    ax.set_title(title, pad=15, fontsize=14)
     ax.set_xticks(x)
-    ax.set_xticklabels([LABELS[c] for c in CONTROLLERS], rotation=45, ha='right')
+    ax.set_xticklabels([LABELS[c] for c in CONTROLLERS], rotation=45, ha='right', fontsize=11)
     ax.set_ylim(ylim)
+    ax.tick_params(axis='y', labelsize=11)
     
     if ref_lines:
-        ax.legend(loc='upper right', framealpha=0.95)
+        ax.legend(loc='upper right', framealpha=0.95, fontsize=10)
     
     # Add subtle background gradient effect
     ax.set_facecolor('#FAFAFA')
     
-    plt.tight_layout()
     plt.savefig(f'figures_controllers/{filename}', dpi=300, facecolor='white', edgecolor='none')
     plt.close()
     print(f"✓ Saved: {filename}")
@@ -139,34 +140,52 @@ def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
 
 def styled_scatter_tradeoff():
     """Create professional trade-off scatter plot."""
-    fig, ax = plt.subplots(figsize=(11, 9))
+    fig, ax = plt.subplots(figsize=(12, 8), constrained_layout=True)
+    
+    # Calculate limits for top 5 annotation
+    perfs = df_filt.groupby('controller')['PerfMean'].mean()
+    top_controllers = perfs.sort_values(ascending=False).head(6).index.tolist()
+    
+    # Annotate top controllers with repel-like offset
+    texts = []
     
     for c in CONTROLLERS:
         perf = agg.loc[c, ('PerfMean', 'mean')]
         ri = agg.loc[c, ('RI', 'mean')]
         effort = agg.loc[c, ('ControlEffort', 'mean')]
         
-        ax.scatter(ri, perf, s=effort*250 + 80, c=CONTROLLER_COLORS[c], 
+        # Plot point
+        ax.scatter(ri, perf, s=effort*180 + 100, c=CONTROLLER_COLORS[c], 
                    edgecolors='#333', linewidths=1.2, alpha=0.85, label=LABELS[c])
+        
+        # Add label directly on plot for top controllers and baseline
+        if c in top_controllers or c in ['no_control', 'naive_calm']:
+            ax.annotate(LABELS[c], (ri, perf), xytext=(5, 5), textcoords='offset points', 
+                       fontsize=9, fontweight='bold', alpha=0.9)
+
+    ax.set_xlabel('Rumination Index (lower = better)', fontsize=12)
+    ax.set_ylabel('Performance (higher = better)', fontsize=12)
+    ax.set_title('Trade-off: Performance vs Anti-Rumination\n(Bubble size indicates Control Effort)', pad=15, fontsize=14)
     
-    ax.set_xlabel('Rumination Index (lower = better)')
-    ax.set_ylabel('Performance (higher = better)')
-    ax.set_title('Trade-off: Performance vs Anti-Rumination\n(bubble size = control effort)', pad=15)
-    ax.legend(loc='center left', bbox_to_anchor=(1.02, 0.5), framealpha=0.95)
-    ax.set_xlim(-0.05, 1.5)
-    ax.set_ylim(0.3, 1.05)
+    # Move legend outside
+    ax.legend(loc='upper left', bbox_to_anchor=(1.01, 1), framealpha=0.95, title="Controllers")
+    
+    ax.set_xlim(-0.05, 1.6) # Increased xlim slightly
+    ax.set_ylim(0.0, 1.05)
     
     # Reference lines
-    ax.axvline(x=0.10, color=COLORS['warning_amber'], linestyle='--', alpha=0.6, lw=1.5)
-    ax.axhline(y=0.90, color=COLORS['success_green'], linestyle='--', alpha=0.6, lw=1.5)
+    ax.axvline(x=0.10, color=COLORS['warning_amber'], linestyle='--', alpha=0.6, lw=1.5, label='RI Warning')
+    ax.axhline(y=0.90, color=COLORS['success_green'], linestyle='--', alpha=0.6, lw=1.5, label='Perf Target')
     
-    # Optimal region annotation
-    ax.annotate('Optimal\nRegion', xy=(0.02, 0.97), fontsize=11, fontweight='bold',
-                bbox=dict(boxstyle='round,pad=0.4', facecolor='#C8E6C9', edgecolor='#43A047', alpha=0.9))
+    # Optimal region annotation (ensure it doesn't overlap points)
+    rect = patches.FancyBboxPatch((0.0, 0.90), 0.15, 0.15, boxstyle="round,pad=0.02", 
+                                 linewidth=1, edgecolor='#43A047', facecolor='#C8E6C9', alpha=0.3)
+    ax.add_patch(rect)
+    ax.text(0.075, 0.975, 'Optimal\nRegion', ha='center', va='center', fontsize=10, 
+            fontweight='bold', color='#2E7D32')
     
     ax.set_facecolor('#FAFAFA')
-    plt.tight_layout()
-    plt.savefig('figures_controllers/fig_controller_tradeoff.png', dpi=300, facecolor='white', bbox_inches='tight')
+    plt.savefig('figures_controllers/fig_controller_tradeoff.png', dpi=300, facecolor='white')
     plt.close()
     print("✓ Saved: fig_controller_tradeoff.png")
 
@@ -231,21 +250,22 @@ if __name__ == "__main__":
         ]
     )
     
-    # Figure 2: Rumination Index
+    # Figure 2: Rumination Index (Neutral title)
     styled_bar_chart(
         'RI', 'Rumination Index (RI)',
-        'Anti-Rumination: Controllers with Integral Action Achieve RI ≈ 0',
+        'Rumination Index across Controllers',
         'fig_controller_rumination.png', (0, 1.5),
         ref_lines=[
             (0.10, COLORS['warning_amber'], '--', 'Warning Threshold')
         ]
     )
     
-    # Figure 3: Control Effort
+    # Figure 3: Control Effort (Simplified)
+    # Could be split, but for quick win, we keep structure but cleaner
     styled_bar_chart(
         'ControlEffort', 'Control Effort',
-        'Efficiency: Meta-Control Achieves Lowest Effort',
-        'fig_controller_effort.png', (0, 2.5)
+        'Control Effort by Architecture',
+        'fig_controller_effort.png', (0, 2.8)
     )
     
     # Figure 4: Trade-off scatter
