@@ -19,10 +19,10 @@ def create_architecture_diagram(output_path):
     # --- DRAW BLOCKS ---
     
     # 1. PLANT (Agent Internal State)
-    # xy is bottom-left corner
-    plant_box = patches.FancyBboxPatch((10, 2), 4, 6, **plant_style)
+    # xy is bottom-left corner. x=11 to give more space between blocks
+    plant_box = patches.FancyBboxPatch((11, 2), 4, 6.5, **plant_style)
     ax.add_patch(plant_box)
-    ax.text(12, 8.5, "Agent Internal State\n(Plant)", ha='center', va='center', fontsize=14, fontweight='bold', color='#995400')
+    ax.text(13, 8.8, "Agent Internal State\n(Plant)", ha='center', va='center', fontsize=14, fontweight='bold', color='#995400')
     
     # Internal Variables
     vars_text = (
@@ -34,79 +34,82 @@ def create_architecture_diagram(output_path):
         r"$V$: Valence" + "\n" +
         r"$M$: Memory"
     )
-    ax.text(12, 5, vars_text, ha='center', va='center', fontsize=12, linespacing=1.8)
+    ax.text(13, 5.5, vars_text, ha='center', va='center', fontsize=12, linespacing=1.6)
 
     # 2. ARC CONTROLLER (The Wrapper)
     # Large container
-    arc_box = patches.FancyBboxPatch((2, 1), 6, 8, **arc_style)
+    arc_box = patches.FancyBboxPatch((1, 1), 7, 8.2, **arc_style)
     ax.add_patch(arc_box)
-    ax.text(5, 9.3, "Affective Regulation Core (ARC)", ha='center', va='center', fontsize=16, fontweight='bold', color='#005580')
+    ax.text(4.5, 8.8, "Affective Regulation Core (ARC)", ha='center', va='center', fontsize=16, fontweight='bold', color='#005580')
     
     # 2a. Observer / Monitor
-    ax.add_patch(patches.Rectangle((2.5, 6.5), 5, 1.5, fc='white', ec='#0077cc', lw=1.5))
-    ax.text(5, 7.25, "1. State Monitor\n(Check $A > a_{safe}$, $S > s_{safe}$)", ha='center', va='center', fontsize=11)
+    # Moved down slightly to make room for title
+    ax.add_patch(patches.Rectangle((1.5, 6.8), 6, 1.2, fc='white', ec='#0077cc', lw=1.5))
+    ax.text(4.5, 7.4, "1. State Monitor\n(Check $A > a_{safe}$, $S > s_{safe}$)", ha='center', va='center', fontsize=11)
     
     # 2b. Risk Computer
-    ax.add_patch(patches.Rectangle((2.5, 4.5), 5, 1.5, fc='white', ec='#0077cc', lw=1.5))
-    ax.text(5, 5.25, r"2. Risk Computing" + "\n" + r"$Risk = w_u U + w_a [A]_{rise} + w_s [S]_{rise}$", ha='center', va='center', fontsize=11)
+    ax.add_patch(patches.Rectangle((1.5, 4.8), 6, 1.2, fc='white', ec='#0077cc', lw=1.5))
+    ax.text(4.5, 5.4, r"2. Risk Computing" + "\n" + r"$Risk = w_u U + w_a [A]_{rise} + w_s [S]_{rise}$", ha='center', va='center', fontsize=11)
     
     # 2c. Controller / Actions
-    ax.add_patch(patches.Rectangle((2.5, 2.0), 5, 2.0, fc='white', ec='#0077cc', lw=1.5))
-    ax.text(5, 3.0, "3. Control Policy $\mathbf{u}(t)$", ha='center', va='center', fontsize=12, fontweight='bold')
-    # Actions list
-    actions = [
-        ("u_dmg (DMN Suppress)", "#ff4444"),
-        ("u_att (Attention)", "#00cc66"),
-        ("u_mem (Mem Gate)", "#aa00ff"),
-        ("u_calm (Calm)", "#00bbff")
-    ]
+    ax.add_patch(patches.Rectangle((1.5, 1.8), 6, 2.0, fc='white', ec='#0077cc', lw=1.5))
+    ax.text(4.5, 2.8, "3. Control Policy $\mathbf{u}(t)$", ha='center', va='center', fontsize=12, fontweight='bold')
     
     # --- ARROWS & CONNECTIONS ---
     
-    props = dict(arrowstyle='->,head_width=0.4,head_length=0.8', lw=2, color='#444444')
-    
     # Feedback Loop: State -> Monitor
-    ax.annotate("", xy=(2, 7.25), xytext=(12, 7.25), arrowprops=dict(arrowstyle='->', lw=2, color='#444444', connectionstyle="angle,angleA=180,angleB=90,rad=10"))
-    # Actually manual path is better for complex routing
-    # Upper feedback path
-    ax.add_patch(patches.FancyArrowPatch((12, 8), (12, 9.5), arrowstyle='-', lw=2, color='#444444')) # Up from plant
-    ax.add_patch(patches.FancyArrowPatch((12, 9.5), (5, 9.5), arrowstyle='-', lw=2, color='#444444')) # Left
-    ax.add_patch(patches.FancyArrowPatch((5, 9.5), (5, 8.0), arrowstyle='->', lw=2, mutation_scale=20, color='#444444')) # Down to ARC title area? No, to Monitor
+    # Go UP from Plant, LEFT across top, DOWN to Monitor
+    # Plant Top Center = (13, 8.5) -> Up to (13, 9.8) -> Left to (4.5, 9.8) -> Down to (4.5, 8.0)
     
-    # Fix: Direct line State -> Monitor
-    # Left from Plant to Monitor
-    ax.annotate("State Observation $\mathbf{x}(t)$", xy=(7.5, 7.25), xytext=(10, 7.25), 
-                arrowprops=dict(arrowstyle='->', lw=2, color='#444444'), 
-                ha='center', va='bottom', fontsize=10, fontweight='bold')
+    # 1. Up
+    ax.add_patch(patches.FancyArrowPatch((13, 8.5), (13, 9.6), arrowstyle='-', lw=2, color='#444444'))
+    # 2. Left (Above ARC Box)
+    ax.add_patch(patches.FancyArrowPatch((13, 9.6), (4.5, 9.6), arrowstyle='-', lw=2, color='#444444'))
+    # 3. Down (Into Monitor) - Arrow head at end
+    ax.add_patch(patches.FancyArrowPatch((4.5, 9.6), (4.5, 8.0), arrowstyle='->', lw=2, mutation_scale=15, color='#444444'))
+
+    # Label for State Observation
+    ax.text(8.75, 9.6, r"State Observation $\mathbf{x}(t)$", 
+            ha='center', va='center', fontsize=11, fontweight='bold', 
+            bbox=dict(facecolor='white', edgecolor='none', alpha=1.0))
 
     # Monitor -> Risk
-    ax.annotate("", xy=(5, 6.0), xytext=(5, 6.5), arrowprops=dict(arrowstyle='->', lw=2, color='#444444'))
+    ax.add_patch(patches.FancyArrowPatch((4.5, 6.8), (4.5, 6.0), arrowstyle='->', lw=2, color='#444444'))
     
     # Risk -> Control
-    ax.annotate("Risk Signal", xy=(5, 4.0), xytext=(5, 4.5), 
-                arrowprops=dict(arrowstyle='->', lw=2, color='#444444'),
-                ha='right', va='center', rotation=90)
-
-    # Control -> Plant
-    # Output arrows from Control box
-    y_start = 3.0
+    ax.add_patch(patches.FancyArrowPatch((4.5, 4.8), (4.5, 3.8), arrowstyle='->', lw=2, color='#444444'))
     
-    # Draw individual action arrows
-    # u_dmg
-    ax.annotate(r"$u_{dmg}$", xy=(10, 5.5), xytext=(7.5, 3.5), 
-                arrowprops=dict(arrowstyle='->', color='#ff4444', lw=2), fontsize=10, color='#ff4444', weight='bold')
+    # Risk Label (Next to arrow, not overlapping)
+    ax.text(4.6, 4.3, "Risk Signal", ha='left', va='center', fontsize=10, style='italic')
+
+    # Control -> Plant (Actions)
+    # Output arrows from Control box right side to Plant left side
+    # Control box right edge is x=7.5. Plant left edge is x=11.
     
-    # u_calm
-    ax.annotate(r"$u_{calm}$", xy=(10, 4.5), xytext=(7.5, 3.0), 
-                arrowprops=dict(arrowstyle='->', color='#00bbff', lw=2), fontsize=10, color='#00bbff', weight='bold')
+    # u_dmg (Red)
+    ax.annotate(r"$u_{dmg}$", xy=(11, 6.0), xytext=(7.5, 3.2), 
+                arrowprops=dict(arrowstyle='->', color='#ff4444', lw=2), 
+                fontsize=10, color='#ff4444', weight='bold', va='center')
+    
+    # u_calm (Blue)
+    ax.annotate(r"$u_{calm}$", xy=(11, 5.0), xytext=(7.5, 2.8), 
+                arrowprops=dict(arrowstyle='->', color='#00bbff', lw=2), 
+                fontsize=10, color='#00bbff', weight='bold', va='center')
 
-    # u_att
-    ax.annotate(r"$u_{att}$", xy=(10, 6.5), xytext=(7.5, 2.5), 
-                arrowprops=dict(arrowstyle='->', color='#00cc66', lw=2), fontsize=10, color='#00cc66', weight='bold')
+    # u_at (Green)
+    ax.annotate(r"$u_{att}$", xy=(11, 7.0), xytext=(7.5, 2.4), 
+                arrowprops=dict(arrowstyle='->', color='#00cc66', lw=2), 
+                fontsize=10, color='#00cc66', weight='bold', va='center')
+                
+    # u_mem (Purple) - Add this one too
+    ax.annotate(r"$u_{mem}$", xy=(11, 4.0), xytext=(7.5, 2.0), 
+                arrowprops=dict(arrowstyle='->', color='#aa00ff', lw=2), 
+                fontsize=10, color='#aa00ff', weight='bold', va='center')
 
-    # Exogenous Inputs
-    ax.annotate("Exogenous Inputs\n(Reward, PE)", xy=(0.5, 7.25), xytext=(2.5, 7.25),
-                arrowprops=dict(arrowstyle='<-', lw=2, color='#444444'), ha='center', fontsize=11)
+    # Exogenous Inputs (Entering from Left)
+    ax.annotate("Exogenous Inputs\n(Reward, PE)", xy=(1.5, 7.4), xytext=(-0.5, 7.4),
+                arrowprops=dict(arrowstyle='->', lw=2, color='#444444'), 
+                ha='center', fontsize=11, va='center')
 
     # Legend/Caption
     ax.text(8, 0.5, "Figure 1: ARC Control Loop Architecture. The controller monitors the agent's internal state\nand applies homeostatic regulation actions to maintain stability.", 
