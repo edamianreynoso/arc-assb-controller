@@ -26,7 +26,18 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
         print(f"  Not enough numeric columns for correlation")
         return
     
-    corr_df = df[available_cols].corr()
+    # Filter out columns that are all NaN or constant (std=0) to avoid empty rows/cols
+    # This specifically addresses the "AdaptSpeed empty" issue
+    valid_cols = []
+    for col in available_cols:
+        if df[col].notna().any() and df[col].std() > 1e-6:
+            valid_cols.append(col)
+    
+    if len(valid_cols) < 2:
+        print(f"  Not enough valid numeric columns for correlation (after filtering constants)")
+        return
+        
+    corr_df = df[valid_cols].corr()
     
     # Create figure
     fig, ax = plt.subplots(figsize=(12, 10))
@@ -34,14 +45,10 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
     ax.set_facecolor("white")
     
     # Create heatmap
-    # Use full matrix for better readability as requested
     mask = None 
     
-    # For combined plot (usually larger), disable annotations to avoid clutter
+    # Always annotate values as requested
     do_annot = True
-    if "Combined" in title and len(df) > 100: # Heuristic: if many data points, maybe cleaner? 
-        # Actually user said "quitar números" for combined.
-        do_annot = False
         
     sns.heatmap(corr_df, 
                 mask=mask,
