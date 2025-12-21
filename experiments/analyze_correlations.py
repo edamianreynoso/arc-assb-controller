@@ -39,8 +39,10 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
         
     corr_df = df[valid_cols].corr()
     
-    # Create figure
-    fig, ax = plt.subplots(figsize=(12, 10))
+    # Create figure - larger for better annotation visibility
+    n_cols = len(corr_df.columns)
+    fig_size = max(12, n_cols * 1.2)  # Scale with number of columns
+    fig, ax = plt.subplots(figsize=(fig_size, fig_size * 0.85))
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
     
@@ -49,6 +51,9 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
     
     # Always annotate values as requested
     do_annot = True
+    
+    # Adjust font size based on matrix size
+    annot_fontsize = max(6, min(10, 120 // n_cols))
         
     sns.heatmap(corr_df, 
                 mask=mask,
@@ -60,7 +65,7 @@ def create_correlation_heatmap(df: pd.DataFrame, title: str, save_path: Path):
                 linewidths=0.5,
                 ax=ax,
                 vmin=-1, vmax=1,
-                annot_kws={'size': 9})
+                annot_kws={'size': annot_fontsize, 'weight': 'bold'})
     
     ax.set_title(title, fontsize=14, color="black", pad=20)
     ax.tick_params(colors="black")
