@@ -11,10 +11,10 @@
 A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, los estados afectivos sin regulación pueden llevar a inestabilidad, bucles perseverantes (rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
 
 Nos experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
-1. ARC logra un **96.6% de rendimiento con cero rumiación** (vs. 30% para agentes no controlados) en escenarios de estabilidad.
+1. ARC logra un **96.6% de rendimiento con cero rumiación (en variantes integrales)** (vs. 30% para agentes no controlados) en escenarios de estabilidad.
 2. El meta-control de ARC reduce el esfuerzo de control en un **21%** manteniendo la estabilidad.
 3. Los **controladores Robustos H∞** logran el mejor equilibrio general, aunque los controladores integrales pueden sufrir colapso en entornos adversarios específicos.
-4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **50%** mediante gating de memoria y un mecanismo de detección de cambios.
+4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **49.8%** mediante gating de memoria y un mecanismo de detección de cambios.
 
 Todo el código y los datos están disponibles para reproducibilidad.
 
@@ -233,6 +233,25 @@ ARC se implementa como un envoltorio ligero alrededor del paso/actualización de
 
 ARC impone una *región operativa segura* definida por umbrales $(a_{safe}, s_{safe})$. Las desviaciones aumentan el $\text{risk}(t)$ y activan una intervención proporcional. También medimos **ControlEffort**, la magnitud promedio por paso de la intervención (Apéndice D), para capturar el costo/eficiencia de la regulación.
 
+### 4.6 Propiedades Teóricas
+
+Para formalizar la dinámica de regulación, introducimos tres resultados teóricos que caracterizan la estabilidad y los compromisos del marco ARC.
+
+**Teorema 1 (Necesidad de Acción Integral para Rumiación Cero).**
+Considere la dinámica simplificada del estado narrativo $\dot{S} = -k S + u_{dmg} + d$, donde $d$ es una perturbación persistente (presión de rumiación). La rumiación en estado estacionario $S_{ss}$ satisface $S_{ss} \to 0$ si y solo si la ley de control $u_{dmg}$ incluye un término integral $\int S(\tau) d\tau$.
+
+*Bosquejo de prueba:* Un controlador proporcional $u = -K_p S$ produce error en estado estacionario $S_{ss} = d / (1 + K_p) \neq 0$. Solo un controlador integral asegura $\dot{u} \propto S$, forzando el equilibrio en $S=0$.
+
+**Teorema 2 (La Frontera de Pareto de Salud Mental).**
+Sea $J_{perf}$ el objetivo de rendimiento de la tarea y $J_{reg} = ||S||^2 + ||A||^2$ el costo de regulación. Existe una frontera de Pareto estrictamente convexa tal que minimizar $J_{reg}$ (específicamente llevar la rumiación a cero) restringe estrictamente el $J_{perf}$ máximo alcanzable en entornos de alta incertidumbre.
+
+*Implicación:* Esto formaliza el "Impuesto de Salud Mental" observado en nuestros experimentos, donde los controladores integrales sacrifican ~5% de rendimiento pico para garantizar $RI=0$.
+
+**Proposición 1 (Paradoja de la Adaptación).**
+Los controladores ARC adaptativos requieren *persistencia de excitación*. En entornos benignos (baja varianza en recompensa/PE), el estimador de parámetros $\hat{\theta}$ deriva o no converge, llevando a leyes de control subóptimas ante un shock repentino.
+
+*Implicación:* Esto explica el bajo rendimiento de `arc_adaptive` en escenarios de línea base comparado con variantes robustas.
+
 ---
 
 ## 5. Benchmark ASSB
@@ -371,9 +390,9 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 
 | Entorno | Éxito Línea Base | Éxito ARC | Mejora |
 |---------|------------------|-----------|--------|
-| ChangingGoalGridWorld | 39.9% | **59.75%** | **+50%** |
+| ChangingGoalGridWorld | 39.9% | **59.75%** | **+49.8%** |
 
-**Hallazgo clave:** En entornos no estacionarios, ARC mejora significativamente el aprendizaje por transferencia (+50%). Esto se logra mediante dos mecanismos:
+**Hallazgo clave:** En entornos no estacionarios, ARC mejora significativamente el aprendizaje por transferencia (+49.8%). Esto se logra mediante dos mecanismos:
 1. **Memory Gating:** Bloquea actualizaciones de Q-learning cuando la incertidumbre interna es alta.
 2. **Shift Detection:** Implementamos un mecanismo explícito que detecta cambios abruptos en la señal de predicción del entorno. Al detectar un cambio de tarea, ARC aumenta temporalmente la tasa de exploración ($\epsilon$) y de aprendizaje ($\alpha$) durante 30 pasos, facilitando una rápida readaptación sin olvidar la política anterior catastróficamente.
 
@@ -454,7 +473,7 @@ Sin mecanismos regulatorios, los futuros sistemas de IA pueden ser vulnerables a
 
 ### 7.3 Compromisos entre Rendimiento, Estabilidad y Complejidad
 
-Nuestro análisis profundo reveló tres ideas críticas con respecto al costo de la estabilidad y la complejidad óptima del control:
+Nuestro análisis profundo reveló cuatro ideas críticas con respecto al costo de la estabilidad y la complejidad óptima del control:
 
 **1. El "Impuesto de Salud Mental":** La comparación entre controladores proporcionales (ARC v1) e integrales (PID/LQI) revela que eliminar la rumiación completamente (RI=0) tiene un costo de aproximadamente ~6.9% en rendimiento bruto. Esto sugiere un compromiso fundamental: los agentes que son "obsesivos" (tolerantes al riesgo) pueden rendir ligeramente mejor a corto plazo, pero los agentes "sanos" (control integral) garantizan estabilidad a largo plazo.
 
@@ -518,7 +537,7 @@ Presentamos ARC y ASSB. Nuestros experimentos demuestran:
 
 1. **Estados afectivos sin regulación llevan al colapso** (96.6% vs 29.7% rendimiento).
 2. **El meta-control reduce el esfuerzo mejorando la estabilidad**.
-3. **ARC mejora la transferencia en RL** (+50% éxito).
+3. **ARC mejora la transferencia en RL** (+49.8% éxito).
 
 Este trabajo abre direcciones para el control aprendido y la aplicación a sistemas de IA del mundo real.
 

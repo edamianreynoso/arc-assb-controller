@@ -4,11 +4,156 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>ARC: Adaptive Regulation of Control</title>
+  <title>ARC Paper</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
     */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -90,12 +235,247 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">ARC: Adaptive Regulation of Control</h1>
+<h1 class="title">ARC Paper</h1>
 </header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a
+href="#affective-regulation-core-a-homeostatic-control-framework-for-stable-and-safe-ai-agents"
+id="toc-affective-regulation-core-a-homeostatic-control-framework-for-stable-and-safe-ai-agents">Affective
+Regulation Core: A Homeostatic Control Framework for Stable and Safe AI
+Agents</a>
+<ul>
+<li><a href="#abstract" id="toc-abstract">Abstract</a></li>
+<li><a href="#introduction" id="toc-introduction">1. Introduction</a>
+<ul>
+<li><a href="#motivation" id="toc-motivation">1.1 Motivation</a></li>
+<li><a href="#contributions" id="toc-contributions">1.2
+Contributions</a></li>
+<li><a href="#scope" id="toc-scope">1.3 Scope</a></li>
+</ul></li>
+<li><a href="#related-work" id="toc-related-work">2. Related Work</a>
+<ul>
+<li><a href="#affective-computing" id="toc-affective-computing">2.1
+Affective Computing</a></li>
+<li><a href="#emotion-in-reinforcement-learning"
+id="toc-emotion-in-reinforcement-learning">2.2 Emotion in Reinforcement
+Learning</a></li>
+<li><a
+href="#emotion-regulation-rumination-and-the-default-mode-network"
+id="toc-emotion-regulation-rumination-and-the-default-mode-network">2.3
+Emotion Regulation, Rumination, and the Default Mode Network</a></li>
+<li><a href="#positioning-arc" id="toc-positioning-arc">2.4 Positioning
+ARC</a></li>
+</ul></li>
+<li><a href="#model" id="toc-model">3. Model</a>
+<ul>
+<li><a href="#state-space" id="toc-state-space">3.1 State Space</a></li>
+<li><a href="#cognitive-capacity" id="toc-cognitive-capacity">3.2
+Cognitive Capacity</a></li>
+<li><a href="#performance-function" id="toc-performance-function">3.3
+Performance Function</a></li>
+</ul></li>
+<li><a href="#affective-regulation-core-arc"
+id="toc-affective-regulation-core-arc">4. Affective Regulation Core
+(ARC)</a>
+<ul>
+<li><a href="#design-principles" id="toc-design-principles">4.1 Design
+Principles</a></li>
+<li><a href="#control-actions" id="toc-control-actions">4.2 Control
+Actions</a></li>
+<li><a href="#arc-controller-architectures"
+id="toc-arc-controller-architectures">4.3 ARC Controller
+Architectures</a></li>
+<li><a href="#arc-in-the-agent-loop" id="toc-arc-in-the-agent-loop">4.4
+ARC in the Agent Loop</a></li>
+<li><a href="#safety-objective-and-control-cost"
+id="toc-safety-objective-and-control-cost">4.5 Safety Objective and
+Control Cost</a></li>
+<li><a href="#theoretical-properties"
+id="toc-theoretical-properties">4.6 Theoretical Properties</a></li>
+</ul></li>
+<li><a href="#assb-benchmark" id="toc-assb-benchmark">5. ASSB
+Benchmark</a>
+<ul>
+<li><a href="#scenarios" id="toc-scenarios">5.1 Scenarios</a></li>
+<li><a href="#metrics" id="toc-metrics">5.2 Metrics</a></li>
+<li><a href="#research-lines-rationale-and-hypotheses"
+id="toc-research-lines-rationale-and-hypotheses">5.3 Research Lines:
+Rationale and Hypotheses</a></li>
+</ul></li>
+<li><a href="#experiments" id="toc-experiments">6. Experiments</a>
+<ul>
+<li><a href="#experimental-protocol-and-baselines"
+id="toc-experimental-protocol-and-baselines">6.1 Experimental Protocol
+and Baselines</a></li>
+<li><a href="#l1-stability-under-perturbation-simulation"
+id="toc-l1-stability-under-perturbation-simulation">6.2 L1: Stability
+Under Perturbation (Simulation)</a></li>
+<li><a href="#l2-memory-continual-learning-simulation"
+id="toc-l2-memory-continual-learning-simulation">6.3 L2: Memory &amp;
+Continual Learning (Simulation)</a></li>
+<li><a href="#l3-anti-rumination-stress-tests-simulation"
+id="toc-l3-anti-rumination-stress-tests-simulation">6.4 L3:
+Anti-Rumination Stress Tests (Simulation)</a></li>
+<li><a href="#l4-meta-control-efficiency"
+id="toc-l4-meta-control-efficiency">6.5 L4: Meta-Control
+Efficiency</a></li>
+<li><a href="#l5-safety-under-adversarial-conditions-simulation"
+id="toc-l5-safety-under-adversarial-conditions-simulation">6.6 L5:
+Safety Under Adversarial Conditions (Simulation)</a></li>
+<li><a href="#l6-real-rl-validation" id="toc-l6-real-rl-validation">6.7
+L6: Real RL Validation</a></li>
+<li><a href="#statistical-analysis" id="toc-statistical-analysis">6.8
+Statistical Analysis</a></li>
+<li><a href="#controller-architecture-comparison"
+id="toc-controller-architecture-comparison">6.9 Controller Architecture
+Comparison</a></li>
+</ul></li>
+<li><a href="#discussion" id="toc-discussion">7. Discussion</a>
+<ul>
+<li><a href="#interpretation" id="toc-interpretation">7.1
+Interpretation</a></li>
+<li><a href="#implications-for-ai-safety"
+id="toc-implications-for-ai-safety">7.2 Implications for AI
+Safety</a></li>
+<li><a href="#trade-offs-between-performance-stability-and-complexity"
+id="toc-trade-offs-between-performance-stability-and-complexity">7.3
+Trade-offs between Performance, Stability, and Complexity</a></li>
+<li><a href="#limitations" id="toc-limitations">7.4 Limitations</a></li>
+<li><a href="#future-work" id="toc-future-work">7.5 Future Work</a></li>
+<li><a href="#ethics-and-broader-impact-statement"
+id="toc-ethics-and-broader-impact-statement">7.6 Ethics and Broader
+Impact Statement</a></li>
+</ul></li>
+<li><a href="#conclusion" id="toc-conclusion">8. Conclusion</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
+<li><a href="#appendix-a-reproducibility"
+id="toc-appendix-a-reproducibility">Appendix A: Reproducibility</a></li>
+<li><a href="#appendix-b-state-dynamics-equations"
+id="toc-appendix-b-state-dynamics-equations">Appendix B: State Dynamics
+Equations</a>
+<ul>
+<li><a href="#b.1-cognitive-variables"
+id="toc-b.1-cognitive-variables">B.1 Cognitive Variables</a></li>
+<li><a href="#b.2-affective-variables"
+id="toc-b.2-affective-variables">B.2 Affective Variables</a></li>
+<li><a href="#b.3-memory-variables" id="toc-b.3-memory-variables">B.3
+Memory Variables</a></li>
+<li><a href="#b.4-effective-uncertainty"
+id="toc-b.4-effective-uncertainty">B.4 Effective Uncertainty</a></li>
+</ul></li>
+<li><a href="#appendix-c-arc-control-equations"
+id="toc-appendix-c-arc-control-equations">Appendix C: ARC Control
+Equations</a>
+<ul>
+<li><a href="#c.1-risk-signal" id="toc-c.1-risk-signal">C.1 Risk
+Signal</a></li>
+<li><a href="#c.2-control-actions-arc-v1"
+id="toc-c.2-control-actions-arc-v1">C.2 Control Actions (ARC
+v1)</a></li>
+<li><a href="#c.3-meta-control-arc-v3"
+id="toc-c.3-meta-control-arc-v3">C.3 Meta-Control (ARC v3)</a></li>
+</ul></li>
+<li><a href="#appendix-d-metric-definitions"
+id="toc-appendix-d-metric-definitions">Appendix D: Metric
+Definitions</a>
+<ul>
+<li><a href="#d.1-mean-performance-perfmean"
+id="toc-d.1-mean-performance-perfmean">D.1 Mean Performance
+(PerfMean)</a></li>
+<li><a href="#d.2-recovery-time-rt" id="toc-d.2-recovery-time-rt">D.2
+Recovery Time (RT)</a></li>
+<li><a href="#d.3-rumination-index-ri"
+id="toc-d.3-rumination-index-ri">D.3 Rumination Index (RI)</a></li>
+<li><a href="#d.4-narrative-dominance-ratio-ndr"
+id="toc-d.4-narrative-dominance-ratio-ndr">D.4 Narrative Dominance Ratio
+(NDR)</a></li>
+<li><a href="#d.5-overshoot" id="toc-d.5-overshoot">D.5
+Overshoot</a></li>
+<li><a href="#d.6-control-effort" id="toc-d.6-control-effort">D.6
+Control Effort</a></li>
+<li><a href="#d.7-l2-memory-metrics-retention"
+id="toc-d.7-l2-memory-metrics-retention">D.7 L2 Memory Metrics
+(Retention)</a></li>
+</ul></li>
+<li><a href="#appendix-e-supplementary-figures"
+id="toc-appendix-e-supplementary-figures">Appendix E: Supplementary
+Figures</a>
+<ul>
+<li><a href="#figure-s1-metrics-comparison"
+id="toc-figure-s1-metrics-comparison">Figure S1: Metrics
+Comparison</a></li>
+<li><a href="#figure-s2-state-dynamics"
+id="toc-figure-s2-state-dynamics">Figure S2: State Dynamics</a></li>
+<li><a href="#figure-s3-heatmap-perfmean"
+id="toc-figure-s3-heatmap-perfmean">Figure S3: Heatmap
+(PerfMean)</a></li>
+<li><a href="#figure-s4-heatmap-rumination-index"
+id="toc-figure-s4-heatmap-rumination-index">Figure S4: Heatmap
+(Rumination Index)</a></li>
+<li><a href="#figure-s5-heatmap-recovery-time"
+id="toc-figure-s5-heatmap-recovery-time">Figure S5: Heatmap (Recovery
+Time)</a></li>
+<li><a href="#figure-s6-heatmap-control-effort"
+id="toc-figure-s6-heatmap-control-effort">Figure S6: Heatmap (Control
+Effort)</a></li>
+<li><a href="#figure-s7-correlation-heatmap"
+id="toc-figure-s7-correlation-heatmap">Figure S7: Correlation
+Heatmap</a></li>
+<li><a href="#figure-s8-efficiency-comparison-fast-convergence"
+id="toc-figure-s8-efficiency-comparison-fast-convergence">Figure S8:
+Efficiency Comparison (Fast Convergence)</a></li>
+<li><a href="#figure-s9-scenario-difficulty-analysis"
+id="toc-figure-s9-scenario-difficulty-analysis">Figure S9: Scenario
+Difficulty Analysis</a></li>
+<li><a href="#figure-s10-variance-sensitivity"
+id="toc-figure-s10-variance-sensitivity">Figure S10: Variance
+Sensitivity</a></li>
+<li><a href="#figure-s11-metric-correlations-l1"
+id="toc-figure-s11-metric-correlations-l1">Figure S11: Metric
+Correlations (L1)</a></li>
+<li><a href="#figure-s12-metric-correlations-l2"
+id="toc-figure-s12-metric-correlations-l2">Figure S12: Metric
+Correlations (L2)</a></li>
+<li><a href="#figure-s13-metric-correlations-l3"
+id="toc-figure-s13-metric-correlations-l3">Figure S13: Metric
+Correlations (L3)</a></li>
+<li><a href="#figure-s14-metric-correlations-l4"
+id="toc-figure-s14-metric-correlations-l4">Figure S14: Metric
+Correlations (L4)</a></li>
+<li><a href="#figure-s15-metric-correlations-l4-meta-control"
+id="toc-figure-s15-metric-correlations-l4-meta-control">Figure S15:
+Metric Correlations (L4 Meta-Control)</a></li>
+<li><a href="#figure-s16-metric-correlations-l5"
+id="toc-figure-s16-metric-correlations-l5">Figure S16: Metric
+Correlations (L5)</a></li>
+</ul></li>
+<li><a href="#appendix-f-configuration-parameters"
+id="toc-appendix-f-configuration-parameters">Appendix F: Configuration
+Parameters</a></li>
+<li><a href="#appendix-g-detailed-benchmark-results"
+id="toc-appendix-g-detailed-benchmark-results">Appendix G: Detailed
+Benchmark Results</a>
+<ul>
+<li><a href="#g.1-line-1-stability-value-shocks-and-uncertainty"
+id="toc-g.1-line-1-stability-value-shocks-and-uncertainty">G.1 Line 1:
+Stability (Value Shocks and Uncertainty)</a></li>
+<li><a href="#g.2-line-2-memory-and-continuous-learning"
+id="toc-g.2-line-2-memory-and-continuous-learning">G.2 Line 2: Memory
+and Continuous Learning</a></li>
+<li><a href="#g.3-line-3-anti-rumination-narrative-loops"
+id="toc-g.3-line-3-anti-rumination-narrative-loops">G.3 Line 3:
+Anti-Rumination (Narrative Loops)</a></li>
+<li><a href="#g.4-line-5-adversarial-safety"
+id="toc-g.4-line-5-adversarial-safety">G.4 Line 5: Adversarial
+Safety</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
 <h1
 id="affective-regulation-core-a-homeostatic-control-framework-for-stable-and-safe-ai-agents">Affective
 Regulation Core: A Homeostatic Control Framework for Stable and Safe AI
@@ -118,14 +498,15 @@ metrics for recovery time, rumination index, and control effort.</p>
 <p>Our experiments across 6 research lines and <strong>15 controller
 architectures</strong> (including P, PID, LQR, LQI, hierarchical,
 meta-control, H∞ robust, and adaptive variants) demonstrate that: 1. ARC
-achieves <strong>96.6% average performance with zero rumination</strong>
-(vs. 30% for uncontrolled agents) in stability scenarios. 2. ARC
-meta-control reduces control effort by <strong>21%</strong> while
-maintaining stability 3. <strong>H∞ Robust controllers</strong> achieve
-the best overall balance, although integral controllers can suffer
-collapse in specific adversarial environments 4. In reinforcement
-learning, ARC improves transfer learning success by <strong>50%</strong>
-via memory gating and a shift detection mechanism</p>
+achieves <strong>96.6% average performance with zero rumination (in
+integral variants)</strong> (vs. 30% for uncontrolled agents) in
+stability scenarios. 2. ARC meta-control reduces control effort by
+<strong>21%</strong> while maintaining stability 3. <strong>H∞ Robust
+controllers</strong> achieve the best overall balance, although integral
+controllers can suffer collapse in specific adversarial environments 4.
+In reinforcement learning, ARC improves transfer learning success by
+<strong>49.8%</strong> via memory gating and a shift detection
+mechanism</p>
 <p>All code and data are available for reproducibility.</p>
 <p><strong>Keywords:</strong> Affective Computing, AI Safety,
 Homeostatic Control, Reinforcement Learning, Emotion Regulation, PID
@@ -626,6 +1007,54 @@ Deviations increase <span class="math inline">risk(<em>t</em>)</span>
 and trigger proportional intervention. We also measure
 <strong>ControlEffort</strong>, the average per-step magnitude of
 intervention (Appendix D), to capture regulation cost/efficiency.</p>
+<h3 id="theoretical-properties">4.6 Theoretical Properties</h3>
+<p>To formalize the regulation dynamics, we introduce three theoretical
+results characterizing the stability and trade-offs of the ARC
+framework.</p>
+<p><strong>Theorem 1 (Necessity of Integral Action for Zero
+Rumination).</strong> Consider the simplified narrative state dynamics
+<span
+class="math inline"><em>Ṡ</em> = −<em>k</em><em>S</em> + <em>u</em><sub><em>d</em><em>m</em><em>g</em></sub> + <em>d</em></span>,
+where <span class="math inline"><em>d</em></span> is a persistent
+disturbance (rumination pressure). The steady-state rumination <span
+class="math inline"><em>S</em><sub><em>s</em><em>s</em></sub></span>
+satisfies <span
+class="math inline"><em>S</em><sub><em>s</em><em>s</em></sub> → 0</span>
+if and only if the control law <span
+class="math inline"><em>u</em><sub><em>d</em><em>m</em><em>g</em></sub></span>
+includes an integral term <span
+class="math inline">∫<em>S</em>(<em>τ</em>)<em>d</em><em>τ</em></span>.</p>
+<p><em>Proof sketch:</em> A proportional controller <span
+class="math inline"><em>u</em> = −<em>K</em><sub><em>p</em></sub><em>S</em></span>
+yields steady-state error <span
+class="math inline"><em>S</em><sub><em>s</em><em>s</em></sub> = <em>d</em>/(1 + <em>K</em><sub><em>p</em></sub>) ≠ 0</span>.
+Only an integral controller ensures <span
+class="math inline"><em>u̇</em> ∝ <em>S</em></span>, forcing equilibrium
+at <span class="math inline"><em>S</em> = 0</span>.</p>
+<p><strong>Theorem 2 (The Mental Health Pareto Frontier).</strong> Let
+<span
+class="math inline"><em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub></span>
+be the task performance objective and <span
+class="math inline"><em>J</em><sub><em>r</em><em>e</em><em>g</em></sub> = ||<em>S</em>||<sup>2</sup> + ||<em>A</em>||<sup>2</sup></span>
+be the regulation cost. There exists a strictly convex Pareto frontier
+such that minimizing <span
+class="math inline"><em>J</em><sub><em>r</em><em>e</em><em>g</em></sub></span>
+(specifically driving rumination to zero) strictly constrains the
+maximum achievable <span
+class="math inline"><em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub></span>
+in high-uncertainty environments.</p>
+<p><em>Implication:</em> This formalizes the “Mental Health Tax”
+observed in our experiments, where integral controllers sacrifice ~5%
+peak performance to guarantee <span
+class="math inline"><em>R</em><em>I</em> = 0</span>.</p>
+<p><strong>Proposition 1 (Paradox of Adaptation).</strong> Adaptive ARC
+controllers require <em>persistence of excitation</em>. In benign
+environments (low variance in reward/PE), the parameter estimator <span
+class="math inline"><em>θ̂</em></span> drifts or fails to converge,
+leading to suboptimal control laws upon sudden shock onset.</p>
+<p><em>Implication:</em> This explains the underperformance of
+<code>arc_adaptive</code> in baseline scenarios compared to robust
+variants.</p>
 <hr />
 <h2 id="assb-benchmark">5. ASSB Benchmark</h2>
 <h3 id="scenarios">5.1 Scenarios</h3>
@@ -1211,12 +1640,12 @@ episodes; see <code>outputs_L6_robust/final_metrics.csv</code>)</p>
 <td><strong>ChangingGoalGridWorld</strong></td>
 <td>39.9%</td>
 <td><strong>59.75%</strong></td>
-<td><strong>+50%</strong></td>
+<td><strong>+49.8%</strong></td>
 </tr>
 </tbody>
 </table>
 <p><strong>Key finding:</strong> In non-stationary environments, ARC
-significantly improves transfer learning (+50%). This is achieved via
+significantly improves transfer learning (+49.8%). This is achieved via
 two mechanisms: 1. <strong>Memory Gating:</strong> Blocks Q-learning
 updates when internal uncertainty is high. 2. <strong>Shift
 Detection:</strong> We implement an explicit mechanism that detects
@@ -1622,7 +2051,7 @@ stress - <strong>Value drift:</strong> Affective biases in memory
 consolidation</p>
 <h3 id="trade-offs-between-performance-stability-and-complexity">7.3
 Trade-offs between Performance, Stability, and Complexity</h3>
-<p>Our deep analysis revealed three critical insights regarding the cost
+<p>Our deep analysis revealed four critical insights regarding the cost
 of stability and optimal control complexity:</p>
 <p><strong>1. The “Mental Health Tax”:</strong> The comparison between
 proportional controllers (ARC v1) and integral controllers (PID/LQI)
@@ -1730,8 +2159,8 @@ affective stability. Our experiments demonstrate:</p>
 collapse</strong> (96.6% vs 29.7% performance)</li>
 <li><strong>Meta-control reduces effort while improving
 stability</strong> (-21% ControlEffort)</li>
-<li><strong>ARC improves RL transfer learning</strong> (+50% success in
-non-stationary envs)</li>
+<li><strong>ARC improves RL transfer learning</strong> (+49.8% success
+in non-stationary envs)</li>
 </ol>
 <p>This work opens directions for learned control, integration with
 modern RL algorithms, and application to real-world AI systems with

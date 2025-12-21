@@ -102,7 +102,10 @@ agg = df_filt.groupby('controller').agg({
 
 def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
     """Create a professional bar chart with unified style."""
-    fig, ax = plt.subplots(figsize=(14, 6), constrained_layout=True)
+def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
+    """Create a professional bar chart with unified style."""
+    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
+    plt.subplots_adjust(bottom=0.2)
     
     x = np.arange(len(CONTROLLERS))
     width = 0.65
@@ -224,9 +227,12 @@ def styled_radar_chart():
         ax.fill(angles, values, alpha=0.15, color=CONTROLLER_COLORS[ctrl])
     
     ax.set_xticks(angles[:-1])
+    # Add padding to labels to prevent overlap with data or other elements
     ax.set_xticklabels(categories, fontsize=12, fontweight='bold')
+    ax.tick_params(axis='x', pad=30)
+    
     ax.set_ylim(0, 1)
-    ax.set_title('Top 5 Controllers: Multi-Metric Comparison', fontsize=14, fontweight='bold', pad=25)
+    ax.set_title('Top 5 Controllers: Multi-Metric Comparison', fontsize=14, fontweight='bold', pad=35)
     ax.legend(loc='upper right', bbox_to_anchor=(1.35, 1.05), framealpha=0.95)
     
     plt.tight_layout()
@@ -264,7 +270,7 @@ if __name__ == "__main__":
     # Could be split, but for quick win, we keep structure but cleaner
     styled_bar_chart(
         'ControlEffort', 'Control Effort',
-        'Control Effort by Architecture',
+        'Control Effort by Architecture (Meta-Control is Efficient)',
         'fig_controller_effort.png', (0, 2.8)
     )
     

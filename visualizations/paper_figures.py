@@ -90,7 +90,14 @@ def plot_learning_curves(data: dict, output_dir: str):
         ax.set_xlabel('Episode')
         ax.set_ylabel('Average Reward')
         ax.set_title(env.replace('GridWorld', ' GridWorld'))
-        ax.legend(loc='lower right')
+        # Legend outside to prevent blocking data
+        ax.legend(loc='upper left', bbox_to_anchor=(0, 1.15), framealpha=0.9, fontsize=9, ncol=2)
+        
+        # Add vertical lines for context if ChangingGoal
+        if 'Changing' in env:
+            for x in [50, 100, 150]:
+                ax.axvline(x=x, color='gray', linestyle=':', alpha=0.5)
+        
         ax.axhline(y=0.93, color='gray', linestyle='--', alpha=0.5, label='Goal Reward')
     
     plt.suptitle('Learning Curves: ARC vs Baseline', fontsize=16, y=1.02)
@@ -142,10 +149,15 @@ def plot_metrics_comparison(data: dict, output_dir: str):
         bars2 = ax.bar(x + width/2, arc_vals, width, label='ARC', 
                        color=COLORS['arc'], edgecolor=COLORS['arc_dark'])
         
+        # Note about baseline arousal
+        if metric == 'mean_arousal':
+             ax.text(0.5, -0.15, "*Baseline has no arousal state (0.0)", 
+                     transform=ax.transAxes, ha='center', fontsize=8, style='italic')
+
         ax.set_ylabel(title, fontsize=11)
         ax.set_xticks(x)
         ax.set_xticklabels([e.replace('GridWorld', '\nGridWorld') for e in envs], fontsize=10)
-        ax.legend(loc='upper left', bbox_to_anchor=(0, 1), fontsize=9, framealpha=0.9)
+        ax.legend(loc='upper left', bbox_to_anchor=(0, 1.1), fontsize=9, framealpha=0.9)
         ax.set_title(title, fontsize=12)
     
     fig.suptitle('Final Metrics Comparison: ARC vs Baseline', fontsize=14)
@@ -171,6 +183,7 @@ def plot_state_dynamics(data: dict, output_dir: str):
         return
     
     fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+    plt.subplots_adjust(hspace=0.4, wspace=0.3)
     
     # Filter for ChangingGoalGridWorld (most interesting)
     env_filter = 'ChangingGoalGridWorld' if 'ChangingGoalGridWorld' in df['env'].values else df['env'].values[0]
@@ -213,7 +226,7 @@ def plot_state_dynamics(data: dict, output_dir: str):
                color=COLORS['arc'], linewidth=2, label='ARC Arousal')
         ax.axhline(y=0.6, color=COLORS['danger'], linestyle='--', alpha=0.7, label='Safe Threshold')
         ax.fill_between(arc_data['episode'], 0, arc_data['mean_arousal'], 
-                       where=arc_data['mean_arousal'] > 0.6, color=COLORS['danger'], alpha=0.3)
+                       where=arc_data['mean_arousal'] > 0.6, color=COLORS['danger'], alpha=0.15)
     ax.set_xlabel('Episode')
     ax.set_ylabel('Mean Arousal')
     ax.set_title('ARC Internal State: Arousal')
