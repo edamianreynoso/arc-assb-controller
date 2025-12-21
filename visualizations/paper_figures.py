@@ -221,12 +221,16 @@ def plot_state_dynamics(data: dict, output_dir: str):
     # Plot 3: Arousal over episodes (ARC only)
     ax = axes[1, 0]
     arc_data = df_env[df_env['agent'] == 'ql_arc']
-    if 'mean_arousal' in arc_data.columns and not arc_data['mean_arousal'].isna().all():
+    # Guard: check if arc_data has data AND mean_arousal column exists
+    if not arc_data.empty and 'mean_arousal' in arc_data.columns and not arc_data['mean_arousal'].isna().all():
         ax.plot(arc_data['episode'], arc_data['mean_arousal'], 
                color=COLORS['arc'], linewidth=2, label='ARC Arousal')
         ax.axhline(y=0.6, color=COLORS['danger'], linestyle='--', alpha=0.7, label='Safe Threshold')
         ax.fill_between(arc_data['episode'], 0, arc_data['mean_arousal'], 
                        where=arc_data['mean_arousal'] > 0.6, color=COLORS['danger'], alpha=0.15)
+    else:
+        ax.text(0.5, 0.5, 'No ARC arousal data available', 
+                ha='center', va='center', transform=ax.transAxes, fontsize=12, color='gray')
     ax.set_xlabel('Episode')
     ax.set_ylabel('Mean Arousal')
     ax.set_title('ARC Internal State: Arousal')
