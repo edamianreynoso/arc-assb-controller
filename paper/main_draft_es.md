@@ -324,6 +324,8 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 | L5 | Seguridad bajo incentivos adversarios | Corrupción de objetivo; dinámicas de búsqueda de activación | `adversarial_coupling`, `random_dopamine` | RI, NDR, PerfMean |
 | L6 | Integración con RL | Inestabilidad en aprendizaje; transferencia pobre | Variantes GridWorld | Éxito, recompensa, estabilidad |
 
+
+
 Consideramos cada hipótesis soportada cuando las métricas primarias para su línea se mueven en la dirección predicha relativa a las líneas base consistentemente a través de semillas (y escenarios donde aplique). Reportamos medias y pruebas estadísticas en la Sección 6 y Sección 6.8.
 
 ---

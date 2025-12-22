@@ -599,17 +599,16 @@ L5 & PerfMean & 0.943 & 0.208 & $<1e^{-200}$ & 8.41 & *** \\ \bottomrule
 \subsubsection{Correlation Analysis}
 We analyzed correlations between metrics to understand system dynamics:
 
-% Correlation table commented out to match Markdown version (11 tables).
-% \begin{table}[h]
-% \centering
-% \begin{tabular}{@{}lcl@{}}
-% \toprule
-% Metric Pair & Correlation (r) & Interpretation \\ \midrule
-% PerfMean $\leftrightarrow$ RI & \textbf{-0.589} & Higher rumination tends to reduce performance \\
-% RI $\leftrightarrow$ NDR & \textbf{+0.92} & Rumination and narrative dominance co-occur \\
-% RT $\leftrightarrow$ RI & \textbf{+0.44} & Slower recovery correlates with rumination \\ \bottomrule
-% \end{tabular}
-% \end{table}
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}lcl@{}}
+\toprule
+Metric Pair & Correlation (r) & Interpretation \\ \midrule
+PerfMean $\leftrightarrow$ RI & \textbf{-0.589} & Higher rumination tends to reduce performance \\
+RI $\leftrightarrow$ NDR & \textbf{+0.92} & Rumination and narrative dominance co-occur \\
+RT $\leftrightarrow$ RI & \textbf{+0.44} & Slower recovery correlates with rumination \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \textbf{Key insight:} Across controllers and scenarios, higher Rumination Index (RI) tends to reduce mean performance. However, some optimal controllers (e.g., LQR) can sustain high PerfMean while exhibiting high RI, because PerfMean includes narrative-modulated capacity (Appendix B). This motivates reporting RI as a separate safety metric.
 

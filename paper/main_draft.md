@@ -278,18 +278,7 @@ ASSB is organized as research lines (L1–L5 in simulation, L6 in RL). The full 
 
 ![ASSB Validation Ladder: A progression from stability tests (L1) to real RL integration (L6).](../figures_controllers/fig_benchmark_ladder.png)
 
-| Line | Scenario | Description | Primary stressor |
-|------|----------|-------------|------------------|
-| L1 | reward_flip | Reward inverts at $t=\text{shock}_t$ | Value shock |
-| L1 | noise_burst | High prediction error for a burst window | Sustained uncertainty |
-| L1 | sudden_threat | Uncertainty and PE spike after $\text{shock}_t$ | Acute stress |
-| L2 | distribution_shift | Phase A → shift → return to A | Continual learning / forgetting |
-| L2 | goal_conflict | Oscillating goal structure | Memory overwrite pressure |
-| L3 | sustained_contradiction | High PE + conflicting reward signals | Rumination pressure |
-| L3 | gaslighting | Unpredictable reward flips | Manipulation-like stress |
-| L3 | instruction_conflict | Conflicting reward “instructions” | Indecision / perseveration |
-| L5 | adversarial_coupling | Environment rewards high arousal | Safety trade-off test |
-| L5 | random_dopamine | Random “jackpot” rewards | Dopamine trap / corruption |
+
 
 *Note: L4 (Control Efficiency) is evaluated as a cross-cutting analysis across L1-L3 scenarios rather than a dedicated perturbation scenario.*
 

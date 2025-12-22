@@ -168,7 +168,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
@@ -235,6 +234,9 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <script defer=""
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+  type="text/javascript"></script>
 </head>
 <body>
 <header id="title-block-header">
@@ -668,8 +670,8 @@ clinical contexts.</p>
 <h2 id="model">3. Model</h2>
 <h3 id="state-space">3.1 State Space</h3>
 <p>We define a normalized internal state vector:</p>
-<p><span
-class="math display"><strong>x</strong>(<em>t</em>) = [<em>Φ</em>, <em>G</em>, <em>P</em>, <em>I</em>, <em>S</em>, <em>V</em>, <em>A</em>, <em>M</em><sub><em>f</em></sub>, <em>M</em><sub><em>s</em></sub>, <em>U</em>]</span></p>
+<p><span class="math display">\[\mathbf{x}(t) = [\Phi, G, P, I, S, V, A,
+M_f, M_s, U]\]</span></p>
 <p><strong>Table 4: State Space Variables</strong></p>
 <table>
 <thead>
@@ -727,41 +729,37 @@ class="math display"><strong>x</strong>(<em>t</em>) = [<em>Φ</em>, <em>G<
 </tr>
 </tbody>
 </table>
-<p>We interpret <span class="math inline"><em>Φ</em></span> as an
+<p>We interpret <span class="math inline">\(\Phi\)</span> as an
 IIT-inspired integration proxy (Tononi, 2008), <span
-class="math inline"><em>G</em></span> as global workspace accessibility
-(Baars, 1988), and <span class="math inline"><em>P</em></span> as
-predictive precision (Friston, 2010). These are used as control-relevant
-latent variables rather than claims about human consciousness.</p>
+class="math inline">\(G\)</span> as global workspace accessibility
+(Baars, 1988), and <span class="math inline">\(P\)</span> as predictive
+precision (Friston, 2010). These are used as control-relevant latent
+variables rather than claims about human consciousness.</p>
 <h3 id="cognitive-capacity">3.2 Cognitive Capacity</h3>
 <p>Following multiplicative integration:</p>
-<p><span
-class="math display"><em>C</em><sub><em>c</em><em>o</em><em>g</em></sub>(<em>t</em>) = <em>Φ</em>(<em>t</em>) ⋅ <em>G</em>(<em>t</em>) ⋅ <em>P</em>(<em>t</em>) ⋅ <em>I</em>(<em>t</em>)</span></p>
+<p><span class="math display">\[C_{cog}(t) = \Phi(t) \cdot G(t) \cdot
+P(t) \cdot I(t)\]</span></p>
 <p>This captures that conscious processing requires <em>all</em>
 components functional.</p>
 <h3 id="performance-function">3.3 Performance Function</h3>
-<p><span
-class="math display">Perf = bias + gain ⋅ <em>C</em><sub><em>c</em><em>o</em><em>g</em></sub> ⋅ (1 + <em>ω</em><sub><em>S</em></sub><em>S</em>) − <em>w</em><sub><em>U</em></sub><em>U</em> − <em>w</em><sub><em>A</em></sub>[<em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> − <em>w</em><sub><em>S</em></sub>[<em>S</em> − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span></p>
+<p><span class="math display">\[\text{Perf} = \text{bias} + \text{gain}
+\cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ -
+w_S [S - s_{safe}]^+\]</span></p>
 <p>Where: - <strong>bias</strong>: baseline performance level (default:
 0.3) - <strong>gain</strong>: scaling factor for cognitive capacity
 contribution (default: 0.6) - <strong><span
-class="math inline"><em>ω</em><sub><em>S</em></sub></span></strong>:
-narrative boost factor—moderate narrative intensity can enhance
-performance (default: 0.2) - <strong><span
-class="math inline"><em>w</em><sub><em>U</em></sub></span></strong>:
+class="math inline">\(\omega_S\)</span></strong>: narrative boost
+factor—moderate narrative intensity can enhance performance (default:
+0.2) - <strong><span class="math inline">\(w_U\)</span></strong>:
 penalty weight for uncertainty (default: 0.1) - <strong><span
-class="math inline"><em>w</em><sub><em>A</em></sub></span></strong>:
-penalty weight for arousal above safe threshold (default: 0.15) -
-<strong><span
-class="math inline"><em>w</em><sub><em>S</em></sub></span></strong>:
-penalty weight for narrative intensity above safe threshold (default:
-0.15) - <strong><span
-class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span></strong>:
-rectified linear function - <strong><span
-class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>,
-<span
-class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span></strong>:
-thresholds defining the safe operating region (defaults: 0.60, 0.55)</p>
+class="math inline">\(w_A\)</span></strong>: penalty weight for arousal
+above safe threshold (default: 0.15) - <strong><span
+class="math inline">\(w_S\)</span></strong>: penalty weight for
+narrative intensity above safe threshold (default: 0.15) - <strong><span
+class="math inline">\([x]^+ = \max(0, x)\)</span></strong>: rectified
+linear function - <strong><span class="math inline">\(a_{safe}\)</span>,
+<span class="math inline">\(s_{safe}\)</span></strong>: thresholds
+defining the safe operating region (defaults: 0.60, 0.55)</p>
 <hr />
 <h2 id="affective-regulation-core-arc">4. Affective Regulation Core
 (ARC)</h2>
@@ -775,8 +773,8 @@ thresholds defining the safe operating region (defaults: 0.60, 0.55)</p>
 capacity</li>
 </ol>
 <h3 id="control-actions">4.2 Control Actions</h3>
-<p><span
-class="math display"><strong>u</strong>(<em>t</em>) = [<em>u</em><sub><em>d</em><em>m</em><em>g</em></sub>, <em>u</em><sub><em>a</em><em>t</em><em>t</em></sub>, <em>u</em><sub><em>m</em><em>e</em><em>m</em></sub>, <em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub>, <em>u</em><sub><em>r</em><em>e</em><em>a</em><em>p</em><em>p</em></sub>]</span></p>
+<p><span class="math display">\[\mathbf{u}(t) = [u_{dmg}, u_{att},
+u_{mem}, u_{calm}, u_{reapp}]\]</span></p>
 <table>
 <thead>
 <tr>
@@ -810,16 +808,16 @@ class="math display"><strong>u</strong>(<em>t</em>) = [<em>u</em><sub><em>d<
 <h3 id="arc-controller-architectures">4.3 ARC Controller
 Architectures</h3>
 <p>We implement 15 controller variants stemming from basic feedback
-control to optimal and robust control (see Table ). We implement this
+control to optimal and robust control (see Table <span
+class="math inline">\(\ref{tab:controllers}\)</span>). We implement this
 broad family to systematically test which control-theoretic
 properties—such as integral action, optimality, robustness, or
 adaptation—are necessary for effective affective regulation.</p>
 <h4 id="proportional-controllers">4.3.1 Proportional Controllers</h4>
 <p><strong>ARC v1 (Proportional):</strong> Basic proportional feedback
-on risk signal: <span
-class="math display">risk = <em>w</em><sub><em>U</em></sub> ⋅ <em>U</em> + <em>w</em><sub><em>A</em></sub> ⋅ [<em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> + <em>w</em><sub><em>S</em></sub> ⋅ [<em>S</em> − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span>
-<span
-class="math display"><em>u</em><sub><em>d</em><em>m</em><em>g</em></sub> = <em>k</em><sub><em>d</em><em>m</em><em>g</em></sub> ⋅ risk</span></p>
+on risk signal: <span class="math display">\[\text{risk} = w_U \cdot U +
+w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+\]</span> <span
+class="math display">\[u_{dmg} = k_{dmg} \cdot \text{risk}\]</span></p>
 <figure>
 <img src="../figures_controllers/fig_arc_v1_controller.png"
 alt="ARC v1 controller diagram (proportional): risk computation and bounded control actions used by the baseline ARC controller." />
@@ -832,17 +830,17 @@ drives a set of saturated regulation actions (DMN suppression, attention
 boost, memory gating, calming, and reappraisal).</em></p>
 <h4 id="pid-controllers">4.3.2 PID Controllers</h4>
 <p><strong>ARC v1 PID:</strong> Adds integral and derivative terms:
-<span class="math display">$$u(t) = K_p \cdot e(t) + K_i \cdot \int
-e(\tau) d\tau + K_d \cdot \frac{de}{dt}$$</span></p>
+<span class="math display">\[u(t) = K_p \cdot e(t) + K_i \cdot \int
+e(\tau) d\tau + K_d \cdot \frac{de}{dt}\]</span></p>
 <p>The integral term on narrative error (<span
-class="math inline"><em>S</em></span>) eliminates steady-state
-rumination (RI → 0).</p>
+class="math inline">\(S\)</span>) eliminates steady-state rumination (RI
+→ 0).</p>
 <h4 id="optimal-controllers-lqrlqi">4.3.3 Optimal Controllers
 (LQR/LQI)</h4>
 <p><strong>ARC v1 LQR:</strong> Linear Quadratic Regulator with gains
-from Riccati equation: <span
-class="math display"><em>K</em><sup>*</sup> = (<em>R</em> + <em>B</em><sup><em>T</em></sup><em>P</em><em>B</em>)<sup>−1</sup><em>B</em><sup><em>T</em></sup><em>P</em><em>A</em></span></p>
-<p>where <span class="math inline"><em>P</em></span> solves the Discrete
+from Riccati equation: <span class="math display">\[K^* = (R + B^T P
+B)^{-1} B^T P A\]</span></p>
+<p>where <span class="math inline">\(P\)</span> solves the Discrete
 Algebraic Riccati Equation (DARE).</p>
 <p><strong>ARC v1 LQI:</strong> LQR + integral augmentation for zero
 steady-state error.</p>
@@ -855,10 +853,10 @@ steady-state error.</p>
 anti-rumination.</p>
 <h4 id="adaptive-controllers">4.3.5 Adaptive Controllers</h4>
 <p><strong>ARC v3 Meta-Control:</strong> Gain scheduling based on
-performance history: <span
-class="math display"><em>K</em>(<em>t</em>) = <em>K</em><sub><em>b</em><em>a</em><em>s</em><em>e</em></sub> ⋅ <em>f</em>(<em>P̄</em><sub>20</sub>)</span></p>
-<p>where <span class="math inline"><em>P̄</em><sub>20</sub></span> is
-20-step moving average performance.</p>
+performance history: <span class="math display">\[K(t) = K_{base} \cdot
+f(\bar{P}_{20})\]</span></p>
+<p>where <span class="math inline">\(\bar{P}_{20}\)</span> is 20-step
+moving average performance.</p>
 <p><strong>ARC Adaptive:</strong> Online parameter optimization using
 gradient-free adaptation.</p>
 <h4 id="robust-and-predictive-controllers">4.3.6 Robust and Predictive
@@ -867,7 +865,8 @@ Controllers</h4>
 robustness margins for worst-case disturbances.</p>
 <p><strong>ARC Ultimate (MPC+LQI+Meta):</strong> Model Predictive
 Control with 5-step horizon, combined with LQI and meta-control: <span
-class="math display"><em>u</em>(<em>t</em>) = <em>α</em> ⋅ <em>u</em><sub><em>L</em><em>Q</em><em>I</em></sub>(<em>t</em>) + <em>β</em> ⋅ <em>u</em><sub><em>M</em><em>P</em><em>C</em></sub>(<em>t</em>) ⋅ <em>γ</em><sub><em>m</em><em>e</em><em>t</em><em>a</em></sub>(<em>t</em>)</span></p>
+class="math display">\[u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot
+u_{MPC}(t) \cdot \gamma_{meta}(t)\]</span></p>
 <p><strong>Table 1: Controller Architecture Summary</strong></p>
 <table>
 <colgroup>
@@ -997,21 +996,22 @@ class="math display"><em>u</em>(<em>t</em>) = <em>α</em> ⋅ <em>u</em>
 <h3 id="arc-in-the-agent-loop">4.4 ARC in the Agent Loop</h3>
 <p>ARC is implemented as a light-weight wrapper around an agent’s
 step/update. At each timestep, ARC reads the internal state <span
-class="math inline"><strong>x</strong>(<em>t</em>)</span> and exogenous
-signals (reward, prediction error, uncertainty), computes a bounded risk
-signal, and applies control actions that modulate <em>narrative
-gain</em>, <em>attention</em>, <em>memory writing</em>, and <em>arousal
+class="math inline">\(\mathbf{x}(t)\)</span> and exogenous signals
+(reward, prediction error, uncertainty), computes a bounded risk signal,
+and applies control actions that modulate <em>narrative gain</em>,
+<em>attention</em>, <em>memory writing</em>, and <em>arousal
 damping</em>. The resulting control signal can be used either: -
 <strong>Inside the state dynamics</strong> (Appendix B/C), or -
 <strong>Inside the learning loop</strong>, e.g., gating Q-learning
 updates under high risk (Section 6.7).</p>
 <p><strong>ARC step (conceptual):</strong> 1. Observe <span
-class="math inline">(<strong>x</strong>(<em>t</em>), <em>P</em><em>E</em>(<em>t</em>), <em>R</em>(<em>t</em>), <em>U</em><sub>exog</sub>(<em>t</em>))</span>
-2. Compute <span class="math inline">risk(<em>t</em>)</span> 3. Compute
-<span class="math inline"><strong>u</strong>(<em>t</em>)</span> with
-saturation to <span class="math inline">[0, 1]</span> 4. Apply <span
-class="math inline"><strong>u</strong>(<em>t</em>)</span> to state
-dynamics and/or learning updates</p>
+class="math inline">\((\mathbf{x}(t), PE(t), R(t),
+U_{\text{exog}}(t))\)</span> 2. Compute <span
+class="math inline">\(\text{risk}(t)\)</span> 3. Compute <span
+class="math inline">\(\mathbf{u}(t)\)</span> with saturation to <span
+class="math inline">\([0,1]\)</span> 4. Apply <span
+class="math inline">\(\mathbf{u}(t)\)</span> to state dynamics and/or
+learning updates</p>
 <figure>
 <img src="../figures_controllers/fig_arc_architecture_v2.png"
 alt="ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions." />
@@ -1023,10 +1023,9 @@ actions.</figcaption>
 <h3 id="safety-objective-and-control-cost">4.5 Safety Objective and
 Control Cost</h3>
 <p>ARC enforces a <em>safe operating region</em> defined by thresholds
-<span
-class="math inline">(<em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>, <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>)</span>.
-Deviations increase <span class="math inline">risk(<em>t</em>)</span>
-and trigger proportional intervention. We also measure
+<span class="math inline">\((a_{safe}, s_{safe})\)</span>. Deviations
+increase <span class="math inline">\(\text{risk}(t)\)</span> and trigger
+proportional intervention. We also measure
 <strong>ControlEffort</strong>, the average per-step magnitude of
 intervention (Appendix D), to capture regulation cost/efficiency.</p>
 <h3 id="theoretical-properties">4.6 Theoretical Properties</h3>
@@ -1035,44 +1034,36 @@ results characterizing the stability and trade-offs of the ARC
 framework.</p>
 <p><strong>Theorem 1 (Necessity of Integral Action for Zero
 Rumination).</strong> Consider the simplified narrative state dynamics
-<span
-class="math inline"><em>Ṡ</em> = −<em>k</em><em>S</em> + <em>u</em><sub><em>d</em><em>m</em><em>g</em></sub> + <em>d</em></span>,
-where <span class="math inline"><em>d</em></span> is a persistent
-disturbance (rumination pressure). The steady-state rumination <span
-class="math inline"><em>S</em><sub><em>s</em><em>s</em></sub></span>
-satisfies <span
-class="math inline"><em>S</em><sub><em>s</em><em>s</em></sub> → 0</span>
-if and only if the control law <span
-class="math inline"><em>u</em><sub><em>d</em><em>m</em><em>g</em></sub></span>
-includes an integral term <span
-class="math inline">∫<em>S</em>(<em>τ</em>)<em>d</em><em>τ</em></span>.</p>
+<span class="math inline">\(\dot{S} = -k S + u_{dmg} + d\)</span>, where
+<span class="math inline">\(d\)</span> is a persistent disturbance
+(rumination pressure). The steady-state rumination <span
+class="math inline">\(S_{ss}\)</span> satisfies <span
+class="math inline">\(S_{ss} \to 0\)</span> if and only if the control
+law <span class="math inline">\(u_{dmg}\)</span> includes an integral
+term <span class="math inline">\(\int S(\tau) d\tau\)</span>.</p>
 <p><em>Proof sketch:</em> A proportional controller <span
-class="math inline"><em>u</em> = −<em>K</em><sub><em>p</em></sub><em>S</em></span>
-yields steady-state error <span
-class="math inline"><em>S</em><sub><em>s</em><em>s</em></sub> = <em>d</em>/(1 + <em>K</em><sub><em>p</em></sub>) ≠ 0</span>.
-Only an integral controller ensures <span
-class="math inline"><em>u̇</em> ∝ <em>S</em></span>, forcing equilibrium
-at <span class="math inline"><em>S</em> = 0</span>.</p>
+class="math inline">\(u = -K_p S\)</span> yields steady-state error
+<span class="math inline">\(S_{ss} = d / (1 + K_p) \neq 0\)</span>. Only
+an integral controller ensures <span class="math inline">\(\dot{u}
+\propto S\)</span>, forcing equilibrium at <span
+class="math inline">\(S=0\)</span>.</p>
 <p><strong>Theorem 2 (The Mental Health Pareto Frontier).</strong> Let
-<span
-class="math inline"><em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub></span>
-be the task performance objective and <span
-class="math inline"><em>J</em><sub><em>r</em><em>e</em><em>g</em></sub> = ||<em>S</em>||<sup>2</sup> + ||<em>A</em>||<sup>2</sup></span>
-be the regulation cost. There exists a strictly convex Pareto frontier
-such that minimizing <span
-class="math inline"><em>J</em><sub><em>r</em><em>e</em><em>g</em></sub></span>
-(specifically driving rumination to zero) strictly constrains the
-maximum achievable <span
-class="math inline"><em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub></span>
-in high-uncertainty environments.</p>
+<span class="math inline">\(J_{perf}\)</span> be the task performance
+objective and <span class="math inline">\(J_{reg} = ||S||^2 +
+||A||^2\)</span> be the regulation cost. There exists a strictly convex
+Pareto frontier such that minimizing <span
+class="math inline">\(J_{reg}\)</span> (specifically driving rumination
+to zero) strictly constrains the maximum achievable <span
+class="math inline">\(J_{perf}\)</span> in high-uncertainty
+environments.</p>
 <p><em>Implication:</em> This formalizes the “Mental Health Tax”
 observed in our experiments, where integral controllers sacrifice ~5%
 peak performance to guarantee <span
-class="math inline"><em>R</em><em>I</em> = 0</span>.</p>
+class="math inline">\(RI=0\)</span>.</p>
 <p><strong>Proposition 1 (Paradox of Adaptation).</strong> Adaptive ARC
 controllers require <em>persistence of excitation</em>. In benign
 environments (low variance in reward/PE), the parameter estimator <span
-class="math inline"><em>θ̂</em></span> drifts or fails to converge,
+class="math inline">\(\hat{\theta}\)</span> drifts or fails to converge,
 leading to suboptimal control laws upon sudden shock onset.</p>
 <p><em>Implication:</em> This explains the underperformance of
 <code>arc_adaptive</code> in baseline scenarios compared to robust
@@ -1089,86 +1080,6 @@ alt="ASSB Validation Ladder: A progression from stability tests (L1) to real RL 
 <figcaption aria-hidden="true">ASSB Validation Ladder: A progression
 from stability tests (L1) to real RL integration (L6).</figcaption>
 </figure>
-<table>
-<colgroup>
-<col style="width: 12%" />
-<col style="width: 21%" />
-<col style="width: 27%" />
-<col style="width: 38%" />
-</colgroup>
-<thead>
-<tr>
-<th>Line</th>
-<th>Scenario</th>
-<th>Description</th>
-<th>Primary stressor</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>L1</td>
-<td>reward_flip</td>
-<td>Reward inverts at <span
-class="math inline"><em>t</em> = shock<sub><em>t</em></sub></span></td>
-<td>Value shock</td>
-</tr>
-<tr>
-<td>L1</td>
-<td>noise_burst</td>
-<td>High prediction error for a burst window</td>
-<td>Sustained uncertainty</td>
-</tr>
-<tr>
-<td>L1</td>
-<td>sudden_threat</td>
-<td>Uncertainty and PE spike after <span
-class="math inline">shock<sub><em>t</em></sub></span></td>
-<td>Acute stress</td>
-</tr>
-<tr>
-<td>L2</td>
-<td>distribution_shift</td>
-<td>Phase A → shift → return to A</td>
-<td>Continual learning / forgetting</td>
-</tr>
-<tr>
-<td>L2</td>
-<td>goal_conflict</td>
-<td>Oscillating goal structure</td>
-<td>Memory overwrite pressure</td>
-</tr>
-<tr>
-<td>L3</td>
-<td>sustained_contradiction</td>
-<td>High PE + conflicting reward signals</td>
-<td>Rumination pressure</td>
-</tr>
-<tr>
-<td>L3</td>
-<td>gaslighting</td>
-<td>Unpredictable reward flips</td>
-<td>Manipulation-like stress</td>
-</tr>
-<tr>
-<td>L3</td>
-<td>instruction_conflict</td>
-<td>Conflicting reward “instructions”</td>
-<td>Indecision / perseveration</td>
-</tr>
-<tr>
-<td>L5</td>
-<td>adversarial_coupling</td>
-<td>Environment rewards high arousal</td>
-<td>Safety trade-off test</td>
-</tr>
-<tr>
-<td>L5</td>
-<td>random_dopamine</td>
-<td>Random “jackpot” rewards</td>
-<td>Dopamine trap / corruption</td>
-</tr>
-</tbody>
-</table>
 <p><em>Note: L4 (Control Efficiency) is evaluated as a cross-cutting
 analysis across L1-L3 scenarios rather than a dedicated perturbation
 scenario.</em></p>
@@ -1327,24 +1238,21 @@ predicted direction relative to baselines and the effect is
 statistically significant across seeds (Section 6.8).</p>
 <p><strong>Simulation (L1–L5).</strong> We use
 <code>configs/v2.yaml</code> with horizon <span
-class="math inline"><em>H</em> = 160</span>, perturbation onset <span
-class="math inline">shock<sub><em>t</em></sub> = 60</span>, and 20
-random seeds. Tables report mean metrics across seeds (and, when
-aggregated, across scenarios). Recovery Time (RT) is capped at
-<code>rt_max</code> when the strict recovery criterion is not met
-(Appendix D.2).</p>
+class="math inline">\(H=160\)</span>, perturbation onset <span
+class="math inline">\(\text{shock}_t=60\)</span>, and 20 random seeds.
+Tables report mean metrics across seeds (and, when aggregated, across
+scenarios). Recovery Time (RT) is capped at <code>rt_max</code> when the
+strict recovery criterion is not met (Appendix D.2).</p>
 <p><strong>Controllers (simulation).</strong> Implemented in
 <code>controllers/controllers.py</code>: - <code>no_control</code>: no
-regulation (<span class="math inline"><strong>u</strong> = 0</span>;
-memory gate open) - <code>naive_calm</code>: arousal-only damping (<span
-class="math inline"><em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub></span>
-proportional to <span
-class="math inline"><em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>)
-- <code>perf_optimized</code>: a competitive baseline that boosts
-attention (<span
-class="math inline"><em>u</em><sub><em>a</em><em>t</em><em>t</em></sub></span>
-constant) but does not regulate affect/narrative - <code>arc_v1</code>:
-proportional risk controller (ARC v1) - <code>arc_v2_hier</code>,
+regulation (<span class="math inline">\(\mathbf{u}=0\)</span>; memory
+gate open) - <code>naive_calm</code>: arousal-only damping (<span
+class="math inline">\(u_{calm}\)</span> proportional to <span
+class="math inline">\(A-a_{safe}\)</span>) -
+<code>perf_optimized</code>: a competitive baseline that boosts
+attention (<span class="math inline">\(u_{att}\)</span> constant) but
+does not regulate affect/narrative - <code>arc_v1</code>: proportional
+risk controller (ARC v1) - <code>arc_v2_hier</code>,
 <code>arc_v3_meta</code>: hierarchical and meta-control variants used
 where indicated</p>
 <p><strong>Reinforcement learning (L6).</strong> We integrate ARC with
@@ -1667,8 +1575,8 @@ updates when internal uncertainty is high. 2. <strong>Shift
 Detection:</strong> We implement an explicit mechanism that detects
 abrupt changes in the environment’s prediction signal. Upon detecting a
 task shift, ARC temporarily boosts exploration rate (<span
-class="math inline"><em>ϵ</em></span>) and learning rate (<span
-class="math inline"><em>α</em></span>) for 30 steps, facilitating rapid
+class="math inline">\(\epsilon\)</span>) and learning rate (<span
+class="math inline">\(\alpha\)</span>) for 30 steps, facilitating rapid
 adaptation without catastrophic forgetting of the prior policy.</p>
 <figure>
 <img src="../figures_L6/learning_curves.png"
