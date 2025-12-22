@@ -8,13 +8,13 @@
 
 ## Resumen
 
-A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, los estados afectivos sin regulación pueden llevar a inestabilidad, bucles perseverantes (rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
+A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, sin regulación, tales estados pueden llevar a inestabilidad, bucles perseverantes (un análogo funcional a la rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
 
-Nos experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
-1. ARC logra un **96.6% de rendimiento con cero rumiación (en variantes integrales)** (vs. 30% para agentes no controlados) en escenarios de estabilidad.
+Nuestros experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
+1. ARC logra un **96.6% de rendimiento promedio con RI=0** (vs. 29.7% para agentes no controlados) en escenarios de estabilidad.
 2. El meta-control de ARC reduce el esfuerzo de control en un **21%** manteniendo la estabilidad.
 3. Los **controladores Robustos H∞** logran el mejor equilibrio general, aunque los controladores integrales pueden sufrir colapso en entornos adversarios específicos.
-4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **49.8%** mediante gating de memoria y un mecanismo de detección de cambios.
+4. En aprendizaje por refuerzo, el wrapper integrado ARC-RL mejora el éxito en transferencia de aprendizaje en un **49.8%** mediante gating de memoria y un mecanismo de detección de cambios de contexto.
 
 Todo el código y los datos están disponibles para reproducibilidad.
 
@@ -26,7 +26,7 @@ Todo el código y los datos están disponibles para reproducibilidad.
 
 ### 1.1 Motivación
 
-Los sistemas modernos de IA incorporan cada vez más representaciones de estado interno que van más allá del rendimiento en la tarea—incluyendo señales afectivas que priorizan el aprendizaje, modulan la memoria y señalan necesidades internas (Damasio, 1994; Picard, 1997). Sin embargo, los estados afectivos introducen riesgos: sin una regulación adecuada, pueden causar inestabilidad, bucles perseverantes (análogos a la rumiación en humanos) y susceptibilidad a la manipulación (Amodei et al., 2016).
+Los sistemas modernos de IA incorporan cada vez más representaciones de estado interno que van más allá del rendimiento en la tarea—incluyendo señales afectivas que priorizan el aprendizaje, modulan la memoria y señalan necesidades internas (Damasio, 1994; Picard, 1997). Sin embargo, los estados afectivos introducen riesgos: sin una regulación adecuada, pueden causar inestabilidad, bucles perseverantes (funcionalmente análogos a la rumiación) y susceptibilidad a la manipulación (Amodei et al., 2016).
 
 Este artículo aborda una pregunta fundamental: **Si un agente tiene estados afectivos internos, ¿qué mecanismos de control son necesarios para mantener la estabilidad y la capacidad de recuperación ante perturbaciones?**
 
@@ -290,13 +290,12 @@ ASSB se organiza como líneas de investigación (L1–L5 en simulación, L6 en R
 
 ### 5.2 Métricas
 
-| Métrica | Interpretación |
-|---------|----------------|
-| **PerfMean** | Rendimiento promedio (mayor = mejor) |
-| **RT** | Tiempo de recuperación post-choque (menor = mejor) |
-| **RI** | Índice de rumiación (menor = mejor) |
-| **NDR** | Relación de dominancia narrativa (menor = mejor) |
-| **ControlEffort** | Magnitud promedio de control (menor = más eficiente) |
+Evaluamos las siguientes métricas primarias (el Apéndice D proporciona definiciones formales e implementaciones de referencia). Todas las variables están normalizadas a $[0,1]$ a menos que se indique lo contrario:
+- **PerfMean:** rendimiento promedio (mayor = mejor).
+- **RT:** tiempo de recuperación post-choque (menor = mejor). Limitamos esto a `rt_max=100` pasos; un valor de $RT = rt\_max$ indica que el sistema no regresó a su línea base previa a la perturbación dentro de la ventana de evaluación.
+- **RI:** índice de rumiación (menor = mejor), que captura la perseveración sostenida impulsada por la narrativa.
+- **NDR:** relación de dominancia narrativa (menor = mejor), que mide la fracción de tiempo pasado en estados con alta carga narrativa.
+- **ControlEffort:** magnitud promedio de control (menor = más eficiente).
 
 Para escenarios de aprendizaje continuo L2, reportamos adicionalmente **Retention** (Apéndice D.7).
 
@@ -433,15 +432,28 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 ### 6.7 L6: Validación en RL Real
 
-**Tabla 10: Resultados L6 Validación RL**
+**Tabla 10: Resultados de Validación L6 (RL)**
+<!-- LABEL:tab:l6_results_rl -->
 
 | Entorno | Éxito Línea Base | Éxito ARC | Mejora |
 |---------|------------------|-----------|--------|
-| ChangingGoalGridWorld | 39.9% | **59.75%** | **+49.8%** |
+| GridWorld | 100% | 100% | 0% |
+| StochasticGridWorld | 100% | 100% | 0% |
+| **ChangingGoalGridWorld** | 39.9% | **59.75%** | **+49.8%** |
 
-**Hallazgo clave:** En entornos no estacionarios, ARC mejora significativamente el aprendizaje por transferencia (+49.8%). Esto se logra mediante dos mecanismos:
-1. **Memory Gating:** Bloquea actualizaciones de Q-learning cuando la incertidumbre interna es alta.
-2. **Shift Detection:** Implementamos un mecanismo explícito que detecta cambios abruptos en la señal de predicción del entorno. Al detectar un cambio de tarea, ARC aumenta temporalmente la tasa de exploración ($\epsilon$) y de aprendizaje ($\alpha$) durante 30 pasos, facilitando una rápida readaptación sin olvidar la política anterior catastróficamente.
+**Hallazgo clave:** En entornos no estacionarios, el wrapper integrado ARC-RL mejora significativamente el aprendizaje por transferencia (+49.8%). Nuestro estudio de ablación en `ChangingGoalGridWorld` aisla la contribución de cada mecanismo:
+
+**Tabla 11: Resultados de Ablación L6 (ChangingGoalGridWorld)**
+<!-- LABEL:tab:l6_ablation -->
+
+| Configuración del Agente | Tasa de Éxito | Recompensa Final (media) |
+|--------------------------|---------------|--------------------------|
+| Q-Learning Vainilla (Base) | 39.9% | -0.40 |
+| ARC (Sólo Gating de Memoria) | 41.2% | -0.37 |
+| ARC (Sólo Detección de Cambios) | **65.6%** | **0.13** |
+| **Wrapper Completo ARC (Ambos)** | **59.8%** | **-0.02** |
+
+Los resultados indican que la **detección de cambios** (impulso de exploración y tasa de aprendizaje) es el principal motor del rendimiento en tareas no estacionarias, permitiendo al agente adaptarse rápidamente a los cambios de objetivo. El **gating de memoria** proporciona una estrategia más conservadora que protege el conocimiento existente, lo que en este entorno de alto cambio reduce ligeramente la tasa de éxito máxima (de 65.6% a 59.8%) pero mantiene un riesgo general menor.
 
 ![Curvas de aprendizaje: ARC vs línea base en 3 entornos GridWorld (recompensa por episodio)](../figures_L6/learning_curves.png)
 
@@ -554,7 +566,7 @@ Aunque ARC demuestra resultados empíricos sólidos, varias limitaciones merecen
 
 4. **Control Fijo vs. Aprendido:** Todos los controladores ARC usan ganancias diseñadas a mano. El aprendizaje de extremo a extremo de parámetros de control mediante meta-aprendizaje por refuerzo podría producir soluciones más adaptativas.
 
-5. **Sensibilidad de Umbrales:** Los umbrales de seguridad ($a_{safe}$, $s_{safe}$) se ajustaron empíricamente. La adaptación automática de umbrales basada en el contexto de la tarea es una dirección futura prometedora.
+5. **Sensibilidad de Umbrales:** Los umbrales de seguridad ($a_{safe}, s_{safe}$) se ajustaron empíricamente. Sin embargo, un análisis de sensibilidad mediante barrido de malla en el escenario `reward_flip` demostró que la estabilidad del sistema (PerfMean y RI) permanece notablemente robusta en un amplio rango de umbrales ($a_{safe}, s_{safe} \in [0.4, 0.8]$), indicando que el ajuste preciso no es un requisito previo para una regulación efectiva en escenarios básicos. La adaptación automática de umbrales basada en el contexto sigue siendo una dirección futura prometedora.
 
 ### 7.5 Trabajo Futuro
 

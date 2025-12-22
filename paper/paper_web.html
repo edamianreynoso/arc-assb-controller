@@ -346,9 +346,9 @@
             <h1>🧠 Affective Regulation Core</h1>
             <p class="subtitle">A Homeostatic Control Framework for Stable and Safe AI Agents</p>
             <div class="meta">
-                <span>📝 Eduardo Damián</span>
-                <span>📅 December 2024</span>
-                <span>📊 v1.0</span>
+                <span>📝 J. Eduardo Damián Reynoso</span>
+                <span>📅 December 2025</span>
+                <span>📊 v1.2 Pre-print</span>
             </div>
         </div>
     </header>
@@ -359,6 +359,8 @@
             <p>
                 We introduce the <strong>Affective Regulation Core (ARC)</strong>, a control framework inspired by
                 prefrontal cortex functions that maintains stability in agents with internal affective states.
+                Without regulation, such states lead to instability and perseverative loops (a functional analogue to
+                rumination).
                 We also present the <strong>Affective Stability & Safety Benchmark (ASSB)</strong>, a reproducible
                 evaluation protocol with metrics for recovery time, rumination index, and control effort.
             </p>
@@ -366,15 +368,15 @@
 
         <div class="key-findings">
             <div class="finding-card">
-                <div class="finding-value">97%</div>
-                <div class="finding-label">ARC Performance<br>(vs 30% baseline)</div>
+                <div class="finding-value">96.6%</div>
+                <div class="finding-label">Stability Score<br>(vs 29.7% baseline)</div>
             </div>
             <div class="finding-card">
                 <div class="finding-value">-21%</div>
                 <div class="finding-label">Control Effort<br>(Meta-control efficiency)</div>
             </div>
             <div class="finding-card">
-                <div class="finding-value">+50%</div>
+                <div class="finding-value">+49.8%</div>
                 <div class="finding-label">Transfer Learning<br>(Non-stationary envs)</div>
             </div>
         </div>
@@ -589,18 +591,6 @@ else:
                 <td>1.41</td>
                 <td>100</td>
             </tr>
-            <tr>
-                <td>naive_calm</td>
-                <td>0.508</td>
-                <td>1.41</td>
-                <td>100</td>
-            </tr>
-            <tr>
-                <td>perf_optimized</td>
-                <td>0.880</td>
-                <td>1.39</td>
-                <td>100</td>
-            </tr>
         </table>
 
         <p><strong>Key finding:</strong> ARC eliminates rumination (RI=0) while achieving 97% performance.</p>
@@ -650,7 +640,7 @@ else:
                 <td><strong>ChangingGoalGridWorld</strong></td>
                 <td>39.9%</td>
                 <td class="highlight">59.75%</td>
-                <td class="highlight">+50%</td>
+                <td class="highlight">+49.8%</td>
             </tr>
         </table>
 

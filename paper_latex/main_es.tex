@@ -27,7 +27,7 @@
 \bibliographystyle{plainnat}
 \newcommand{\keywords}[1]{\vspace{0.5em}\noindent\textbf{Keywords:} #1}
 
-\title{Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents}
+\title{Núcleo de Regulación Afectiva (ARC): Un Marco de Control Homeostático para Agentes de IA Estables y Seguros}
 
 % The \author macro works with any number of authors. There are two commands
 % used to separate the names and addresses of multiple authors: \And and \AND.
@@ -48,21 +48,21 @@
 \maketitle
 
 \begin{abstract}
-As AI agents become more sophisticated, there is growing interest in endowing them with internal state representations analogous to affective states. However, without regulation, such states can lead to instability, perseverative loops (a functional analogue to rumination), and vulnerability to manipulation. We introduce the \textbf{Affective Regulation Core (ARC)}, a control framework inspired by prefrontal cortex functions that maintains stability in agents with internal affective states. We also present the \textbf{Affective Stability \& Safety Benchmark (ASSB)}, a reproducible evaluation protocol with metrics for recovery time, rumination index, and control effort. 
+A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, sin regulación, tales estados pueden llevar a inestabilidad, bucles perseverantes (un análogo funcional a la rumiación) y vulnerabilidad a la manipulación. Introducimos el \textbf{Núcleo de Regulación Afectiva (ARC)}, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el \textbf{Benchmark de Estabilidad y Seguridad Afectiva (ASSB)}, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control. 
 
-Our experiments across 6 research lines and \textbf{15 controller architectures} (including P, PID, LQR, LQI, hierarchical, meta-control, H$\infty$ robust, and adaptive variants) demonstrate that:
+Nuestros experimentos a través de 6 líneas de investigación y \textbf{15 arquitecturas de control} (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H$\infty$ robusto y variantes adaptativas) demuestran que:
 \begin{enumerate}
-    \item ARC achieves \textbf{96.6\% average performance with RI=0} (vs. 29.7\% for uncontrolled agents) in stability scenarios.
-    \item ARC meta-control reduces control effort by \textbf{21\%} while maintaining stability.
-    \item \textbf{H$\infty$ Robust controllers} achieve the best overall balance, although integral controllers can suffer collapse in specific adversarial environments.
-    \item In reinforcement learning, the integrated ARC-RL wrapper improves transfer learning success by \textbf{49.8\%} via memory gating and a context shift detection mechanism.
+    \item ARC logra un \textbf{96.6\% de rendimiento promedio con RI=0} (vs. 29.7\% para agentes no controlados) en escenarios de estabilidad.
+    \item El meta-control de ARC reduce el esfuerzo de control en un \textbf{21\%} manteniendo la estabilidad.
+    \item Los \textbf{controladores Robusto H$\infty$} logran el mejor equilibrio general, aunque los controladores integrales pueden sufrir colapso en entornos adversarios específicos.
+    \item En aprendizaje por refuerzo, el wrapper integrado ARC-RL mejora el éxito en transferencia de aprendizaje en un \textbf{49.8\%} mediante gating de memoria y un mecanismo de detección de cambios de contexto.
 \end{enumerate}
-All code and data are available for reproducibility.
+Todo el código y los datos están disponibles para reproducibilidad.
 \end{abstract}
 
-\keywords{Affective Computing, AI Safety, Homeostatic Control, Reinforcement Learning, Emotion Regulation, PID Control, LQR, Robust Control}
+\keywords{Computación Afectiva, Seguridad en IA, Control Homeostático, Aprendizaje por Refuerzo, Regulación Emocional, Control PID, LQR, Control Robusto}
 
-\section{Introduction}
+\section{Introducción}
 
 \subsection{Motivation}
 Modern AI systems increasingly incorporate internal state representations that go beyond task performance---including affective signals that prioritize learning, modulate memory, and signal internal needs \citep{damasio1994descartes,picard1997affective}. However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (functionally analogous to rumination), and susceptibility to manipulation \citep{amodei2016concrete}.

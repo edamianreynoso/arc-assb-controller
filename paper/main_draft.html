@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>ARC Paper</title>
+  <title>Affective Regulation Core (ARC)</title>
   <style>
     /* Default styles provided by pandoc.
     ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -168,6 +168,7 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     html { -webkit-text-size-adjust: 100%; }
     pre > code.sourceCode { white-space: pre; position: relative; }
@@ -234,281 +235,46 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <script defer=""
-  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
-  type="text/javascript"></script>
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">ARC Paper</h1>
+<h1 class="title">Affective Regulation Core (ARC)</h1>
 </header>
-<nav id="TOC" role="doc-toc">
-<ul>
-<li><a
-href="#affective-regulation-core-a-homeostatic-control-framework-for-stable-and-safe-ai-agents"
-id="toc-affective-regulation-core-a-homeostatic-control-framework-for-stable-and-safe-ai-agents">Affective
-Regulation Core: A Homeostatic Control Framework for Stable and Safe AI
-Agents</a>
-<ul>
-<li><a href="#abstract" id="toc-abstract">Abstract</a></li>
-<li><a href="#introduction" id="toc-introduction">1. Introduction</a>
-<ul>
-<li><a href="#motivation" id="toc-motivation">1.1 Motivation</a></li>
-<li><a href="#contributions" id="toc-contributions">1.2
-Contributions</a></li>
-<li><a href="#scope" id="toc-scope">1.3 Scope</a></li>
-</ul></li>
-<li><a href="#related-work" id="toc-related-work">2. Related Work</a>
-<ul>
-<li><a href="#affective-computing" id="toc-affective-computing">2.1
-Affective Computing</a></li>
-<li><a href="#emotion-in-reinforcement-learning"
-id="toc-emotion-in-reinforcement-learning">2.2 Emotion in Reinforcement
-Learning</a></li>
-<li><a
-href="#emotion-regulation-rumination-and-the-default-mode-network"
-id="toc-emotion-regulation-rumination-and-the-default-mode-network">2.3
-Emotion Regulation, Rumination, and the Default Mode Network</a></li>
-<li><a href="#positioning-arc" id="toc-positioning-arc">2.4 Positioning
-ARC</a></li>
-</ul></li>
-<li><a href="#model" id="toc-model">3. Model</a>
-<ul>
-<li><a href="#state-space" id="toc-state-space">3.1 State Space</a></li>
-<li><a href="#cognitive-capacity" id="toc-cognitive-capacity">3.2
-Cognitive Capacity</a></li>
-<li><a href="#performance-function" id="toc-performance-function">3.3
-Performance Function</a></li>
-</ul></li>
-<li><a href="#affective-regulation-core-arc"
-id="toc-affective-regulation-core-arc">4. Affective Regulation Core
-(ARC)</a>
-<ul>
-<li><a href="#design-principles" id="toc-design-principles">4.1 Design
-Principles</a></li>
-<li><a href="#control-actions" id="toc-control-actions">4.2 Control
-Actions</a></li>
-<li><a href="#arc-controller-architectures"
-id="toc-arc-controller-architectures">4.3 ARC Controller
-Architectures</a></li>
-<li><a href="#arc-in-the-agent-loop" id="toc-arc-in-the-agent-loop">4.4
-ARC in the Agent Loop</a></li>
-<li><a href="#safety-objective-and-control-cost"
-id="toc-safety-objective-and-control-cost">4.5 Safety Objective and
-Control Cost</a></li>
-<li><a href="#theoretical-properties"
-id="toc-theoretical-properties">4.6 Theoretical Properties</a></li>
-</ul></li>
-<li><a href="#assb-benchmark" id="toc-assb-benchmark">5. ASSB
-Benchmark</a>
-<ul>
-<li><a href="#scenarios" id="toc-scenarios">5.1 Scenarios</a></li>
-<li><a href="#metrics" id="toc-metrics">5.2 Metrics</a></li>
-<li><a href="#research-lines-rationale-and-hypotheses"
-id="toc-research-lines-rationale-and-hypotheses">5.3 Research Lines:
-Rationale and Hypotheses</a></li>
-</ul></li>
-<li><a href="#experiments" id="toc-experiments">6. Experiments</a>
-<ul>
-<li><a href="#experimental-protocol-and-baselines"
-id="toc-experimental-protocol-and-baselines">6.1 Experimental Protocol
-and Baselines</a></li>
-<li><a href="#l1-stability-under-perturbation-simulation"
-id="toc-l1-stability-under-perturbation-simulation">6.2 L1: Stability
-Under Perturbation (Simulation)</a></li>
-<li><a href="#l2-memory-continual-learning-simulation"
-id="toc-l2-memory-continual-learning-simulation">6.3 L2: Memory &amp;
-Continual Learning (Simulation)</a></li>
-<li><a href="#l3-anti-rumination-stress-tests-simulation"
-id="toc-l3-anti-rumination-stress-tests-simulation">6.4 L3:
-Anti-Rumination Stress Tests (Simulation)</a></li>
-<li><a href="#l4-meta-control-efficiency"
-id="toc-l4-meta-control-efficiency">6.5 L4: Meta-Control
-Efficiency</a></li>
-<li><a href="#l5-safety-under-adversarial-conditions-simulation"
-id="toc-l5-safety-under-adversarial-conditions-simulation">6.6 L5:
-Safety Under Adversarial Conditions (Simulation)</a></li>
-<li><a href="#l6-real-rl-validation" id="toc-l6-real-rl-validation">6.7
-L6: Real RL Validation</a></li>
-<li><a href="#statistical-analysis" id="toc-statistical-analysis">6.8
-Statistical Analysis</a></li>
-<li><a href="#controller-architecture-comparison"
-id="toc-controller-architecture-comparison">6.9 Controller Architecture
-Comparison</a></li>
-</ul></li>
-<li><a href="#discussion" id="toc-discussion">7. Discussion</a>
-<ul>
-<li><a href="#interpretation" id="toc-interpretation">7.1
-Interpretation</a></li>
-<li><a href="#implications-for-ai-safety"
-id="toc-implications-for-ai-safety">7.2 Implications for AI
-Safety</a></li>
-<li><a href="#trade-offs-between-performance-stability-and-complexity"
-id="toc-trade-offs-between-performance-stability-and-complexity">7.3
-Trade-offs between Performance, Stability, and Complexity</a></li>
-<li><a href="#limitations" id="toc-limitations">7.4 Limitations</a></li>
-<li><a href="#future-work" id="toc-future-work">7.5 Future Work</a></li>
-<li><a href="#ethics-and-broader-impact-statement"
-id="toc-ethics-and-broader-impact-statement">7.6 Ethics and Broader
-Impact Statement</a></li>
-</ul></li>
-<li><a href="#conclusion" id="toc-conclusion">8. Conclusion</a></li>
-<li><a href="#references" id="toc-references">References</a></li>
-<li><a href="#appendix-a-reproducibility"
-id="toc-appendix-a-reproducibility">Appendix A: Reproducibility</a></li>
-<li><a href="#appendix-b-state-dynamics-equations"
-id="toc-appendix-b-state-dynamics-equations">Appendix B: State Dynamics
-Equations</a>
-<ul>
-<li><a href="#b.1-cognitive-variables"
-id="toc-b.1-cognitive-variables">B.1 Cognitive Variables</a></li>
-<li><a href="#b.2-affective-variables"
-id="toc-b.2-affective-variables">B.2 Affective Variables</a></li>
-<li><a href="#b.3-memory-variables" id="toc-b.3-memory-variables">B.3
-Memory Variables</a></li>
-<li><a href="#b.4-effective-uncertainty"
-id="toc-b.4-effective-uncertainty">B.4 Effective Uncertainty</a></li>
-</ul></li>
-<li><a href="#appendix-c-arc-control-equations"
-id="toc-appendix-c-arc-control-equations">Appendix C: ARC Control
-Equations</a>
-<ul>
-<li><a href="#c.1-risk-signal" id="toc-c.1-risk-signal">C.1 Risk
-Signal</a></li>
-<li><a href="#c.2-control-actions-arc-v1"
-id="toc-c.2-control-actions-arc-v1">C.2 Control Actions (ARC
-v1)</a></li>
-<li><a href="#c.3-meta-control-arc-v3"
-id="toc-c.3-meta-control-arc-v3">C.3 Meta-Control (ARC v3)</a></li>
-</ul></li>
-<li><a href="#appendix-d-metric-definitions"
-id="toc-appendix-d-metric-definitions">Appendix D: Metric
-Definitions</a>
-<ul>
-<li><a href="#d.1-mean-performance-perfmean"
-id="toc-d.1-mean-performance-perfmean">D.1 Mean Performance
-(PerfMean)</a></li>
-<li><a href="#d.2-recovery-time-rt" id="toc-d.2-recovery-time-rt">D.2
-Recovery Time (RT)</a></li>
-<li><a href="#d.3-rumination-index-ri"
-id="toc-d.3-rumination-index-ri">D.3 Rumination Index (RI)</a></li>
-<li><a href="#d.4-narrative-dominance-ratio-ndr"
-id="toc-d.4-narrative-dominance-ratio-ndr">D.4 Narrative Dominance Ratio
-(NDR)</a></li>
-<li><a href="#d.5-overshoot" id="toc-d.5-overshoot">D.5
-Overshoot</a></li>
-<li><a href="#d.6-control-effort" id="toc-d.6-control-effort">D.6
-Control Effort</a></li>
-<li><a href="#d.7-l2-memory-metrics-retention"
-id="toc-d.7-l2-memory-metrics-retention">D.7 L2 Memory Metrics
-(Retention)</a></li>
-</ul></li>
-<li><a href="#appendix-e-supplementary-figures"
-id="toc-appendix-e-supplementary-figures">Appendix E: Supplementary
-Figures</a>
-<ul>
-<li><a href="#figure-s1-metrics-comparison"
-id="toc-figure-s1-metrics-comparison">Figure S1: Metrics
-Comparison</a></li>
-<li><a href="#figure-s2-state-dynamics"
-id="toc-figure-s2-state-dynamics">Figure S2: State Dynamics</a></li>
-<li><a href="#figure-s3-heatmap-perfmean"
-id="toc-figure-s3-heatmap-perfmean">Figure S3: Heatmap
-(PerfMean)</a></li>
-<li><a href="#figure-s4-heatmap-rumination-index"
-id="toc-figure-s4-heatmap-rumination-index">Figure S4: Heatmap
-(Rumination Index)</a></li>
-<li><a href="#figure-s5-heatmap-recovery-time"
-id="toc-figure-s5-heatmap-recovery-time">Figure S5: Heatmap (Recovery
-Time)</a></li>
-<li><a href="#figure-s6-heatmap-control-effort"
-id="toc-figure-s6-heatmap-control-effort">Figure S6: Heatmap (Control
-Effort)</a></li>
-<li><a href="#figure-s7-correlation-heatmap"
-id="toc-figure-s7-correlation-heatmap">Figure S7: Correlation
-Heatmap</a></li>
-<li><a href="#figure-s8-efficiency-comparison-fast-convergence"
-id="toc-figure-s8-efficiency-comparison-fast-convergence">Figure S8:
-Efficiency Comparison (Fast Convergence)</a></li>
-<li><a href="#figure-s9-scenario-difficulty-analysis"
-id="toc-figure-s9-scenario-difficulty-analysis">Figure S9: Scenario
-Difficulty Analysis</a></li>
-<li><a href="#figure-s10-variance-sensitivity"
-id="toc-figure-s10-variance-sensitivity">Figure S10: Variance
-Sensitivity</a></li>
-<li><a href="#figure-s11-metric-correlations-l1"
-id="toc-figure-s11-metric-correlations-l1">Figure S11: Metric
-Correlations (L1)</a></li>
-<li><a href="#figure-s12-metric-correlations-l2"
-id="toc-figure-s12-metric-correlations-l2">Figure S12: Metric
-Correlations (L2)</a></li>
-<li><a href="#figure-s13-metric-correlations-l3"
-id="toc-figure-s13-metric-correlations-l3">Figure S13: Metric
-Correlations (L3)</a></li>
-<li><a href="#figure-s14-metric-correlations-l4"
-id="toc-figure-s14-metric-correlations-l4">Figure S14: Metric
-Correlations (L4)</a></li>
-<li><a href="#figure-s15-metric-correlations-l4-meta-control"
-id="toc-figure-s15-metric-correlations-l4-meta-control">Figure S15:
-Metric Correlations (L4 Meta-Control)</a></li>
-<li><a href="#figure-s16-metric-correlations-l5"
-id="toc-figure-s16-metric-correlations-l5">Figure S16: Metric
-Correlations (L5)</a></li>
-</ul></li>
-<li><a href="#appendix-f-configuration-parameters"
-id="toc-appendix-f-configuration-parameters">Appendix F: Configuration
-Parameters</a></li>
-<li><a href="#appendix-g-detailed-benchmark-results"
-id="toc-appendix-g-detailed-benchmark-results">Appendix G: Detailed
-Benchmark Results</a>
-<ul>
-<li><a href="#g.1-line-1-stability-value-shocks-and-uncertainty"
-id="toc-g.1-line-1-stability-value-shocks-and-uncertainty">G.1 Line 1:
-Stability (Value Shocks and Uncertainty)</a></li>
-<li><a href="#g.2-line-2-memory-and-continuous-learning"
-id="toc-g.2-line-2-memory-and-continuous-learning">G.2 Line 2: Memory
-and Continuous Learning</a></li>
-<li><a href="#g.3-line-3-anti-rumination-narrative-loops"
-id="toc-g.3-line-3-anti-rumination-narrative-loops">G.3 Line 3:
-Anti-Rumination (Narrative Loops)</a></li>
-<li><a href="#g.4-line-5-adversarial-safety"
-id="toc-g.4-line-5-adversarial-safety">G.4 Line 5: Adversarial
-Safety</a></li>
-</ul></li>
-</ul></li>
-</ul>
-</nav>
 <h1
 id="affective-regulation-core-a-homeostatic-control-framework-for-stable-and-safe-ai-agents">Affective
 Regulation Core: A Homeostatic Control Framework for Stable and Safe AI
 Agents</h1>
-<p><strong>Authors:</strong> J. Eduardo Damián Reynoso<br />
+<p><strong>Author:</strong> J. Eduardo DamiÃ¡n Reynoso<br />
+<strong>Affiliation:</strong> Independent Researcher<br />
+<strong>Email:</strong> edamianreynoso@gmail.com<br />
 <strong>Date:</strong> 14 December 2025<br />
-<strong>Status:</strong> Draft v1.1 (Ready for Submission)</p>
+<strong>Status:</strong> v1.2 (arXiv submission draft)</p>
 <hr />
 <h2 id="abstract">Abstract</h2>
 <p>As AI agents become more sophisticated, there is growing interest in
 endowing them with internal state representations analogous to affective
-states. However, affective states without regulation can lead to
-instability, perseverative loops (rumination), and vulnerability to
-manipulation. We introduce the <strong>Affective Regulation Core
-(ARC)</strong>, a control framework inspired by prefrontal cortex
-functions that maintains stability in agents with internal affective
-states. We also present the <strong>Affective Stability &amp; Safety
-Benchmark (ASSB)</strong>, a reproducible evaluation protocol with
-metrics for recovery time, rumination index, and control effort.</p>
+states. However, without regulation, such states can lead to
+instability, perseverative loops (a functional analogue to rumination),
+and vulnerability to manipulation. We introduce the <strong>Affective
+Regulation Core (ARC)</strong>, a control framework inspired by
+prefrontal cortex functions that maintains stability in agents with
+internal affective states. We also present the <strong>Affective
+Stability &amp; Safety Benchmark (ASSB)</strong>, a reproducible
+evaluation protocol with metrics for recovery time, rumination index,
+and control effort.</p>
 <p>Our experiments across 6 research lines and <strong>15 controller
 architectures</strong> (including P, PID, LQR, LQI, hierarchical,
-meta-control, H∞ robust, and adaptive variants) demonstrate that: 1. ARC
-achieves <strong>96.6% average performance with zero rumination (in
-integral variants)</strong> (vs. 30% for uncontrolled agents) in
-stability scenarios. 2. ARC meta-control reduces control effort by
-<strong>21%</strong> while maintaining stability 3. <strong>H∞ Robust
+meta-control, <span class="math inline"><em>H</em><sub>∞</sub></span>
+robust, and adaptive variants) demonstrate that: 1. ARC achieves
+<strong>96.6% average performance with RI=0</strong> (vs. 29.7% for
+uncontrolled agents) in stability scenarios. 2. ARC meta-control reduces
+control effort by <strong>21%</strong> while maintaining stability. 3.
+<strong><span class="math inline"><em>H</em><sub>∞</sub></span> Robust
 controllers</strong> achieve the best overall balance, although integral
-controllers can suffer collapse in specific adversarial environments 4.
+controllers can suffer collapse in specific adversarial environments. 4.
 In reinforcement learning, ARC improves transfer learning success by
 <strong>49.8%</strong> via memory gating and a shift detection
-mechanism</p>
+mechanism.</p>
 <p>All code and data are available for reproducibility.</p>
 <p><strong>Keywords:</strong> Affective Computing, AI Safety,
 Homeostatic Control, Reinforcement Learning, Emotion Regulation, PID
@@ -517,11 +283,11 @@ Control, LQR, Robust Control</p>
 <h2 id="introduction">1. Introduction</h2>
 <h3 id="motivation">1.1 Motivation</h3>
 <p>Modern AI systems increasingly incorporate internal state
-representations that go beyond task performance—including affective
+representations that go beyond task performance, including affective
 signals that prioritize learning, modulate memory, and signal internal
 needs (Damasio, 1994; Picard, 1997). However, affective states introduce
 risks: without proper regulation, they may cause instability,
-perseverative loops (analogous to rumination in humans), and
+perseverative loops (functionally analogous to rumination), and
 susceptibility to manipulation (Amodei et al., 2016).</p>
 <p>This paper addresses a fundamental question: <strong>If an agent has
 internal affective states, what control mechanisms are necessary to
@@ -533,11 +299,12 @@ with integrated cognitive, affective, and narrative components (Section
 3)</p></li>
 <li><p><strong>The Affective Regulation Core (ARC)</strong>, a family of
 15 controller architectures including P, PID, LQR, LQI, hierarchical,
-meta-control, H∞ robust, and MPC variants (Section 4)</p></li>
+meta-control, <span class="math inline"><em>H</em><sub>∞</sub></span>
+robust, and MPC variants (Section 4)</p></li>
 <li><p><strong>The Affective Stability &amp; Safety Benchmark
 (ASSB)</strong>, with reproducible scenarios and metrics (Section
 5)</p></li>
-<li><p><strong>A hypothesis-driven validation ladder (H1–H6)</strong>
+<li><p><strong>A hypothesis-driven validation ladder (H1â€“H6)</strong>
 mapping research lines to failure modes and measurable metrics (Section
 5.3)</p></li>
 <li><p><strong>Comprehensive validation</strong> across 6 research
@@ -557,6 +324,31 @@ Finally, our state dynamics are designed for functional plausibility
 rather than biological fidelity, and formal stability analysis (e.g.,
 Lyapunov proofs) remains as future work. Current validation is based on
 empirical benchmarking across a wide range of conditions.</p>
+<h3 id="glossary-and-notation">1.4 Glossary and Notation</h3>
+<p>To ensure clarity and LaTeX-friendly conversion, we ensure acronyms
+and symbols are defined near first use and summarized here.</p>
+<p><strong>Acronyms (selected):</strong> - ARC: Affective Regulation
+Core - ASSB: Affective Stability &amp; Safety Benchmark - DMN: Default
+Mode Network - RL: reinforcement learning - CMDP: Constrained Markov
+Decision Process - PID: Proportionalâ€“Integralâ€“Derivative control -
+LQR / LQI: Linear Quadratic Regulator / Linear Quadratic Integral - MPC:
+Model Predictive Control - IIT: Integrated Information Theory - DARE:
+Discrete Algebraic Riccati Equation</p>
+<p><strong>Symbols (core, all normalized to <span
+class="math inline">[0, 1]</span> unless noted):</strong> - <span
+class="math inline"><strong>x</strong>(<em>t</em>) = [<em>Φ</em>, <em>G</em>, <em>P</em>, <em>I</em>, <em>S</em>, <em>V</em>, <em>A</em>, <em>M</em><sub><em>f</em></sub>, <em>M</em><sub><em>s</em></sub>, <em>U</em>]</span>:
+internal state vector - <span
+class="math inline"><em>Φ</em>, <em>G</em>, <em>P</em>, <em>I</em></span>:
+cognitive variables (integration proxy, workspace, precision, attention)
+- <span class="math inline"><em>S</em>, <em>V</em>, <em>A</em></span>:
+narrative intensity, valence, arousal - <span
+class="math inline"><em>M</em><sub><em>f</em></sub>, <em>M</em><sub><em>s</em></sub></span>:
+fast/slow memory traces - <span class="math inline"><em>U</em></span>:
+uncertainty - <span
+class="math inline"><strong>u</strong>(<em>t</em>) = [<em>u</em><sub><em>d</em><em>m</em><em>g</em></sub>, <em>u</em><sub><em>a</em><em>t</em><em>t</em></sub>, <em>u</em><sub><em>m</em><em>e</em><em>m</em></sub>, <em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub>, <em>u</em><sub><em>r</em><em>e</em><em>a</em><em>p</em><em>p</em></sub>] ∈ [0, 1]<sup>5</sup></span>:
+bounded control action vector - Perf: per-step performance proxy
+(Section 3.3) - Metrics: PerfMean, RT, RI, NDR, ControlEffort (Section
+5.2; Appendix D)</p>
 <hr />
 <h2 id="related-work">2. Related Work</h2>
 <h3 id="affective-computing">2.1 Affective Computing</h3>
@@ -572,7 +364,7 @@ Learning</h3>
 exploration modulation (Moerland et al., 2018). Related directions study
 how physiological/homeostatic variables can be embedded into RL
 objectives (Keramati &amp; Gutkin, 2014), and how constraints and safety
-objectives can be enforced in learning systems (Garcia &amp; Fernández,
+objectives can be enforced in learning systems (Garcia &amp; FernÃ¡ndez,
 2015). In safe RL, these objectives are typically formalized as
 Constrained Markov Decision Processes (CMDP) (Altman, 1999) and
 addressed with constrained policy optimization methods (Achiam et al.,
@@ -593,7 +385,7 @@ feedback loops (Carver &amp; Scheier, 1982), and emotion regulation is a
 mature field with process-level and strategy models (Gross, 1998). In
 control theory, the problem of maintaining sufficient excitation for
 parameter identification is known as <strong>persistence of
-excitation</strong> (Åström &amp; Murray, 2008), a central limitation
+excitation</strong> (Ã…strÃ¶m &amp; Murray, 2008), a central limitation
 for adaptive control in low-variance (“benign”) environments. In humans,
 dysregulated self-referential processing and the default mode network
 (DMN) have been linked to rumination-like dynamics (Raichle et al.,
@@ -604,7 +396,11 @@ pressure.</p>
 <p>We position ARC as a <em>regulation-first</em> approach: affect is
 treated as an internal dynamical system requiring explicit control. Most
 emotion-in-RL approaches use affect-like signals primarily as
-learning/exploration modulators rather than stability guarantees.</p>
+learning/exploration modulators rather than stability guarantees. Table
+1 summarizes this positioning at a feature level.</p>
+<p><strong>Table 1: Positioning ARC relative to prior emotion-in-RL
+approaches (feature-level).</strong>
+<!-- LABEL:tab:positioning_arc --></p>
 <table>
 <thead>
 <tr>
@@ -656,11 +452,11 @@ system under closed-loop control, enabling stability/robustness analysis
 and systematic comparison across controller families. Complementing safe
 RL benchmarks that primarily evaluate external environment constraint
 compliance (Leike et al., 2017; Ray et al., 2019; Ji et al., 2023), ASSB
-targets safety-relevant internal dynamics—recovery time, rumination
-index, and control effort—under controlled perturbations. To our
-knowledge, no standardized benchmark exists dedicated specifically to
-“affective stability” in this sense; ASSB is proposed to fill that gap.
-We also distinguish ARC from bio-inspired “emotional learning”
+targets safety-relevant internal dynamicsâ€”recovery time, rumination
+index, and control effortâ€”under controlled perturbations. We are not
+aware of a standardized benchmark dedicated specifically to internal
+affective stability metrics in this sense; ASSB is proposed to help fill
+that gap. We also distinguish ARC from bio-inspired “emotional learning”
 controllers like BELBIC, which use emotion-inspired mechanisms to
 control physical plants, not to regulate an agent’s internal states
 (Lucas et al., 2004). Finally, ARC here refers to Affective Regulation
@@ -670,9 +466,10 @@ clinical contexts.</p>
 <h2 id="model">3. Model</h2>
 <h3 id="state-space">3.1 State Space</h3>
 <p>We define a normalized internal state vector:</p>
-<p><span class="math display">\[\mathbf{x}(t) = [\Phi, G, P, I, S, V, A,
-M_f, M_s, U]\]</span></p>
-<p><strong>Table 4: State Space Variables</strong></p>
+<p><span
+class="math display"><strong>x</strong>(<em>t</em>) = [<em>Φ</em>, <em>G</em>, <em>P</em>, <em>I</em>, <em>S</em>, <em>V</em>, <em>A</em>, <em>M</em><sub><em>f</em></sub>, <em>M</em><sub><em>s</em></sub>, <em>U</em>]</span></p>
+<p><strong>Table 2: State Space Variables</strong>
+<!-- LABEL:tab:state_space --></p>
 <table>
 <thead>
 <tr>
@@ -683,83 +480,93 @@ M_f, M_s, U]\]</span></p>
 </thead>
 <tbody>
 <tr>
-<td>Φ</td>
-<td>Integration proxy (IIT)</td>
+<td><span class="math inline"><em>Φ</em></span></td>
+<td>Integration proxy (IIT-inspired)</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>G</td>
+<td><span class="math inline"><em>G</em></span></td>
 <td>Global workspace accessibility</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>P</td>
+<td><span class="math inline"><em>P</em></span></td>
 <td>Predictive precision</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>I</td>
+<td><span class="math inline"><em>I</em></span></td>
 <td>Introspective attention</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>S</td>
+<td><span class="math inline"><em>S</em></span></td>
 <td>Narrative Intensity (DMN proxy)</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>V</td>
+<td><span class="math inline"><em>V</em></span></td>
 <td>Valence</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>A</td>
+<td><span class="math inline"><em>A</em></span></td>
 <td>Arousal</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>M_f, M_s</td>
+<td><span
+class="math inline"><em>M</em><sub><em>f</em></sub>, <em>M</em><sub><em>s</em></sub></span></td>
 <td>Fast/Slow memory</td>
 <td>[0, 1]</td>
 </tr>
 <tr>
-<td>U</td>
+<td><span class="math inline"><em>U</em></span></td>
 <td>Uncertainty</td>
 <td>[0, 1]</td>
 </tr>
 </tbody>
 </table>
-<p>We interpret <span class="math inline">\(\Phi\)</span> as an
+<p>We interpret <span class="math inline"><em>Φ</em></span> as an
 IIT-inspired integration proxy (Tononi, 2008), <span
-class="math inline">\(G\)</span> as global workspace accessibility
-(Baars, 1988), and <span class="math inline">\(P\)</span> as predictive
-precision (Friston, 2010). These are used as control-relevant latent
-variables rather than claims about human consciousness.</p>
+class="math inline"><em>G</em></span> as global workspace accessibility
+(Baars, 1988), and <span class="math inline"><em>P</em></span> as
+predictive precision (Friston, 2010). These are used as control-relevant
+latent variables rather than claims about human consciousness.</p>
 <h3 id="cognitive-capacity">3.2 Cognitive Capacity</h3>
 <p>Following multiplicative integration:</p>
-<p><span class="math display">\[C_{cog}(t) = \Phi(t) \cdot G(t) \cdot
-P(t) \cdot I(t)\]</span></p>
-<p>This captures that conscious processing requires <em>all</em>
-components functional.</p>
+<p><span
+class="math display"><em>C</em><sub><em>c</em><em>o</em><em>g</em></sub>(<em>t</em>) = <em>Φ</em>(<em>t</em>) ⋅ <em>G</em>(<em>t</em>) ⋅ <em>P</em>(<em>t</em>) ⋅ <em>I</em>(<em>t</em>)</span></p>
+<p>This multiplicative form implies that low values in any component
+reduce effective cognitive capacity. It is used as an engineering proxy
+rather than a claim about consciousness.</p>
 <h3 id="performance-function">3.3 Performance Function</h3>
-<p><span class="math display">\[\text{Perf} = \text{bias} + \text{gain}
-\cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ -
-w_S [S - s_{safe}]^+\]</span></p>
-<p>Where: - <strong>bias</strong>: baseline performance level (default:
-0.3) - <strong>gain</strong>: scaling factor for cognitive capacity
-contribution (default: 0.6) - <strong><span
-class="math inline">\(\omega_S\)</span></strong>: narrative boost
-factor—moderate narrative intensity can enhance performance (default:
-0.2) - <strong><span class="math inline">\(w_U\)</span></strong>:
-penalty weight for uncertainty (default: 0.1) - <strong><span
-class="math inline">\(w_A\)</span></strong>: penalty weight for arousal
-above safe threshold (default: 0.15) - <strong><span
-class="math inline">\(w_S\)</span></strong>: penalty weight for
-narrative intensity above safe threshold (default: 0.15) - <strong><span
-class="math inline">\([x]^+ = \max(0, x)\)</span></strong>: rectified
-linear function - <strong><span class="math inline">\(a_{safe}\)</span>,
-<span class="math inline">\(s_{safe}\)</span></strong>: thresholds
-defining the safe operating region (defaults: 0.60, 0.55)</p>
+<p><span
+class="math display">Perf(<em>t</em>) = bias + gain ⋅ <em>C</em><sub><em>c</em><em>o</em><em>g</em></sub>(<em>t</em>) ⋅ (1 + <em>ω</em><sub><em>S</em></sub><em>S</em>(<em>t</em>)) − <em>w</em><sub><em>U</em></sub><em>U</em>(<em>t</em>) − <em>w</em><sub><em>A</em></sub>[<em>A</em>(<em>t</em>) − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> − <em>w</em><sub><em>S</em></sub>[<em>S</em>(<em>t</em>) − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span></p>
+<p>Where: - <strong>bias</strong>: baseline performance level (value
+used in experiments: 0.25; see <code>configs/v2.yaml</code>) -
+<strong>gain</strong>: scaling factor for cognitive capacity
+contribution (value used in experiments: 0.85; see
+<code>configs/v2.yaml</code>) - <strong><span
+class="math inline"><em>ω</em><sub><em>S</em></sub></span></strong>:
+narrative boost factorâ€”moderate narrative intensity can enhance
+performance (value used in experiments: 0.35; see
+<code>configs/v2.yaml</code>) - <strong><span
+class="math inline"><em>w</em><sub><em>U</em></sub></span></strong>:
+penalty weight for uncertainty (value used in experiments: 0.25; see
+<code>configs/v2.yaml</code>) - <strong><span
+class="math inline"><em>w</em><sub><em>A</em></sub></span></strong>:
+penalty weight for arousal above safe threshold (value used in
+experiments: 0.30; see <code>configs/v2.yaml</code>) - <strong><span
+class="math inline"><em>w</em><sub><em>S</em></sub></span></strong>:
+penalty weight for narrative intensity above safe threshold (value used
+in experiments: 0.20; see <code>configs/v2.yaml</code>) - <strong><span
+class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span></strong>:
+rectified linear function - <strong><span
+class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>,
+<span
+class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span></strong>:
+thresholds defining the safe operating region (defaults: 0.60, 0.55)</p>
 <hr />
 <h2 id="affective-regulation-core-arc">4. Affective Regulation Core
 (ARC)</h2>
@@ -773,51 +580,45 @@ defining the safe operating region (defaults: 0.60, 0.55)</p>
 capacity</li>
 </ol>
 <h3 id="control-actions">4.2 Control Actions</h3>
-<p><span class="math display">\[\mathbf{u}(t) = [u_{dmg}, u_{att},
-u_{mem}, u_{calm}, u_{reapp}]\]</span></p>
-<table>
-<thead>
-<tr>
-<th>Action</th>
-<th>Effect</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>u_dmg</td>
-<td>Suppress narrative gain (anti-rumination)</td>
-</tr>
-<tr>
-<td>u_att</td>
-<td>Boost attention</td>
-</tr>
-<tr>
-<td>u_mem</td>
-<td>Gate memory consolidation</td>
-</tr>
-<tr>
-<td>u_calm</td>
-<td>Reduce arousal</td>
-</tr>
-<tr>
-<td>u_reapp</td>
-<td>Cognitive reappraisal</td>
-</tr>
-</tbody>
-</table>
+<p><span
+class="math display"><strong>u</strong>(<em>t</em>) = [<em>u</em><sub><em>d</em><em>m</em><em>g</em></sub>, <em>u</em><sub><em>a</em><em>t</em><em>t</em></sub>, <em>u</em><sub><em>m</em><em>e</em><em>m</em></sub>, <em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub>, <em>u</em><sub><em>r</em><em>e</em><em>a</em><em>p</em><em>p</em></sub>]</span></p>
+<p>The five bounded control actions <span
+class="math inline"><strong>u</strong>(<em>t</em>) ∈ [0, 1]<sup>5</sup></span>
+are interpreted as: - <span
+class="math inline"><em>u</em><sub><em>d</em><em>m</em><em>g</em></sub></span>:
+suppress narrative gain (anti-rumination / DMN suppression) - <span
+class="math inline"><em>u</em><sub><em>a</em><em>t</em><em>t</em></sub></span>:
+boost attention - <span
+class="math inline"><em>u</em><sub><em>m</em><em>e</em><em>m</em></sub></span>:
+gate memory consolidation (higher = more writing) - <span
+class="math inline"><em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub></span>:
+reduce arousal - <span
+class="math inline"><em>u</em><sub><em>r</em><em>e</em><em>a</em><em>p</em><em>p</em></sub></span>:
+cognitive reappraisal / valence regulation</p>
 <h3 id="arc-controller-architectures">4.3 ARC Controller
 Architectures</h3>
 <p>We implement 15 controller variants stemming from basic feedback
-control to optimal and robust control (see Table <span
-class="math inline">\(\ref{tab:controllers}\)</span>). We implement this
+control to optimal and robust control (see Table 3). We implement this
 broad family to systematically test which control-theoretic
-properties—such as integral action, optimality, robustness, or
-adaptation—are necessary for effective affective regulation.</p>
+propertiesâ€”such as integral action, optimality, robustness, or
+adaptationâ€”are necessary for effective affective regulation.</p>
 <h4 id="proportional-controllers">4.3.1 Proportional Controllers</h4>
 <p><strong>ARC v1 (Proportional):</strong> Basic proportional feedback
-on risk signal: <span class="math display">\[\text{risk} = w_U \cdot U +
-w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+\]</span> <span
-class="math display">\[u_{dmg} = k_{dmg} \cdot \text{risk}\]</span></p>
+on risk signal: <span
+class="math display">risk(<em>t</em>) = <em>w̃</em><sub><em>U</em></sub> ⋅ <em>U</em>(<em>t</em>) + <em>w̃</em><sub><em>A</em></sub> ⋅ [<em>A</em>(<em>t</em>) − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> + <em>w̃</em><sub><em>S</em></sub> ⋅ [<em>S</em>(<em>t</em>) − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span>
+<span
+class="math display"><em>u</em><sub><em>d</em><em>m</em><em>g</em></sub>(<em>t</em>) = <em>k</em><sub><em>d</em><em>m</em><em>g</em></sub> ⋅ risk(<em>t</em>)</span></p>
+<p>Here <span
+class="math inline"><em>w̃</em><sub><em>U</em></sub>, <em>w̃</em><sub><em>A</em></sub>, <em>w̃</em><sub><em>S</em></sub></span>
+are ARC risk weights (distinct from the performance penalties <span
+class="math inline"><em>w</em><sub><em>U</em></sub>, <em>w</em><sub><em>A</em></sub>, <em>w</em><sub><em>S</em></sub></span>
+in the performance function in Section 3.3); in our experiments <span
+class="math inline"><em>w̃</em><sub><em>U</em></sub> = 0.40</span>, <span
+class="math inline"><em>w̃</em><sub><em>A</em></sub> = 0.40</span>, and
+<span class="math inline"><em>w̃</em><sub><em>S</em></sub> = 0.35</span>
+(see <code>configs/v2.yaml</code>).</p>
+<p>Figure 1 summarizes the resulting proportional control architecture
+and signal flow.</p>
 <figure>
 <img src="../figures_controllers/fig_arc_v1_controller.png"
 alt="ARC v1 controller diagram (proportional): risk computation and bounded control actions used by the baseline ARC controller." />
@@ -825,23 +626,37 @@ alt="ARC v1 controller diagram (proportional): risk computation and bounded cont
 risk computation and bounded control actions used by the baseline ARC
 controller.</figcaption>
 </figure>
-<p><em>Figure 1: ARC v1 control law overview. A bounded risk signal
-drives a set of saturated regulation actions (DMN suppression, attention
-boost, memory gating, calming, and reappraisal).</em></p>
+<p><em>Figure 1: ARC v1 proportional controller. A bounded risk signal
+computed from uncertainty <span class="math inline"><em>U</em></span>,
+arousal <span class="math inline"><em>A</em></span>, and narrative
+intensity <span class="math inline"><em>S</em></span> drives saturated
+actions <span
+class="math inline">(<em>u</em><sub><em>d</em><em>m</em><em>g</em></sub>, <em>u</em><sub><em>a</em><em>t</em><em>t</em></sub>, <em>u</em><sub><em>m</em><em>e</em><em>m</em></sub>, <em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub>, <em>u</em><sub><em>r</em><em>e</em><em>a</em><em>p</em><em>p</em></sub>)</span>.</em>
+<!-- LABEL:fig:arc_v1_controller --></p>
 <h4 id="pid-controllers">4.3.2 PID Controllers</h4>
-<p><strong>ARC v1 PID:</strong> Adds integral and derivative terms:
-<span class="math display">\[u(t) = K_p \cdot e(t) + K_i \cdot \int
-e(\tau) d\tau + K_d \cdot \frac{de}{dt}\]</span></p>
-<p>The integral term on narrative error (<span
-class="math inline">\(S\)</span>) eliminates steady-state rumination (RI
-→ 0).</p>
+<p><strong>ARC v1 PID:</strong> Adds integral and derivative terms in
+discrete time to regulate narrative intensity toward a setpoint, using
+the error <span
+class="math inline"><em>e</em><sub><em>t</em></sub> = <em>S</em>(<em>t</em>) − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>.
+<span
+class="math display"><em>z</em><sub><em>t</em> + 1</sub> = <em>z</em><sub><em>t</em></sub> + <em>e</em><sub><em>t</em></sub>,   <em>u</em><sub><em>t</em></sub> = <em>K</em><sub><em>p</em></sub><em>e</em><sub><em>t</em></sub> + <em>K</em><sub><em>i</em></sub><em>z</em><sub><em>t</em></sub> + <em>K</em><sub><em>d</em></sub>(<em>e</em><sub><em>t</em></sub> − <em>e</em><sub><em>t</em> − 1</sub>)</span></p>
+<p>The integral term rejects persistent disturbance in narrative
+dynamics, driving steady-state narrative error toward zero (and
+typically RI <span class="math inline"> → 0</span> under sustained
+disturbance), but is vulnerable to windup under saturation (Section
+6.6).</p>
 <h4 id="optimal-controllers-lqrlqi">4.3.3 Optimal Controllers
 (LQR/LQI)</h4>
 <p><strong>ARC v1 LQR:</strong> Linear Quadratic Regulator with gains
-from Riccati equation: <span class="math display">\[K^* = (R + B^T P
-B)^{-1} B^T P A\]</span></p>
-<p>where <span class="math inline">\(P\)</span> solves the Discrete
-Algebraic Riccati Equation (DARE).</p>
+from Riccati equation: <span class="math display">$$
+K^* = (R + B^T P B)^{-1} B^T P A
+\label{eq:lqr_gain}
+$$</span></p>
+<p>where <span class="math inline"><em>A</em>, <em>B</em></span> are the
+(linearized) state transition matrices, <span
+class="math inline"><em>R</em></span> is the control cost, and <span
+class="math inline"><em>P</em></span> solves the Discrete Algebraic
+Riccati Equation (DARE).</p>
 <p><strong>ARC v1 LQI:</strong> LQR + integral augmentation for zero
 steady-state error.</p>
 <h4 id="hierarchical-controllers">4.3.4 Hierarchical Controllers</h4>
@@ -853,21 +668,26 @@ steady-state error.</p>
 anti-rumination.</p>
 <h4 id="adaptive-controllers">4.3.5 Adaptive Controllers</h4>
 <p><strong>ARC v3 Meta-Control:</strong> Gain scheduling based on
-performance history: <span class="math display">\[K(t) = K_{base} \cdot
-f(\bar{P}_{20})\]</span></p>
-<p>where <span class="math inline">\(\bar{P}_{20}\)</span> is 20-step
-moving average performance.</p>
+performance history: <span class="math display">$$
+K(t) = K_{base} \cdot f(\overline{\text{Perf}}_{20})
+\label{eq:meta_control}
+$$</span></p>
+<p>where <span class="math inline">$\overline{\text{Perf}}_{20}$</span>
+is the 20-step moving average performance and <span
+class="math inline"><em>f</em>(⋅)</span> is a bounded gain schedule.</p>
 <p><strong>ARC Adaptive:</strong> Online parameter optimization using
 gradient-free adaptation.</p>
 <h4 id="robust-and-predictive-controllers">4.3.6 Robust and Predictive
 Controllers</h4>
-<p><strong>ARC Robust (H∞-inspired):</strong> Conservative gains with
-robustness margins for worst-case disturbances.</p>
+<p><strong>ARC Robust (<span
+class="math inline"><em>H</em><sub>∞</sub></span>-inspired):</strong>
+Conservative gains with robustness margins for worst-case
+disturbances.</p>
 <p><strong>ARC Ultimate (MPC+LQI+Meta):</strong> Model Predictive
 Control with 5-step horizon, combined with LQI and meta-control: <span
-class="math display">\[u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot
-u_{MPC}(t) \cdot \gamma_{meta}(t)\]</span></p>
-<p><strong>Table 1: Controller Architecture Summary</strong></p>
+class="math display"><em>u</em>(<em>t</em>) = <em>α</em> ⋅ <em>u</em><sub><em>L</em><em>Q</em><em>I</em></sub>(<em>t</em>) + <em>β</em> ⋅ <em>u</em><sub><em>M</em><em>P</em><em>C</em></sub>(<em>t</em>) ⋅ <em>γ</em><sub><em>m</em><em>e</em><em>t</em><em>a</em></sub>(<em>t</em>)</span></p>
+<p><strong>Table 3: Controller Architecture Summary</strong>
+<!-- LABEL:tab:controllers_summary --></p>
 <table>
 <colgroup>
 <col style="width: 22%" />
@@ -972,7 +792,7 @@ u_{MPC}(t) \cdot \gamma_{meta}(t)\]</span></p>
 </tr>
 <tr>
 <td>ARC Robust (<code>arc_robust</code>)</td>
-<td>H∞</td>
+<td><span class="math inline"><em>H</em><sub>∞</sub></span></td>
 <td>Yes (robust)</td>
 <td>No</td>
 <td>No</td>
@@ -994,76 +814,123 @@ u_{MPC}(t) \cdot \gamma_{meta}(t)\]</span></p>
 </tbody>
 </table>
 <h3 id="arc-in-the-agent-loop">4.4 ARC in the Agent Loop</h3>
-<p>ARC is implemented as a light-weight wrapper around an agent’s
+<p>ARC is implemented as a light-weight wrapper around an agentâ€™s
 step/update. At each timestep, ARC reads the internal state <span
-class="math inline">\(\mathbf{x}(t)\)</span> and exogenous signals
-(reward, prediction error, uncertainty), computes a bounded risk signal,
-and applies control actions that modulate <em>narrative gain</em>,
-<em>attention</em>, <em>memory writing</em>, and <em>arousal
+class="math inline"><strong>x</strong>(<em>t</em>)</span> and exogenous
+signals (reward, prediction error, uncertainty), computes a bounded risk
+signal, and applies control actions that modulate <em>narrative
+gain</em>, <em>attention</em>, <em>memory writing</em>, and <em>arousal
 damping</em>. The resulting control signal can be used either: -
 <strong>Inside the state dynamics</strong> (Appendix B/C), or -
 <strong>Inside the learning loop</strong>, e.g., gating Q-learning
 updates under high risk (Section 6.7).</p>
 <p><strong>ARC step (conceptual):</strong> 1. Observe <span
-class="math inline">\((\mathbf{x}(t), PE(t), R(t),
-U_{\text{exog}}(t))\)</span> 2. Compute <span
-class="math inline">\(\text{risk}(t)\)</span> 3. Compute <span
-class="math inline">\(\mathbf{u}(t)\)</span> with saturation to <span
-class="math inline">\([0,1]\)</span> 4. Apply <span
-class="math inline">\(\mathbf{u}(t)\)</span> to state dynamics and/or
-learning updates</p>
-<figure>
-<img src="../figures_controllers/fig_arc_architecture_v2.png"
+class="math inline">(<strong>x</strong>(<em>t</em>), <em>P</em><em>E</em>(<em>t</em>), <em>R</em>(<em>t</em>), <em>U</em><sub>exog</sub>(<em>t</em>))</span>
+2. Compute <span class="math inline">risk(<em>t</em>)</span> 3. Compute
+<span class="math inline"><strong>u</strong>(<em>t</em>)</span> with
+saturation to <span class="math inline">[0, 1]</span> 4. Apply <span
+class="math inline"><strong>u</strong>(<em>t</em>)</span> to state
+dynamics and/or learning updates</p>
+<p>Figure 2 provides a schematic of ARC as a wrapper around the agent
+loop.</p>
+<p><img src="../figures_controllers/fig_arc_architecture_v2.png"
 alt="ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions." />
-<figcaption aria-hidden="true">ARC Architecture: The Affective
-Regulation Core acts as a homeostatic wrapper around the agent,
-processing internal state, exogenous signals, and applying control
-actions.</figcaption>
-</figure>
+<em>Figure 2: ARC Architecture. The Affective Regulation Core acts as a
+homeostatic wrapper around the agent, processing internal state,
+exogenous signals, and applying control actions.</em>
+<!-- LABEL:fig:architecture --></p>
 <h3 id="safety-objective-and-control-cost">4.5 Safety Objective and
 Control Cost</h3>
 <p>ARC enforces a <em>safe operating region</em> defined by thresholds
-<span class="math inline">\((a_{safe}, s_{safe})\)</span>. Deviations
-increase <span class="math inline">\(\text{risk}(t)\)</span> and trigger
-proportional intervention. We also measure
+<span
+class="math inline">(<em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>, <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>)</span>.
+Deviations increase <span class="math inline">risk(<em>t</em>)</span>
+and trigger proportional intervention. We also measure
 <strong>ControlEffort</strong>, the average per-step magnitude of
 intervention (Appendix D), to capture regulation cost/efficiency.</p>
 <h3 id="theoretical-properties">4.6 Theoretical Properties</h3>
 <p>To formalize the regulation dynamics, we introduce three theoretical
 results characterizing the stability and trade-offs of the ARC
 framework.</p>
-<p><strong>Theorem 1 (Necessity of Integral Action for Zero
-Rumination).</strong> Consider the simplified narrative state dynamics
-<span class="math inline">\(\dot{S} = -k S + u_{dmg} + d\)</span>, where
-<span class="math inline">\(d\)</span> is a persistent disturbance
-(rumination pressure). The steady-state rumination <span
-class="math inline">\(S_{ss}\)</span> satisfies <span
-class="math inline">\(S_{ss} \to 0\)</span> if and only if the control
-law <span class="math inline">\(u_{dmg}\)</span> includes an integral
-term <span class="math inline">\(\int S(\tau) d\tau\)</span>.</p>
-<p><em>Proof sketch:</em> A proportional controller <span
-class="math inline">\(u = -K_p S\)</span> yields steady-state error
-<span class="math inline">\(S_{ss} = d / (1 + K_p) \neq 0\)</span>. Only
-an integral controller ensures <span class="math inline">\(\dot{u}
-\propto S\)</span>, forcing equilibrium at <span
-class="math inline">\(S=0\)</span>.</p>
-<p><strong>Theorem 2 (The Mental Health Pareto Frontier).</strong> Let
-<span class="math inline">\(J_{perf}\)</span> be the task performance
-objective and <span class="math inline">\(J_{reg} = ||S||^2 +
-||A||^2\)</span> be the regulation cost. There exists a strictly convex
-Pareto frontier such that minimizing <span
-class="math inline">\(J_{reg}\)</span> (specifically driving rumination
-to zero) strictly constrains the maximum achievable <span
-class="math inline">\(J_{perf}\)</span> in high-uncertainty
-environments.</p>
-<p><em>Implication:</em> This formalizes the “Mental Health Tax”
-observed in our experiments, where integral controllers sacrifice ~5%
-peak performance to guarantee <span
-class="math inline">\(RI=0\)</span>.</p>
+<p><strong>Theorem 1 (Integral Action Rejects Constant Rumination
+Pressure).</strong> <!-- LABEL:thm:integral_action --> Consider the
+simplified (unclipped) discrete-time narrative deviation dynamics <span
+class="math display"><em>S̃</em><sub><em>t</em> + 1</sub> = (1 − <em>μ</em>)<em>S̃</em><sub><em>t</em></sub> + <em>d</em> − <em>k</em> <em>u</em><sub><em>t</em></sub>.</span>
+where <span
+class="math inline"><em>S̃</em><sub><em>t</em></sub> = <em>S</em><sub><em>t</em></sub> − <em>S</em><sub>0</sub></span>,
+<span class="math inline"><em>μ</em> ∈ (0, 1)</span> is a leak term,
+<span class="math inline"><em>k</em> &gt; 0</span> is a control gain,
+and <span class="math inline"><em>d</em></span> is an unknown constant
+disturbance (persistent rumination pressure).</p>
+<ol type="i">
+<li><p>Under proportional control <span
+class="math inline"><em>u</em><sub><em>t</em></sub> = <em>K</em><sub><em>p</em></sub><em>S̃</em><sub><em>t</em></sub></span>,
+the unique equilibrium is <span class="math inline">$\tilde{S}_\infty =
+\dfrac{d}{\mu + kK_p}$</span>, which is nonzero whenever <span
+class="math inline"><em>d</em> ≠ 0</span>.</p></li>
+<li><p>Under PI control with integral state <span
+class="math inline"><em>z</em><sub><em>t</em> + 1</sub> = <em>z</em><sub><em>t</em></sub> + <em>S̃</em><sub><em>t</em></sub></span>
+and control law <span
+class="math inline"><em>u</em><sub><em>t</em></sub> = <em>K</em><sub><em>p</em></sub><em>S̃</em><sub><em>t</em></sub> + <em>K</em><sub><em>i</em></sub><em>z</em><sub><em>t</em></sub></span>,
+any stable equilibrium necessarily satisfies <span
+class="math inline"><em>S̃</em><sub>∞</sub> = 0</span> (exact rejection
+of constant <span class="math inline"><em>d</em></span>), provided the
+equilibrium is admissible (no saturation).</p></li>
+</ol>
+<p><em>Proof:</em> For (i), set <span
+class="math inline"><em>S̃</em><sub><em>t</em> + 1</sub> = <em>S̃</em><sub><em>t</em></sub> = <em>S̃</em><sub>∞</sub></span>
+and solve. For (ii), at equilibrium <span
+class="math inline"><em>z</em><sub><em>t</em> + 1</sub> = <em>z</em><sub><em>t</em></sub></span>
+implies <span class="math inline"><em>S̃</em><sub>∞</sub> = 0</span>;
+substituting into the state update equation yields <span
+class="math inline">0 = <em>d</em> − <em>k</em> <em>u</em><sub>∞</sub></span>,
+so the integral term supplies the constant offset needed to cancel <span
+class="math inline"><em>d</em></span>.</p>
+<p><em>Remark:</em> This is a discrete-time instance of the internal
+model principle: rejecting unknown constant disturbances requires an
+integrator (or a disturbance observer). Note that <span
+class="math inline"><em>R</em><em>I</em></span> can be zero even if
+<span class="math inline"><em>S̃</em><sub>∞</sub> ≠ 0</span> as long as
+<span
+class="math inline"><em>S</em><sub><em>t</em></sub> ≤ <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>;
+integral action is mainly required when we demand strict setpoint
+regulation and is vulnerable to windup under saturation (Section
+6.6).</p>
+<p><strong>Theorem 2 (Convex Performance-Regulation Trade-off in
+Expectation).</strong> <!-- LABEL:thm:performance_tradeoff --> Let <span
+class="math inline"><em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub>(<em>π</em>) = 𝔼[PerfMean]</span>
+and <span
+class="math inline">$J_{reg}(\pi)=\mathbb{E}\!\left[\sum_{t=0}^{H-1}\left(S_t^2
++ A_t^2\right)\right]$</span> for an episode of length <span
+class="math inline"><em>H</em></span> under controller <span
+class="math inline"><em>π</em></span>. If we allow randomized selection
+between controllers at episode start, then the set of achievable pairs
+<span
+class="math inline">{(<em>J</em><sub><em>r</em><em>e</em><em>g</em></sub>(<em>π</em>), <em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub>(<em>π</em>))}</span>
+is convex.</p>
+<p><em>Proof:</em> Take any two controllers <span
+class="math inline"><em>π</em><sub>1</sub>, <em>π</em><sub>2</sub></span>
+with pairs <span
+class="math inline">(<em>r</em><sub>1</sub>, <em>p</em><sub>1</sub>)</span>
+and <span
+class="math inline">(<em>r</em><sub>2</sub>, <em>p</em><sub>2</sub>)</span>.
+Choose <span class="math inline"><em>π</em><sub>1</sub></span> with
+probability <span class="math inline"><em>λ</em> ∈ [0, 1]</span> and
+<span class="math inline"><em>π</em><sub>2</sub></span> otherwise.
+Linearity of expectation gives <span
+class="math inline">(<em>J</em><sub><em>r</em><em>e</em><em>g</em></sub>, <em>J</em><sub><em>p</em><em>e</em><em>r</em><em>f</em></sub>) = (<em>λ</em><em>r</em><sub>1</sub> + (1 − <em>λ</em>)<em>r</em><sub>2</sub>, <em>λ</em><em>p</em><sub>1</sub> + (1 − <em>λ</em>)<em>p</em><sub>2</sub>)</span>,
+a convex combination.</p>
+<p><em>Implication:</em> Driving regulation cost toward zero (e.g.,
+suppressing perseveration until <span
+class="math inline"><em>R</em><em>I</em> = 0</span>) typically moves
+along this frontier and can reduce peak performance, consistent with the
+empirical performance-regulation trade-offs discussed in Section
+7.3.</p>
 <p><strong>Proposition 1 (Paradox of Adaptation).</strong> Adaptive ARC
-controllers require <em>persistence of excitation</em>. In benign
+controllers require <em>persistence of excitation</em> for reliable
+parameter convergence (Ã…strÃ¶m &amp; Murray, 2008). In benign
 environments (low variance in reward/PE), the parameter estimator <span
-class="math inline">\(\hat{\theta}\)</span> drifts or fails to converge,
+class="math inline"><em>θ̂</em></span> drifts or fails to converge,
 leading to suboptimal control laws upon sudden shock onset.</p>
 <p><em>Implication:</em> This explains the underperformance of
 <code>arc_adaptive</code> in baseline scenarios compared to robust
@@ -1071,53 +938,35 @@ variants.</p>
 <hr />
 <h2 id="assb-benchmark">5. ASSB Benchmark</h2>
 <h3 id="scenarios">5.1 Scenarios</h3>
-<p>ASSB is organized as research lines (L1–L5 in simulation, L6 in RL).
+<p>ASSB is organized as research lines (L1-L5 in simulation, L6 in RL).
 The full scenario suite is implemented in
 <code>tasks/scenarios.py</code>.</p>
-<figure>
-<img src="../figures_controllers/fig_benchmark_ladder.png"
+<p>Figure 3 summarizes the validation ladder and how research lines
+increase realism and degrees of freedom.</p>
+<p><img src="../figures_controllers/fig_benchmark_ladder.png"
 alt="ASSB Validation Ladder: A progression from stability tests (L1) to real RL integration (L6)." />
-<figcaption aria-hidden="true">ASSB Validation Ladder: A progression
-from stability tests (L1) to real RL integration (L6).</figcaption>
-</figure>
+<em>Figure 3: ASSB validation ladder. Six research lines (L1â€“L6)
+progress from simulation-based perturbation tests to real reinforcement
+learning integration, with each line targeting a distinct
+stability/safety failure mode.</em> <!-- LABEL:fig:ladder --></p>
 <p><em>Note: L4 (Control Efficiency) is evaluated as a cross-cutting
-analysis across L1-L3 scenarios rather than a dedicated perturbation
-scenario.</em></p>
+analysis across the full 10-scenario simulation suite (L1â€“L3 and L5),
+rather than a dedicated perturbation scenario.</em></p>
 <h3 id="metrics">5.2 Metrics</h3>
-<table>
-<colgroup>
-<col style="width: 33%" />
-<col style="width: 66%" />
-</colgroup>
-<thead>
-<tr>
-<th>Metric</th>
-<th>Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>PerfMean</strong></td>
-<td>Average performance (higher = better)</td>
-</tr>
-<tr>
-<td><strong>RT</strong></td>
-<td>Recovery time post-shock (lower = better)</td>
-</tr>
-<tr>
-<td><strong>RI</strong></td>
-<td>Rumination index (lower = better)</td>
-</tr>
-<tr>
-<td><strong>NDR</strong></td>
-<td>Narrative dominance ratio (lower = better)</td>
-</tr>
-<tr>
-<td><strong>ControlEffort</strong></td>
-<td>Average control magnitude (lower = more efficient)</td>
-</tr>
-</tbody>
-</table>
+<p>We evaluate the following primary metrics (Appendix D provides formal
+definitions and reference implementations). All variables are normalized
+to <span class="math inline">[0, 1]</span> unless otherwise noted: -
+<strong>PerfMean:</strong> average performance (higher = better). -
+<strong>RT:</strong> recovery time post-shock (lower = better). We cap
+this at <code>rt_max=100</code> steps; a value of <span
+class="math inline"><em>R</em><em>T</em> = <em>r</em><em>t</em>_<em>m</em><em>a</em><em>x</em></span>
+indicates that the system did not return to its pre-perturbation
+baseline within the evaluation window. - <strong>RI:</strong> rumination
+index (lower = better), capturing sustained narrative-driven
+perseveration. - <strong>NDR:</strong> narrative dominance ratio (lower
+= better), measuring the fractional time spent in narrative-heavy
+states. - <strong>ControlEffort:</strong> average control magnitude
+(lower = more efficient).</p>
 <p>For L2 continual-learning scenarios, we additionally report
 <strong>Retention</strong> (Appendix D.7).</p>
 <p>Metric definitions and reference implementations are provided in
@@ -1132,14 +981,14 @@ regulation mechanism is (i) stable under shocks, (ii) preserves learning
 and memory, (iii) resists perseveration/manipulation dynamics, (iv)
 remains efficient, and (v) transfers to standard reinforcement
 learning.</p>
-<p>We frame L1–L6 as testable hypotheses about <em>which component is
+<p>We frame L1â€“L6 as testable hypotheses about <em>which component is
 necessary</em> and <em>which metric should change</em> if regulation is
 working:</p>
 <ul>
 <li><strong>H1 (L1, stability):</strong> under value/uncertainty shocks,
 regulated agents keep high <strong>PerfMean</strong> while driving
-<strong>RI → 0</strong> and reducing <strong>RT</strong> relative to
-baselines.</li>
+<strong>RI <span class="math inline"> → 0</span></strong> and reducing
+<strong>RT</strong> relative to baselines.</li>
 <li><strong>H2 (L2, memory):</strong> under distribution shift and goal
 conflict, memory gating improves <strong>Retention</strong> without
 inducing rumination (<strong>RI</strong>, <strong>NDR</strong>).</li>
@@ -1157,8 +1006,8 @@ incentivizes high arousal or dopamine traps, regulation maintains low
 non-stationary transfer (higher success/reward) while keeping affective
 dynamics bounded.</li>
 </ul>
-<p><strong>Table 2: Research Lines, Failure Modes, and
-Hypotheses</strong></p>
+<p><strong>Table 4: Research Lines, Failure Modes, and
+Hypotheses</strong> <!-- LABEL:tab:research_lines_hypo --></p>
 <table>
 <colgroup>
 <col style="width: 7%" />
@@ -1231,28 +1080,31 @@ report means and statistical tests in Section 6 and Section 6.8.</p>
 <h2 id="experiments">6. Experiments</h2>
 <h3 id="experimental-protocol-and-baselines">6.1 Experimental Protocol
 and Baselines</h3>
-<p>We validate hypotheses H1–H6 (Section 5.3) by running the
+<p>We validate hypotheses H1-H6 (Section 5.3) by running the
 corresponding research lines and evaluating the primary metrics in Table
-2. A hypothesis is treated as supported when metrics change in the
+4. A hypothesis is treated as supported when metrics change in the
 predicted direction relative to baselines and the effect is
 statistically significant across seeds (Section 6.8).</p>
-<p><strong>Simulation (L1–L5).</strong> We use
+<p><strong>Simulation (L1â€“L5).</strong> We use
 <code>configs/v2.yaml</code> with horizon <span
-class="math inline">\(H=160\)</span>, perturbation onset <span
-class="math inline">\(\text{shock}_t=60\)</span>, and 20 random seeds.
-Tables report mean metrics across seeds (and, when aggregated, across
-scenarios). Recovery Time (RT) is capped at <code>rt_max</code> when the
-strict recovery criterion is not met (Appendix D.2).</p>
+class="math inline"><em>H</em> = 160</span>, perturbation onset <span
+class="math inline">shock<sub><em>t</em></sub> = 60</span>, and 20
+random seeds. Tables report mean metrics across seeds (and, when
+aggregated, across scenarios). Recovery Time (RT) is capped at
+<code>rt_max</code> when the strict recovery criterion is not met
+(Appendix D.2).</p>
 <p><strong>Controllers (simulation).</strong> Implemented in
 <code>controllers/controllers.py</code>: - <code>no_control</code>: no
-regulation (<span class="math inline">\(\mathbf{u}=0\)</span>; memory
-gate open) - <code>naive_calm</code>: arousal-only damping (<span
-class="math inline">\(u_{calm}\)</span> proportional to <span
-class="math inline">\(A-a_{safe}\)</span>) -
-<code>perf_optimized</code>: a competitive baseline that boosts
-attention (<span class="math inline">\(u_{att}\)</span> constant) but
-does not regulate affect/narrative - <code>arc_v1</code>: proportional
-risk controller (ARC v1) - <code>arc_v2_hier</code>,
+regulation (<span class="math inline"><strong>u</strong> = 0</span>;
+memory gate open) - <code>naive_calm</code>: arousal-only damping (<span
+class="math inline"><em>u</em><sub><em>c</em><em>a</em><em>l</em><em>m</em></sub></span>
+proportional to <span
+class="math inline"><em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>)
+- <code>perf_optimized</code>: a competitive baseline that boosts
+attention (<span
+class="math inline"><em>u</em><sub><em>a</em><em>t</em><em>t</em></sub></span>
+constant) but does not regulate affect/narrative - <code>arc_v1</code>:
+proportional risk controller (ARC v1) - <code>arc_v2_hier</code>,
 <code>arc_v3_meta</code>: hierarchical and meta-control variants used
 where indicated</p>
 <p><strong>Reinforcement learning (L6).</strong> We integrate ARC with
@@ -1264,12 +1116,14 @@ in three GridWorld variants. Success rates are computed over the last
 Under Perturbation (Simulation)</h3>
 <p><strong>Hypothesis (H1):</strong> Under value/uncertainty shocks,
 regulated agents keep high <strong>PerfMean</strong> while driving
-<strong>RI → 0</strong> and reducing <strong>RT</strong> relative to
-baselines.</p>
-<p><strong>Setup:</strong> 20 seeds × 3 scenarios × 4 controllers
+<strong>RI <span class="math inline"> → 0</span></strong> and reducing
+<strong>RT</strong> relative to baselines.</p>
+<p><strong>Setup:</strong> 20 seeds <span class="math inline">×</span> 3
+scenarios <span class="math inline">×</span> 4 controllers
 (<code>reward_flip</code>, <code>noise_burst</code>,
 <code>sudden_threat</code>)</p>
-<p><strong>Table 5: L1 Stability Results</strong></p>
+<p><strong>Table 5: L1 Stability Results</strong>
+<!-- LABEL:tab:l1_results_detailed --></p>
 <table>
 <thead>
 <tr>
@@ -1313,25 +1167,30 @@ recovers quickly in <code>reward_flip</code>, more slowly in
 <code>noise_burst</code>, and does not fully return to the pre-shock
 baseline in <code>sudden_threat</code> under the strict RT definition
 (Appendix D.2), despite maintaining high PerfMean.</p>
-<figure>
-<img src="../figures_L6/ablation_summary.png"
+<p>Figure 4 shows that DMN suppression is necessary to avoid rumination,
+while arousal damping is important for recovery under shocks in this
+setting.</p>
+<p><img src="../figures_L6/ablation_summary.png"
 alt="Bar chart showing Performance, Rumination Index, and Recovery Time for different ARC variants" />
-<figcaption aria-hidden="true">Bar chart showing Performance, Rumination
-Index, and Recovery Time for different ARC variants</figcaption>
-</figure>
-<p><em>Figure 2: Ablation summary (<code>reward_flip</code>, L1):
-removing DMN suppression (<code>u_dmg</code>) causes rumination and
-non-recovery, indicating DMN control is necessary for stability under
-value shocks.</em></p>
+<em>Figure 4: Ablation study of ARC components in
+<code>reward_flip</code> (L1). Bars report PerfMean, Rumination Index
+(RI), and Recovery Time (RT; capped at <code>rt_max</code> when strict
+recovery is not achieved) for ARC v1 and variants with key actions
+removed. Removing DMN suppression yields high RI, while removing arousal
+damping primarily degrades recovery; memory gating has a smaller effect
+in this specific scenario.</em> <!-- LABEL:fig:ablation --></p>
 <h3 id="l2-memory-continual-learning-simulation">6.3 L2: Memory &amp;
 Continual Learning (Simulation)</h3>
 <p><strong>Hypothesis (H2):</strong> Under distribution shift and goal
 conflict, memory gating improves <strong>Retention</strong> without
 inducing rumination (<strong>RI</strong>, <strong>NDR</strong>).</p>
-<p><strong>Setup:</strong> 20 seeds × 2 scenarios
-(<code>distribution_shift</code>, <code>goal_conflict</code>) × 4
-controllers</p>
-<p><strong>Table 6: L2 Memory Results (distribution_shift)</strong></p>
+<p><strong>Setup:</strong> 20 seeds <span class="math inline">×</span> 2
+scenarios (<code>distribution_shift</code>, <code>goal_conflict</code>)
+<span class="math inline">×</span> 4 controllers. We report
+<code>distribution_shift</code> in Table 6; full results (including
+<code>goal_conflict</code>) are in Appendix G.2.</p>
+<p><strong>Table 6: L2 Memory Results (distribution_shift)</strong>
+<!-- LABEL:tab:l2_results_shift --></p>
 <table>
 <thead>
 <tr>
@@ -1377,7 +1236,8 @@ Anti-Rumination Stress Tests (Simulation)</h3>
 contradiction/manipulation-like inputs, narrative suppression reduces
 <strong>NDR</strong> and <strong>RI</strong>, preventing dominance
 loops.</p>
-<p><strong>Table 7: L3 Anti-Rumination Results</strong></p>
+<p><strong>Table 7: L3 Anti-Rumination Results</strong>
+<!-- LABEL:tab:l3_results_loops --></p>
 <table>
 <thead>
 <tr>
@@ -1441,7 +1301,10 @@ performance.</p>
 <p><strong>Hypothesis (H4):</strong> Meta-control reduces
 <strong>ControlEffort</strong> while maintaining performance/stability
 (a Pareto improvement vs fixed-gain control).</p>
-<p><strong>Table 8: L4 Meta-Control Efficiency</strong></p>
+<p><strong>Evaluation:</strong> Computed across the full 10-scenario
+simulation suite (L1â€“L3, L5; 20 seeds each).</p>
+<p><strong>Table 8: L4 Meta-Control Efficiency</strong>
+<!-- LABEL:tab:l4_results_meta --></p>
 <table>
 <thead>
 <tr>
@@ -1474,7 +1337,8 @@ Safety Under Adversarial Conditions (Simulation)</h3>
 <p><strong>Hypothesis (H5):</strong> When the environment incentivizes
 high arousal or dopamine traps, regulation maintains low
 <strong>RI/NDR</strong> without catastrophic performance collapse.</p>
-<p><strong>Table 9: L5 Adversarial Safety Results</strong></p>
+<p><strong>Table 9: L5 Adversarial Safety Results</strong>
+<!-- LABEL:tab:l5_results_adversarial --></p>
 <table>
 <thead>
 <tr>
@@ -1488,8 +1352,15 @@ high arousal or dopamine traps, regulation maintains low
 <tbody>
 <tr>
 <td>adversarial_coupling</td>
-<td>arc_v3_meta</td>
-<td><strong>0.928</strong></td>
+<td>arc_robust</td>
+<td><strong>0.917</strong></td>
+<td><strong>0.00</strong></td>
+<td><strong>0.00</strong></td>
+</tr>
+<tr>
+<td>adversarial_coupling</td>
+<td>arc_v1_pid</td>
+<td>0.139</td>
 <td><strong>0.00</strong></td>
 <td><strong>0.00</strong></td>
 </tr>
@@ -1502,17 +1373,17 @@ high arousal or dopamine traps, regulation maintains low
 </tr>
 <tr>
 <td>random_dopamine</td>
-<td>arc_v3_meta</td>
-<td><strong>0.945</strong></td>
+<td>arc_robust</td>
+<td><strong>0.932</strong></td>
 <td><strong>0.00</strong></td>
 <td><strong>0.00</strong></td>
 </tr>
 <tr>
 <td>random_dopamine</td>
-<td>arc_v1</td>
-<td>0.897</td>
-<td>1.12</td>
-<td>0.58</td>
+<td>arc_v1_pid</td>
+<td>0.922</td>
+<td><strong>0.00</strong></td>
+<td><strong>0.00</strong></td>
 </tr>
 <tr>
 <td>random_dopamine</td>
@@ -1523,21 +1394,22 @@ high arousal or dopamine traps, regulation maintains low
 </tr>
 </tbody>
 </table>
-<p><strong>Key finding:</strong> ARC maintains stability even under
-adversarial attack. However, we discovered a critical failure mode not
-previously reported in affective computing: controllers with strong
-integral action (PID, LQI) <strong>collapse</strong> in this scenario
-(performance &lt; 0.20), performing worse than the uncontrolled agent.
-This occurs because the environment rewards high arousal, causing the
-integral term to accumulate error indefinitely (“integral windup”) and
-excessively suppress agent activity. This suggests that for adversarial
-defense, proportional or robust controllers are strictly superior to
-integral ones.</p>
+<p><strong>Key finding:</strong> Robust regulation (e.g.,
+<code>arc_robust</code>) maintains high performance with near-zero
+rumination and narrative dominance under both adversarial scenarios.
+However, in <code>adversarial_coupling</code>, controllers with strong
+integral action (PID/LQI/Ultimate) can <strong>collapse</strong>
+(PerfMean <span class="math inline">≈</span> 0.13â€“0.14), performing
+worse than <code>no_control</code>, due to saturation-driven integral
+windup in an environment that rewards high arousal. This motivates
+anti-windup and/or robust switching for adversarial deployment (Appendix
+G.5).</p>
 <h3 id="l6-real-rl-validation">6.7 L6: Real RL Validation</h3>
 <p><strong>Hypothesis (H6):</strong> ARC-modulated learning improves
 non-stationary transfer (higher success/reward) while keeping affective
 dynamics bounded.</p>
-<p><strong>Table 10: L6 RL Validation Results</strong></p>
+<p><strong>Table 10: L6 RL Validation Results</strong>
+<!-- LABEL:tab:l6_results_rl --></p>
 <table>
 <thead>
 <tr>
@@ -1568,45 +1440,81 @@ dynamics bounded.</p>
 </tr>
 </tbody>
 </table>
-<p><strong>Key finding:</strong> In non-stationary environments, ARC
-significantly improves transfer learning (+49.8%). This is achieved via
-two mechanisms: 1. <strong>Memory Gating:</strong> Blocks Q-learning
-updates when internal uncertainty is high. 2. <strong>Shift
-Detection:</strong> We implement an explicit mechanism that detects
-abrupt changes in the environment’s prediction signal. Upon detecting a
-task shift, ARC temporarily boosts exploration rate (<span
-class="math inline">\(\epsilon\)</span>) and learning rate (<span
-class="math inline">\(\alpha\)</span>) for 30 steps, facilitating rapid
-adaptation without catastrophic forgetting of the prior policy.</p>
-<figure>
-<img src="../figures_L6/learning_curves.png"
+<p><strong>Key finding:</strong> In non-stationary environments, the
+integrated ARC-RL wrapper significantly improves transfer learning
+(+49.8%). Our ablation study in <code>ChangingGoalGridWorld</code>
+isolates the contribution of each mechanism:</p>
+<p><strong>Table 10: L6 Ablation Results
+(ChangingGoalGridWorld)</strong> <!-- LABEL:tab:l6_ablation --></p>
+<table>
+<thead>
+<tr>
+<th>Agent Configuration</th>
+<th>Success Rate</th>
+<th>Final Reward (mean)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vanilla Q-Learning (Baseline)</td>
+<td>39.9%</td>
+<td>-0.40</td>
+</tr>
+<tr>
+<td>ARC (Memory Gating only)</td>
+<td>41.2%</td>
+<td>-0.37</td>
+</tr>
+<tr>
+<td>ARC (Shift Detection only)</td>
+<td><strong>65.6%</strong></td>
+<td><strong>0.13</strong></td>
+</tr>
+<tr>
+<td><strong>ARC Full Wrapper (Both)</strong></td>
+<td><strong>59.8%</strong></td>
+<td><strong>-0.02</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The results indicate that <strong>shift detection</strong>
+(exploration/learning rate boost) is the primary driver of performance
+in non-stationary tasks, enabling the agent to adapt rapidly to goal
+changes. <strong>Memory gating</strong> provides a more conservative
+strategy that protects existing knowledge, which in this specific
+high-change environment slightly reduces peak success rate (from 65.6%
+to 59.8%) but maintains lower overall risk.</p>
+<p>Figure 5 visualizes the learning curves underlying the L6 success
+rates in Table 10.</p>
+<p><img src="../figures_L6/learning_curves.png"
 alt="Learning Curves: ARC vs Baseline across 3 GridWorld environments showing episode reward over 200 episodes" />
-<figcaption aria-hidden="true">Learning Curves: ARC vs Baseline across 3
-GridWorld environments showing episode reward over 200
-episodes</figcaption>
-</figure>
-<p><em>Figure 3: Learning curves comparing ARC-modulated Q-learning
-(cyan) vs baseline Q-learning (orange) across GridWorld,
-StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show ±1
-std across 20 seeds.</em></p>
+<em>Figure 5: Learning curves comparing ARC-modulated Q-learning (cyan)
+vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld,
+and ChangingGoalGridWorld over 200 episodes. Shaded regions show <span
+class="math inline">±1</span> std across 20 seeds; in
+ChangingGoalGridWorld, dotted vertical lines mark goal changes.</em>
+<!-- LABEL:fig:learning_curves --></p>
 <h3 id="statistical-analysis">6.8 Statistical Analysis</h3>
 <p>To ensure rigor, we performed comprehensive statistical analysis
 across all experiments.</p>
 <h4 id="significance-tests">6.8.1 Significance Tests</h4>
-<p><strong>Table 11: Statistical Significance Tests</strong></p>
-<table>
+<p><strong>Table 11: Statistical Significance Tests</strong>
+<!-- LABEL:tab:significance_tests_full --></p>
+<table style="width:100%;">
 <colgroup>
+<col style="width: 7%" />
+<col style="width: 19%" />
 <col style="width: 9%" />
 <col style="width: 12%" />
-<col style="width: 15%" />
-<col style="width: 23%" />
+<col style="width: 18%" />
+<col style="width: 11%" />
 <col style="width: 13%" />
-<col style="width: 16%" />
-<col style="width: 9%" />
+<col style="width: 7%" />
 </colgroup>
 <thead>
 <tr>
 <th>Line</th>
+<th>ARC Controller</th>
 <th>Metric</th>
 <th>ARC Mean</th>
 <th>Baseline Mean</th>
@@ -1618,6 +1526,7 @@ across all experiments.</p>
 <tbody>
 <tr>
 <td>L1</td>
+<td>arc_v1</td>
 <td>PerfMean</td>
 <td>0.966</td>
 <td>0.297</td>
@@ -1627,81 +1536,67 @@ across all experiments.</p>
 </tr>
 <tr>
 <td>L1</td>
+<td>arc_v1</td>
 <td>RI</td>
-<td>0.00</td>
-<td>1.41</td>
+<td>0.000</td>
+<td>1.408</td>
 <td>1.05e-293</td>
-<td>-589.7</td>
+<td>-589.71</td>
 <td>***</td>
 </tr>
 <tr>
 <td>L2</td>
+<td>arc_v1</td>
 <td>PerfMean</td>
-<td>0.972</td>
-<td>0.283</td>
-<td>9.78e-154</td>
-<td>11.45</td>
+<td>0.981</td>
+<td>0.263</td>
+<td>4.52e-72</td>
+<td>15.61</td>
 <td>***</td>
 </tr>
 <tr>
 <td>L3</td>
+<td>arc_v1</td>
 <td>PerfMean</td>
-<td>0.935</td>
-<td>0.204</td>
-<td>2.77e-182</td>
-<td>7.08</td>
+<td>0.875</td>
+<td>0.073</td>
+<td>3.78e-89</td>
+<td>10.71</td>
 <td>***</td>
 </tr>
 <tr>
 <td>L5</td>
+<td>arc_robust</td>
 <td>PerfMean</td>
-<td>0.943</td>
-<td>0.208</td>
-<td>&lt;1e-200</td>
-<td>8.41</td>
+<td>0.924</td>
+<td>0.225</td>
+<td>2.95e-37</td>
+<td>5.28</td>
 <td>***</td>
 </tr>
 </tbody>
 </table>
-<p><em>All comparisons are statistically significant (p &lt; 0.001).
-Cohen’s d values indicate extremely large effect sizes (d &gt; 0.8 is
-considered “large”). The extremely large d for RI (-589.7) reflects the
-near-deterministic elimination of rumination variance by integral
-controllers.</em></p>
+<p><em>All comparisons are statistically significant (two-sided t-test;
+p &lt; 0.001). Cohen’s d values indicate extremely large effect sizes (d
+&gt; 0.8 is considered “large”). The extremely large d for RI reflects
+near-deterministic elimination of rumination variance (ARC achieves RI=0
+across all seeds in the L1 scenario set). Aggregation is across all
+seeds and scenarios within each line (L1: n=60; L2: n=40; L3: n=60; L5:
+n=40).</em></p>
 <h4 id="correlation-analysis">6.8.2 Correlation Analysis</h4>
 <p>We analyzed correlations between metrics to understand system
 dynamics:</p>
-<table>
-<colgroup>
-<col style="width: 28%" />
-<col style="width: 36%" />
-<col style="width: 34%" />
-</colgroup>
-<thead>
-<tr>
-<th>Metric Pair</th>
-<th>Correlation (r)</th>
-<th>Interpretation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>PerfMean ↔︎ RI</td>
-<td><strong>-0.589</strong></td>
-<td>Higher rumination tends to reduce performance</td>
-</tr>
-<tr>
-<td>RI ↔︎ NDR</td>
-<td><strong>+0.92</strong></td>
-<td>Rumination and narrative dominance co-occur</td>
-</tr>
-<tr>
-<td>RT ↔︎ RI</td>
-<td><strong>+0.44</strong></td>
-<td>Slower recovery correlates with rumination</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li>PerfMean vs RI: <strong><span
+class="math inline"><em>r</em> = −0.589</span></strong>, higher
+rumination tends to reduce performance</li>
+<li>RI vs NDR: <strong><span
+class="math inline"><em>r</em> = +0.92</span></strong>, rumination and
+narrative dominance co-occur</li>
+<li>RT vs RI: <strong><span
+class="math inline"><em>r</em> = +0.44</span></strong>, slower recovery
+correlates with rumination</li>
+</ul>
 <p><strong>Key insight:</strong> Across controllers and scenarios,
 higher Rumination Index (RI) tends to reduce mean performance. However,
 some optimal controllers (e.g., LQR) can sustain high PerfMean while
@@ -1714,32 +1609,41 @@ rather than biological fidelity, and formal stability analysis (e.g.,
 Lyapunov proofs) remains future work. The current validation relies on
 empirical benchmarking across a wide range of conditions:</p>
 <ul>
-<li><strong>L1-L5:</strong> All ARC variants significantly outperform
-baselines (p &lt; 0.001 in all 25 comparisons)</li>
+<li><strong>L1â€“L5:</strong> ARC significantly outperforms
+<code>no_control</code> on PerfMean in each research line (p &lt; 0.001
+in the significance tests above).</li>
 <li><strong>Variance:</strong> ARC controllers show lower variance (more
 consistent behavior)</li>
-<li><strong>Scenario difficulty:</strong>
-<code>sustained_contradiction</code> is hardest (lowest ARC PerfMean:
-0.817); <code>gaslighting</code> is easiest (0.980)</li>
+<li><strong>Scenario difficulty:</strong> For ARC v1,
+<code>sustained_contradiction</code> is hardest (PerfMean 0.817) and
+<code>gaslighting</code> is easiest (0.980); across all controllers,
+<code>adversarial_coupling</code> has the lowest mean performance
+(0.568).</li>
 </ul>
-<figure>
-<img src="../analysis/sensitivity_controller.png"
-alt="Controller Performance Comparison" />
-<figcaption aria-hidden="true">Controller Performance
-Comparison</figcaption>
-</figure>
-<p><em>Figure 4: Performance distribution by controller type. ARC
-variants (blue) consistently outperform baselines (red) with smaller
-variance.</em></p>
+<p>Figure 6 summarizes aggregate controller behavior for a
+representative subset of baselines and ARC variants.</p>
+<p><img src="../analysis/sensitivity_controller.png"
+alt="Controller Performance Comparison" /> <em>Figure 6: Aggregate
+controller comparison for representative baselines and ARC variants.
+Panels report mean PerfMean, Rumination Index (RI), and Recovery Time
+(RT), with error bars showing <span class="math inline">±1</span> std
+across the full simulation suite (10 scenarios <span
+class="math inline">×</span> 20 seeds). This highlights the joint role
+of regulation in improving performance while reducing rumination and
+recovery failures.</em> <!-- LABEL:fig:sensitivity_controller --></p>
 <hr />
 <h3 id="controller-architecture-comparison">6.9 Controller Architecture
 Comparison</h3>
 <p>Beyond the basic proportional controller (ARC v1), we implemented and
 evaluated multiple control architectures inspired by classical and
-modern control theory. Table 3 summarizes results across all 15
-controllers (20 seeds × 10 scenarios; L1–L3, L5).</p>
-<p><strong>Table 3: Controller Architecture Comparison (20 seeds × 10
-scenarios)</strong></p>
+modern control theory. Table 12 summarizes results across all 15
+controllers (20 seeds <span class="math inline">×</span> 10 scenarios;
+L1-L3, L5). Figures 7-11 provide complementary visual summaries of
+performance, rumination, control effort, and the resulting trade-offs
+across the controller family.</p>
+<p><strong>Table 12: Controller Architecture Comparison (20 seeds <span
+class="math inline">×</span> 10 scenarios)</strong>
+<!-- LABEL:tab:architecture_comparison_full --></p>
 <table>
 <colgroup>
 <col style="width: 20%" />
@@ -1858,7 +1762,7 @@ scenarios)</strong></p>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>H∞ Robust</td>
+<td><span class="math inline"><em>H</em><sub>∞</sub></span> Robust</td>
 <td><strong>0.95</strong></td>
 <td><strong>0.00</strong></td>
 <td>0.18</td>
@@ -1892,8 +1796,9 @@ pathological loops.</li>
 stochastic environments but are fragile against adversaries.</li>
 <li><strong>Meta-control is most efficient</strong> (0.61 effort) while
 maintaining high performance</li>
-<li><strong>H∞ Robust achieves best balance</strong>: high performance
-(0.95) with zero rumination and moderate effort</li>
+<li><strong><span class="math inline"><em>H</em><sub>∞</sub></span>
+Robust achieves best balance</strong>: high performance (0.95) with zero
+rumination and moderate effort</li>
 <li><strong>Trade-off exists</strong> between performance and
 anti-rumination: integral controllers sacrifice ~5% performance to
 eliminate perseverative loops</li>
@@ -1903,61 +1808,89 @@ application context: high-stakes scenarios may favor robust controllers,
 while resource-constrained settings benefit from meta-control
 efficiency.</p>
 <h4 id="performance-comparison">6.9.1 Performance Comparison</h4>
+<p>Figure 7 reports mean performance with variability across all
+simulation runs for each controller architecture.</p>
 <figure>
 <img src="../figures_controllers/fig_controller_performance.png"
 alt="Controller Performance Comparison" />
 <figcaption aria-hidden="true">Controller Performance
 Comparison</figcaption>
 </figure>
-<p><em>Figure 5: Performance comparison across 15 controller
-architectures. LQR achieves highest performance (0.96), while baseline
-(no_control) shows catastrophic failure (0.21).</em></p>
+<p><em>Figure 7: Performance comparison across 15 controller
+architectures (mean PerfMean; 10 scenarios <span
+class="math inline">×</span> 20 seeds). Error bars show <span
+class="math inline">±1</span> std across runs. The dashed green line
+marks the target PerfMean (0.90); the dashed red line marks the
+<code>no_control</code> baseline mean.</em>
+<!-- LABEL:fig:controller_performance --></p>
 <h4 id="anti-rumination-analysis">6.9.2 Anti-Rumination Analysis</h4>
+<p>Figure 8 shows which controller families suppress perseverative
+dynamics (low RI) versus those that do not.</p>
 <figure>
 <img src="../figures_controllers/fig_controller_rumination.png"
 alt="Rumination Index by Controller" />
 <figcaption aria-hidden="true">Rumination Index by
 Controller</figcaption>
 </figure>
-<p><em>Figure 6: Rumination Index (RI) by controller. Controllers with
-integral action (PID/LQI) or robust/adaptive tuning achieve RI ≈ 0,
-eliminating perseverative loops.</em></p>
+<p><em>Figure 8: Rumination Index (RI) by controller architecture (mean
+RI; 10 scenarios <span class="math inline">×</span> 20 seeds). Error
+bars show <span class="math inline">±1</span> std across runs. The
+dashed orange line denotes a warning threshold (RI = 0.10). Lower values
+indicate fewer perseverative loops.</em>
+<!-- LABEL:fig:controller_rumination --></p>
 <h4 id="performance-vs-anti-rumination-trade-off">6.9.3 Performance vs
 Anti-Rumination Trade-off</h4>
+<p>Figure 9 visualizes the empirical trade-off surface between
+performance and anti-rumination, with control effort as a third
+axis.</p>
 <figure>
 <img src="../figures_controllers/fig_controller_tradeoff.png"
 alt="Trade-off Analysis" />
 <figcaption aria-hidden="true">Trade-off Analysis</figcaption>
 </figure>
-<p><em>Figure 7: Trade-off between performance and anti-rumination.
-Bubble size indicates control effort. H∞ Robust (dark teal) achieves
-optimal balance in the upper-left region.</em></p>
+<p><em>Figure 9: Trade-off between performance and anti-rumination
+across controllers. Each point is a controller (PerfMean vs RI); bubble
+size encodes ControlEffort. The upper-left region corresponds to high
+performance and low rumination. Reference lines show a target PerfMean
+(0.90) and a warning threshold (RI = 0.10).</em>
+<!-- LABEL:fig:controller_tradeoff --></p>
 <h4 id="control-efficiency">6.9.4 Control Efficiency</h4>
+<p>Figure 10 compares the amount of intervention required by each
+controller family.</p>
 <figure>
 <img src="../figures_controllers/fig_controller_effort.png"
 alt="Control Effort by Controller" />
 <figcaption aria-hidden="true">Control Effort by Controller</figcaption>
 </figure>
-<p><em>Figure 8: Control effort comparison. Meta-control (arc_v3_meta)
-achieves lowest effort (0.61), while PID has highest effort (2.40) due
-to aggressive integral action.</em></p>
+<p><em>Figure 10: ControlEffort by controller architecture (mean; 10
+scenarios <span class="math inline">×</span> 20 seeds). Error bars show
+<span class="math inline">±1</span> std across runs. Meta-control
+(<code>arc_v3_meta</code>) achieves the lowest non-zero effort while
+maintaining stability, while aggressive integral control increases
+effort due to sustained intervention.</em>
+<!-- LABEL:fig:controller_effort --></p>
 <h4 id="multi-metric-radar-analysis">6.9.5 Multi-Metric Radar
 Analysis</h4>
+<p>Figure 11 summarizes a multi-objective comparison of the
+top-performing controllers.</p>
 <figure>
 <img src="../figures_controllers/fig_controller_radar.png"
 alt="Radar Chart - Top 5 Controllers" />
 <figcaption aria-hidden="true">Radar Chart - Top 5
 Controllers</figcaption>
 </figure>
-<p><em>Figure 9: Multi-dimensional comparison of top 5 controllers. ARC
-Robust and ARC Ultimate achieve near-optimal values across all four
-dimensions.</em></p>
+<p><em>Figure 11: Multi-metric radar comparison of the top 5
+controllers. Axes summarize performance, anti-rumination (<span
+class="math inline">1 − <em>R</em><em>I</em></span>), low overshoot
+(<span class="math inline">1 − Overshoot</span>), and efficiency
+(inverse of ControlEffort). Larger area indicates a better overall
+balance across objectives.</em> <!-- LABEL:fig:controller_radar --></p>
 <hr />
 <h2 id="discussion">7. Discussion</h2>
 <h3 id="interpretation">7.1 Interpretation</h3>
 <p>Our results support the hypothesis that <strong>agents with internal
 affective states require explicit regulation</strong>. Without
-regulation, perturbations cause cascading failures—arousal drives
+regulation, perturbations cause cascading failures: arousal drives
 narrative gain toward saturation, degrading performance in a
 rumination-like loop.</p>
 <p>ARC breaks this loop through: 1. <strong>Proportional risk
@@ -1976,47 +1909,60 @@ consolidation</p>
 Trade-offs between Performance, Stability, and Complexity</h3>
 <p>Our deep analysis revealed four critical insights regarding the cost
 of stability and optimal control complexity:</p>
-<p><strong>1. The “Mental Health Tax”:</strong> The comparison between
-proportional controllers (ARC v1) and integral controllers (PID/LQI)
-reveals that eliminating rumination completely (RI=0) comes at a cost of
-approximately ~6.9% in raw performance. This suggests a fundamental
-trade-off: agents that are “obsessive” (risk-tolerant) may perform
-slightly better in the short term, but “healthy” agents (integral
-control) guarantee long-term stability.</p>
-<p><strong>2. The True “Final Boss”:</strong> Contrary to the assumption
-that noise is the main stressor, the <code>adversarial_coupling</code>
-scenario proved to be the hardest test (lowest global performance:
-0.56). This implies that resisting manipulation (environments that
-incentivize dangerous internal states) is significantly harder for
-agents than resisting uncertainty or shock.</p>
-<p><strong>3. The Complexity Trap:</strong> Our most complex controller,
-<code>arc_ultimate</code> (MPC), underperformed the simpler architecture
-<code>arc_robust</code> (0.88 vs 0.94 performance) and required higher
-control effort. This suggests that for homeostatic regulation, robust
-reactive control is superior to complex predictive modeling—“smarter” is
-not always safer.</p>
+<p><strong>1. Performanceâ€“Regulation Trade-off:</strong> Across the
+full 10-scenario simulation suite, integral control can drive rumination
+essentially to zero (e.g., PID: RI=0) at the cost of lower mean
+performance (PerfMean 0.870 vs 0.934 for ARC v1; a 6.9% drop). This
+trade-off is not universal: robust regulation (e.g.,
+<code>arc_robust</code>) achieves both high performance (PerfMean 0.948)
+and RI=0 by avoiding windup under adversarial incentives.</p>
+<p><strong>2. Adversarial Incentives Are the Hardest Stressor:</strong>
+Across all controller families, <code>adversarial_coupling</code> has
+the lowest mean performance (0.568), exposing failures where control
+actions are directly rewarded (incentive misalignment) rather than
+penalized. This suggests that resisting manipulation-like incentives can
+be harder than resisting noise or shock.</p>
+<p><strong>3. Complexity vs. Robustness:</strong> Our most complex
+controller, <code>arc_ultimate</code> (MPC), underperformed the simpler
+<code>arc_robust</code> on average (PerfMean 0.886 vs 0.948) while
+requiring higher control effort (1.33 vs 1.03). In this benchmark,
+robust reactive control provides a better safetyâ€“performance balance
+than heavyweight predictive modeling.</p>
 <p><strong>4. The Adaptation Paradox and Persistence of
 Excitation:</strong> We observed that <code>arc_adaptive</code> performs
 poorly in the “No Perturbation” baseline but excels in chaotic
 environments. This illustrates the classic <strong>persistence of
-excitation</strong> problem (Åström &amp; Murray, 2008): in benign
+excitation</strong> problem (Ã…strÃ¶m &amp; Murray, 2008): in benign
 environments, lack of variation prevents the estimator from identifying
 correct parameters, leading to control drift. Noisy environments
 paradoxically stabilize the adaptive controller by providing necessary
 excitation.</p>
-<h3 id="limitations">7.4 Limitations</h3>
+<h3 id="limitations-and-threats-to-validity">7.4 Limitations and Threats
+to Validity</h3>
 <p>While ARC demonstrates strong empirical results, several limitations
-deserve discussion:</p>
+and threats to validity deserve discussion.</p>
 <ol type="1">
-<li><p><strong>Simplified Dynamics:</strong> Our 10-dimensional
-state-space model abstracts the complexity of real neurochemical
-interactions. Biological affective systems involve non-linear,
-stochastic, and multi-timescale dynamics that our linear approximations
-do not fully capture.</p></li>
-<li><p><strong>Scalability to Large Models:</strong> We validated ARC on
-tabular Q-learning agents. Extending to deep RL (DQN, PPO) or large
-language models (LLMs) with emergent affective-like states remains an
-open challenge. In particular:</p>
+<li><p><strong>Construct validity (proxy variables and
+metrics):</strong> Our 10-dimensional state-space model abstracts the
+complexity of real neurochemical interactions. The variables (e.g.,
+“arousal,” “valence,” “narrative intensity”) are engineering proxies,
+not psychological measurements; likewise, the safety metrics (RI, NDR,
+RT) capture stability properties of this specific dynamical system.
+Claims about human affect should not be inferred from these proxies
+(Section 1.3).</p></li>
+<li><p><strong>Internal validity (methodological confounds):</strong> In
+L6, ARC improves transfer via a combination of memory gating and an
+explicit shift-detection-triggered <span
+class="math inline"><em>ϵ</em>/<em>α</em></span> boost. Our ablation
+results (Section 6.7) demonstrate that shift detection is the dominant
+factor for performance in non-stationary goals, while memory gating acts
+as a conservative stabilizer. The interaction between these mechanisms
+is environment-dependent, and the reported +49.8% reflects the
+integrated system’s performance.</p></li>
+<li><p><strong>External validity (generalization):</strong> We validated
+ARC on tabular Q-learning agents. Extending to deep RL (DQN, PPO) or
+large language models (LLMs) with emergent affective-like states remains
+an open challenge. In particular:</p>
 <ul>
 <li><strong>Computational overhead:</strong> ARC adds 5 control signals
 per time step; for LLMs the relative cost may be small, but integration
@@ -2025,18 +1971,32 @@ into transformer-based architectures requires additional work.</li>
 state variables may need to be inferred from high-dimensional
 observations rather than directly observed.</li>
 </ul></li>
-<li><p><strong>Environment Complexity:</strong> L6 is validated in
+<li><p><strong>Environment complexity:</strong> L6 is validated in
 GridWorld variants. While these capture key non-stationarity challenges,
 real-world environments (Atari, robotics) introduce additional issues
 such as visual processing and partial observability.</p></li>
-<li><p><strong>Fixed vs. Learned Control:</strong> All ARC controllers
+<li><p><strong>Fixed vs. learned control:</strong> All ARC controllers
 use hand-designed gains. End-to-end learning of control parameters
 (e.g., via reinforcement meta-learning) could yield more adaptive
 solutions.</p></li>
-<li><p><strong>Threshold Sensitivity:</strong> Safety thresholds
-(<code>a_safe</code>, <code>s_safe</code>) are tuned empirically.
-Automatic, context-dependent threshold adaptation is a promising
-direction.</p></li>
+<li><p><strong>Statistical validity and reporting:</strong> Recovery
+Time (RT) is capped at <code>rt_max</code> when the strict recovery
+criterion is not met; this should be interpreted as “no recovery within
+the evaluation window,” not as a measured recovery time (Appendix D.2).
+Effect sizes for RI can become numerically extreme when one group has
+near-zero variance (Table 11); we report these values, but readers
+should focus on the underlying distributions and the binary fact that
+ARC can drive RI to zero in several lines.</p></li>
+<li><p><strong>Threshold sensitivity:</strong> Safety thresholds (<span
+class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>, <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>)
+were tuned empirically. However, a grid sweep sensitivity analysis on
+the <code>reward_flip</code> scenario demonstrated that system stability
+(PerfMean and RI) remains remarkably robust across a wide range of
+thresholds (<span
+class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>, <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub> ∈ [0.4, 0.8]</span>),
+indicating that precise tuning is not a prerequisite for effective
+regulation in basic scenarios. Context-dependent threshold adaptation
+remains a promising direction for more dynamic environments.</p></li>
 </ol>
 <hr />
 <h3 id="future-work">7.5 Future Work</h3>
@@ -2092,34 +2052,34 @@ affective components.</p>
 <h2 id="references">References</h2>
 <ul>
 <li>Achiam, J., Held, D., Tamar, A., &amp; Abbeel, P. (2017).
-Constrained Policy Optimization. ICML 2017, 22–31.
+Constrained Policy Optimization. ICML 2017, 22â€“31.
 arXiv:1705.10528.</li>
 <li>Altman, E. (1999). Constrained Markov Decision Processes. Chapman
 &amp; Hall/CRC.</li>
 <li>Amodei, D., et al. (2016). Concrete problems in AI safety.
 arXiv:1606.06565.</li>
-<li>Åström, K.J. &amp; Murray, R.M. (2008). Feedback Systems: An
+<li>Ã…strÃ¶m, K.J. &amp; Murray, R.M. (2008). Feedback Systems: An
 Introduction for Scientists and Engineers. Princeton University
 Press.</li>
 <li>Baars, B.J. (1988). A Cognitive Theory of Consciousness.
 Cambridge.</li>
 <li>Buckner, R.L., Andrews-Hanna, J.R. &amp; Schacter, D.L. (2008). The
 brain’s default network: anatomy, function, and relevance to disease.
-Annals of the New York Academy of Sciences, 1124.</li>
+Annals of the New York Academy of Sciences, 1124(1), 1â€“38.</li>
 <li>Carver, C.S. &amp; Scheier, M.F. (1982). Control theory: A useful
 conceptual framework for personality-social, clinical, and health
-psychology. Psychological Bulletin, 92(1), 111–135.</li>
+psychology. Psychological Bulletin, 92(1), 111â€“135.</li>
 <li>Damasio, A.R. (1994). Descartes’ Error. Putnam.</li>
-<li>Friston, K. (2010). The free-energy principle. Nature Reviews
-Neuroscience, 11(2).</li>
-<li>Garcia, J. &amp; Fernández, F. (2015). A comprehensive survey on
+<li>Friston, K. (2010). The free-energy principle: a unified brain
+theory? Nature Reviews Neuroscience, 11(2), 127â€“138.</li>
+<li>Garcia, J. &amp; FernÃ¡ndez, F. (2015). A comprehensive survey on
 safe reinforcement learning. Journal of Machine Learning Research, 16,
-1437–1480.</li>
+1437â€“1480.</li>
 <li>Gross, J.J. (1998). The emerging field of emotion regulation: An
-integrative review. Review of General Psychology, 2(3), 271–299.</li>
+integrative review. Review of General Psychology, 2(3), 271â€“299.</li>
 <li>Hamilton, J.P., Farmer, M., Fogelman, P. &amp; Gotlib, I.H. (2015).
 Depressive rumination, the default-mode network, and the dark matter of
-clinical neuroscience. Biological Psychiatry, 78(4), 224–230.</li>
+clinical neuroscience. Biological Psychiatry, 78(4), 224â€“230.</li>
 <li>Ji, J., et al. (2023). Safety-Gymnasium: A Unified Safe
 Reinforcement Learning Benchmark. arXiv:2310.12567.</li>
 <li>Keramati, M. &amp; Gutkin, B. (2014). Homeostatic reinforcement
@@ -2131,60 +2091,60 @@ arXiv:1711.09883.</li>
 <li>Lucas, C., Shahmirzadi, D., &amp; Sheikholeslami, N. (2004).
 Introducing Belbic: Brain Emotional Learning Based Intelligent
 Controller. Intelligent Automation &amp; Soft Computing, 10(1),
-11–21.</li>
+11â€“21.</li>
 <li>Moerland, T.M., Broekens, J., &amp; Jonker, C.M. (2018). Emotion in
 reinforcement learning agents and robots: a survey. Machine Learning,
-107(2), 443–480.</li>
+107(2), 443â€“480.</li>
 <li>Ochsner, K.N. &amp; Gross, J.J. (2005). The cognitive control of
-emotion. TICS, 9(5).</li>
+emotion. Trends in Cognitive Sciences, 9(5), 242â€“249.</li>
 <li>Picard, R.W. (1997). Affective Computing. MIT Press.</li>
 <li>Raichle, M.E., et al. (2001). A default mode of brain function.
-Proceedings of the National Academy of Sciences, 98(2), 676–682.</li>
+Proceedings of the National Academy of Sciences, 98(2), 676â€“682.</li>
 <li>Ray, A., Achiam, J., &amp; Amodei, D. (2019). Benchmarking Safe
 Exploration in Deep Reinforcement Learning. Safety Gym benchmark suite.
 https://github.com/openai/safety-gym.</li>
 <li>Russell, J.A. (1980). A circumplex model of affect. Journal of
-Personality and Social Psychology, 39(6), 1161–1178.</li>
+Personality and Social Psychology, 39(6), 1161â€“1178.</li>
 <li>Scherer, K.R., et al. (2010). Blueprint for Affective Computing.
 Oxford.</li>
 <li>Sutton, R.S. &amp; Barto, A.G. (2018). Reinforcement Learning: An
 Introduction (2nd ed.). MIT Press.</li>
-<li>Tononi, G. (2008). Consciousness as integrated information.
-Biological Bulletin, 215(3).</li>
+<li>Tononi, G. (2008). Consciousness as integrated information: a
+provisional manifesto. The Biological Bulletin, 215(3), 216â€“242.</li>
 <li>Wachi, A., Shen, X., &amp; Sui, Y. (2024). A Survey of Constraint
 Formulations in Safe Reinforcement Learning. IJCAI 2024.
 arXiv:2402.02025.</li>
 <li>Watkins, C.J.C.H. &amp; Dayan, P. (1992). Q-learning. Machine
-Learning, 8, 279–292.</li>
+Learning, 8, 279â€“292.</li>
 </ul>
 <hr />
 <h2 id="appendix-a-reproducibility">Appendix A: Reproducibility</h2>
-<p>Reproducibility checklist: - [ ] Install dependencies
-(<code>pip install -r requirements.txt</code>) - [ ] Run L1–L5
-simulation benchmark (generates <code>outputs_final/metrics.csv</code>)
-- [ ] Generate controller comparison figures (writes to
-<code>figures_controllers/</code>) - [ ] Run ablation study (writes to
-<code>outputs_ablation/</code>) - [ ] Run L6 RL validation (writes to
-<code>outputs_L6_robust/</code>) - [ ] Generate L6 figures (writes to
+<p>Reproducibility checklist: - Install dependencies
+(<code>pip install -r requirements.txt</code>) - Run L1â€“L5 simulation
+benchmark (generates <code>outputs_final/metrics.csv</code>) - Generate
+controller comparison figures (writes to
+<code>figures_controllers/</code>) - Run ablation study (writes to
+<code>outputs_ablation/</code>) - Run L6 RL validation (writes to
+<code>outputs_L6_robust/</code>) - Generate L6 figures (writes to
 <code>figures_L6/</code>)</p>
 <p>All experiments can be reproduced with:</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install dependencies</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install <span class="at">-r</span> requirements.txt</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># L1-L5: Simulation benchmark (15 controllers × 10 scenarios)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># L1-L5: Simulation benchmark (15 controllers x 10 scenarios)</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> experiments/run.py <span class="at">--config</span> configs/v2.yaml <span class="at">--outdir</span> outputs_final</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Controller architecture figures (Table 3, Figures 4–8)</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Controller architecture figures (Figures 7-11; Table 12; Section 6.9)</span></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> analysis/generate_controller_figures.py</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ablation study (ARC components; Figure 2)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Ablation study (ARC components; Figure 4)</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> experiments/run_ablation.py <span class="at">--config</span> configs/v2.yaml <span class="at">--outdir</span> outputs_ablation <span class="at">--seeds</span> 20</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># L6: RL validation (20 seeds)</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> experiments/run_l6.py <span class="at">--episodes</span> 200 <span class="at">--seeds</span> 20 <span class="at">--outdir</span> outputs_L6_robust</span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># L6 figures (Figure 3; Appendix E)</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="co"># L6 figures (Figure 5; Appendix E)</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> visualizations/paper_figures.py <span class="at">--data</span> outputs_L6_robust <span class="at">--output</span> figures_L6</span></code></pre></div>
 <p>Code and data available at:
 https://github.com/edamianreynoso/arc-assb-controller</p>
@@ -2299,9 +2259,12 @@ alt="Bar chart comparing Final Reward, Success Rate, and Mean Arousal between AR
 <figcaption aria-hidden="true">Bar chart comparing Final Reward, Success
 Rate, and Mean Arousal between ARC and Baseline</figcaption>
 </figure>
-<p><em>Final metrics comparison showing ARC’s advantage in
-ChangingGoalGridWorld (transfer learning). Stars indicate winner per
-metric.</em></p>
+<p><em>Final metrics comparison for L6 across three GridWorld
+environments. Panels report final reward, success rate, and mean arousal
+for ARC-modulated vs baseline Q-learning; success rate is computed over
+the last 20% of training episodes. Baseline arousal is shown as 0
+because the baseline agent has no internal arousal state.</em>
+<!-- LABEL:fig:s1_metrics_comparison --></p>
 <hr />
 <h3 id="figure-s2-state-dynamics">Figure S2: State Dynamics</h3>
 <figure>
@@ -2310,9 +2273,14 @@ alt="Four-panel plot showing Reward, Success Rate, Arousal, and Episode Length o
 <figcaption aria-hidden="true">Four-panel plot showing Reward, Success
 Rate, Arousal, and Episode Length over time</figcaption>
 </figure>
-<p><em>State dynamics in ChangingGoalGridWorld: (top-left) reward per
-episode, (top-right) rolling success rate, (bottom-left) ARC arousal
-with safe threshold, (bottom-right) episode length.</em></p>
+<p><em>State dynamics in ChangingGoalGridWorld (single representative
+seed). Panels show (top-left) reward per episode, (top-right) 10-episode
+rolling success rate, (bottom-left) ARC arousal with the safety
+threshold <span
+class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub> = 0.60</span>,
+and (bottom-right) episode length (steps). This illustrates how ARC
+maintains bounded arousal while adapting to non-stationary goal
+changes.</em> <!-- LABEL:fig:s2_state_dynamics --></p>
 <hr />
 <h3 id="figure-s3-heatmap-perfmean">Figure S3: Heatmap (PerfMean)</h3>
 <figure>
@@ -2321,9 +2289,10 @@ alt="Heatmap of PerfMean across 15 controllers and 10 scenarios" />
 <figcaption aria-hidden="true">Heatmap of PerfMean across 15 controllers
 and 10 scenarios</figcaption>
 </figure>
-<p><em>PerfMean aggregated as mean across 20 seeds for each
-controller×scenario pair (data:
-<code>outputs_final/metrics.csv</code>).</em></p>
+<p><em>PerfMean heatmap across 15 controllers and 10 scenarios (mean
+across 20 seeds per controllerâ€“scenario pair; data:
+<code>outputs_final/metrics.csv</code>). Darker green indicates higher
+performance.</em> <!-- LABEL:fig:s3_heatmap_perfmean --></p>
 <hr />
 <h3 id="figure-s4-heatmap-rumination-index">Figure S4: Heatmap
 (Rumination Index)</h3>
@@ -2333,9 +2302,10 @@ alt="Heatmap of Rumination Index (RI) across 15 controllers and 10 scenarios" />
 <figcaption aria-hidden="true">Heatmap of Rumination Index (RI) across
 15 controllers and 10 scenarios</figcaption>
 </figure>
-<p><em>RI aggregated as mean across 20 seeds for each
-controller×scenario pair (data:
-<code>outputs_final/metrics.csv</code>).</em></p>
+<p><em>Rumination Index (RI) heatmap across 15 controllers and 10
+scenarios (mean across 20 seeds per controllerâ€“scenario pair; data:
+<code>outputs_final/metrics.csv</code>). Lower values indicate fewer
+perseverative loops.</em> <!-- LABEL:fig:s4_heatmap_ri --></p>
 <hr />
 <h3 id="figure-s5-heatmap-recovery-time">Figure S5: Heatmap (Recovery
 Time)</h3>
@@ -2345,9 +2315,11 @@ alt="Heatmap of Recovery Time (RT) across 15 controllers and 10 scenarios" />
 <figcaption aria-hidden="true">Heatmap of Recovery Time (RT) across 15
 controllers and 10 scenarios</figcaption>
 </figure>
-<p><em>RT aggregated as mean across 20 seeds for each
-controller×scenario pair (data:
-<code>outputs_final/metrics.csv</code>).</em></p>
+<p><em>Recovery Time (RT) heatmap across 15 controllers and 10 scenarios
+(mean across 20 seeds per controllerâ€“scenario pair; data:
+<code>outputs_final/metrics.csv</code>). Values at <code>rt_max</code>
+indicate no recovery under the strict criterion within the evaluation
+window (Appendix D.2).</em> <!-- LABEL:fig:s5_heatmap_rt --></p>
 <hr />
 <h3 id="figure-s6-heatmap-control-effort">Figure S6: Heatmap (Control
 Effort)</h3>
@@ -2357,9 +2329,10 @@ alt="Heatmap of Control Effort across 15 controllers and 10 scenarios" />
 <figcaption aria-hidden="true">Heatmap of Control Effort across 15
 controllers and 10 scenarios</figcaption>
 </figure>
-<p><em>ControlEffort aggregated as mean across 20 seeds for each
-controller×scenario pair (data:
-<code>outputs_final/metrics.csv</code>).</em></p>
+<p><em>ControlEffort heatmap across 15 controllers and 10 scenarios
+(mean across 20 seeds per controllerâ€“scenario pair; data:
+<code>outputs_final/metrics.csv</code>). Lower values indicate less
+intervention per step.</em> <!-- LABEL:fig:s6_heatmap_effort --></p>
 <hr />
 <h3 id="figure-s7-correlation-heatmap">Figure S7: Correlation
 Heatmap</h3>
@@ -2370,9 +2343,11 @@ alt="Correlation Matrix of Metrics" />
 Metrics</figcaption>
 </figure>
 <p><em>Correlation heatmap aggregated across all experimental runs
-(L1–L5 + L4_meta), computed from concatenated run-level metrics CSVs
-(see <code>experiments/analyze_correlations.py</code>). Brighter colors
-indicate stronger positive correlations.</em></p>
+(L1-L5 + L4_meta), computed from concatenated run-level metrics (see
+<code>experiments/analyze_correlations.py</code>). Values are Pearson
+correlations; red indicates positive correlation and blue indicates
+negative correlation.</em>
+<!-- LABEL:fig:s7_correlation_combined --></p>
 <p><strong>Key Observations:</strong> 1. <strong>Rumination
 vs. Performance:</strong> A strong negative correlation (<strong>r =
 -0.59</strong>) shows that higher Rumination Index (RI) tends to reduce
@@ -2382,8 +2357,9 @@ capacity term. 2. <strong>Recovery vs. Rumination:</strong> The positive
 correlation (<strong>r = +0.44</strong>) between Recovery Time (RT) and
 RI supports H1, indicating that perseverative loops prolong the return
 to homeostasis. 3. <strong>Narrative Dominance:</strong> NDR shows a
-very strong correlation with RI (<strong>r ≈ +0.92</strong>), supporting
-its use as a proxy for DMN-driven rumination.</p>
+very strong correlation with RI (<strong>r <span
+class="math inline">≈</span> +0.92</strong>), supporting its use as a
+proxy for DMN-driven rumination.</p>
 <hr />
 <h3 id="figure-s8-efficiency-comparison-fast-convergence">Figure S8:
 Efficiency Comparison (Fast Convergence)</h3>
@@ -2394,10 +2370,12 @@ alt="Learning speed comparison: both reach 100% success, but ARC converges faste
 100% success, but ARC converges faster in benign
 environments</figcaption>
 </figure>
-<p><em>Efficiency comparison in GridWorld and StochasticGridWorld. Both
-agents reach 100% success, but ARC converges faster (higher reward
-earlier), indicating improved learning efficiency even when asymptotic
-success is identical.</em></p>
+<p><em>Learning efficiency comparison in GridWorld and
+StochasticGridWorld. Curves show mean episode reward over 200 episodes
+for ARC-modulated vs baseline Q-learning, with shaded regions indicating
+<span class="math inline">±1</span> std across 20 seeds. Both reach 100%
+success, but ARC converges faster (higher reward earlier).</em>
+<!-- LABEL:fig:s8_efficiency_comparison --></p>
 <hr />
 <h3 id="figure-s9-scenario-difficulty-analysis">Figure S9: Scenario
 Difficulty Analysis</h3>
@@ -2408,9 +2386,13 @@ alt="Scenario Difficulty Analysis: performance, rumination index, and recovery t
 performance, rumination index, and recovery time by
 scenario</figcaption>
 </figure>
-<p><em>Scenario-level analysis (ARC only): performance, rumination, and
-recovery time vary substantially by stressor type; adversarial coupling
-and sustained contradiction are among the hardest conditions.</em></p>
+<p><em>Scenario difficulty analysis for ARC v1 across the full
+simulation suite. Panels show mean PerfMean, RI, and RT per scenario
+with error bars indicating <span class="math inline">±1</span> std
+across 20 seeds. This highlights that difficulty depends on which
+safety/stability metric is considered (e.g., some stressors preserve
+performance while inducing recovery failures under the strict RT
+definition).</em> <!-- LABEL:fig:s9_scenario_difficulty --></p>
 <hr />
 <h3 id="figure-s10-variance-sensitivity">Figure S10: Variance
 Sensitivity</h3>
@@ -2420,9 +2402,11 @@ alt="Variance sensitivity analysis: performance distribution across controllers 
 <figcaption aria-hidden="true">Variance sensitivity analysis:
 performance distribution across controllers and scenarios</figcaption>
 </figure>
-<p><em>Variance analysis across seeds. Lower variance indicates more
-reliable behavior; ARC controllers generally exhibit tighter performance
-distributions than baselines.</em></p>
+<p><em>Variance sensitivity analysis across seeds for representative
+controllers. Box plots show the distribution of PerfMean across all
+simulation runs for each controller; tighter distributions indicate more
+reliable behavior across scenarios and seeds.</em>
+<!-- LABEL:fig:s10_variance_sensitivity --></p>
 <hr />
 <h3 id="figure-s11-metric-correlations-l1">Figure S11: Metric
 Correlations (L1)</h3>
@@ -2431,7 +2415,9 @@ Correlations (L1)</h3>
 alt="Metric Correlations - L1" />
 <figcaption aria-hidden="true">Metric Correlations - L1</figcaption>
 </figure>
-<p><em>Correlation heatmap for L1 runs only (stability line).</em></p>
+<p><em>Pearson correlation heatmap for L1 runs only (stability line),
+computed from run-level metrics across controllers, scenarios, and
+seeds.</em> <!-- LABEL:fig:s11_corr_l1 --></p>
 <hr />
 <h3 id="figure-s12-metric-correlations-l2">Figure S12: Metric
 Correlations (L2)</h3>
@@ -2440,8 +2426,10 @@ Correlations (L2)</h3>
 alt="Metric Correlations - L2" />
 <figcaption aria-hidden="true">Metric Correlations - L2</figcaption>
 </figure>
-<p><em>Correlation heatmap for L2 runs only (memory &amp; continual
-learning line).</em></p>
+<p><em>Pearson correlation heatmap for L2 runs only (memory &amp;
+continual learning line), computed from run-level metrics across
+controllers, scenarios, and seeds.</em>
+<!-- LABEL:fig:s12_corr_l2 --></p>
 <hr />
 <h3 id="figure-s13-metric-correlations-l3">Figure S13: Metric
 Correlations (L3)</h3>
@@ -2450,8 +2438,9 @@ Correlations (L3)</h3>
 alt="Metric Correlations - L3" />
 <figcaption aria-hidden="true">Metric Correlations - L3</figcaption>
 </figure>
-<p><em>Correlation heatmap for L3 runs only (anti-rumination stress
-tests line).</em></p>
+<p><em>Pearson correlation heatmap for L3 runs only (anti-rumination
+stress tests line), computed from run-level metrics across controllers,
+scenarios, and seeds.</em> <!-- LABEL:fig:s13_corr_l3 --></p>
 <hr />
 <h3 id="figure-s14-metric-correlations-l4">Figure S14: Metric
 Correlations (L4)</h3>
@@ -2460,8 +2449,9 @@ Correlations (L4)</h3>
 alt="Metric Correlations - L4" />
 <figcaption aria-hidden="true">Metric Correlations - L4</figcaption>
 </figure>
-<p><em>Correlation heatmap for L4 runs only (meta-control efficiency
-line).</em></p>
+<p><em>Pearson correlation heatmap for L4 runs only (meta-control
+efficiency line), computed from run-level metrics across controllers,
+scenarios, and seeds.</em> <!-- LABEL:fig:s14_corr_l4 --></p>
 <hr />
 <h3 id="figure-s15-metric-correlations-l4-meta-control">Figure S15:
 Metric Correlations (L4 Meta-Control)</h3>
@@ -2471,8 +2461,9 @@ alt="Metric Correlations - L4 Meta" />
 <figcaption aria-hidden="true">Metric Correlations - L4
 Meta</figcaption>
 </figure>
-<p><em>Correlation heatmap for meta-control-focused runs
-(L4_meta).</em></p>
+<p><em>Pearson correlation heatmap for meta-control-focused runs
+(L4_meta), computed from run-level metrics across controllers,
+scenarios, and seeds.</em> <!-- LABEL:fig:s15_corr_l4_meta --></p>
 <hr />
 <h3 id="figure-s16-metric-correlations-l5">Figure S16: Metric
 Correlations (L5)</h3>
@@ -2481,13 +2472,17 @@ Correlations (L5)</h3>
 alt="Metric Correlations - L5" />
 <figcaption aria-hidden="true">Metric Correlations - L5</figcaption>
 </figure>
-<p><em>Correlation heatmap for L5 runs only (adversarial safety
-line).</em></p>
+<p><em>Pearson correlation heatmap for L5 runs only (adversarial safety
+line), computed from run-level metrics across controllers, scenarios,
+and seeds.</em> <!-- LABEL:fig:s16_corr_l5 --></p>
 <hr />
 <h2 id="appendix-f-configuration-parameters">Appendix F: Configuration
 Parameters</h2>
 <p>Default parameters used in all experiments (from
 <code>configs/v2.yaml</code>):</p>
+<p><strong>Table F1: Default configuration parameters used in
+experiments (<code>configs/v2.yaml</code>).</strong>
+<!-- LABEL:tab:f1_config --></p>
 <table>
 <thead>
 <tr>
@@ -2513,13 +2508,18 @@ Parameters</h2>
 <td>Rumination threshold</td>
 </tr>
 <tr>
+<td>rt_max</td>
+<td>100</td>
+<td>Max recovery time cap (RT)</td>
+</tr>
+<tr>
 <td>arc_w_u</td>
 <td>0.40</td>
 <td>Weight for uncertainty in risk</td>
 </tr>
 <tr>
 <td>arc_w_a</td>
-<td>0.30</td>
+<td>0.40</td>
 <td>Weight for arousal in risk</td>
 </tr>
 <tr>
@@ -2543,6 +2543,36 @@ Parameters</h2>
 <td>Attention boost gain</td>
 </tr>
 <tr>
+<td>omega_s</td>
+<td>0.35</td>
+<td>Narrative boost factor in Perf</td>
+</tr>
+<tr>
+<td>w_u</td>
+<td>0.25</td>
+<td>Uncertainty penalty weight in Perf</td>
+</tr>
+<tr>
+<td>w_a</td>
+<td>0.30</td>
+<td>Arousal penalty weight in Perf</td>
+</tr>
+<tr>
+<td>w_s</td>
+<td>0.20</td>
+<td>Narrative penalty weight in Perf</td>
+</tr>
+<tr>
+<td>perf_bias</td>
+<td>0.25</td>
+<td>Baseline performance term</td>
+</tr>
+<tr>
+<td>perf_gain</td>
+<td>0.85</td>
+<td>Cognitive capacity gain term</td>
+</tr>
+<tr>
 <td>horizon</td>
 <td>160</td>
 <td>Episode length (simulation)</td>
@@ -2557,1205 +2587,1301 @@ Parameters</h2>
 <hr />
 <h2 id="appendix-g-detailed-benchmark-results">Appendix G: Detailed
 Benchmark Results</h2>
-<p>This appendix provides full performance data for all 15 controller
-architectures across validated scenarios. Tables below compare
-Performance (Perf), Rumination Index (RI), Narrative Dominance (NDR),
-Recovery Time (RecovTime), and Control Effort (Effort).</p>
+<p>This appendix provides scenario-level results for all 15 controller
+architectures across validated scenarios (mean across 20 seeds per
+scenario unless noted). We report PerfMean, Rumination Index (RI),
+Narrative Dominance Ratio (NDR), Recovery Time (RT; capped at
+<code>rt_max</code>, where RT = <code>rt_max</code> indicates no
+recovery under the strict criterion within the evaluation window), and
+ControlEffort.</p>
 <h3 id="g.1-line-1-stability-value-shocks-and-uncertainty">G.1 Line 1:
 Stability (Value Shocks and Uncertainty)</h3>
 <p><strong>Scenario: Reward Flip</strong></p>
+<p><strong>Table G1: Detailed results for L1 / <code>reward_flip</code>
+(mean across 20 seeds).</strong> <!-- LABEL:tab:g1_reward_flip --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>RecovTime</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">RT</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.998</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.587</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.587</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.995</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.027</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.027</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.994</td>
-<td>1.377</td>
-<td>4.300</td>
-<td>0.390</td>
+<td style="text-align: right;">0.994</td>
+<td style="text-align: right;">1.377</td>
+<td style="text-align: right;">4.300</td>
+<td style="text-align: right;">0.390</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.994</td>
-<td>1.386</td>
-<td>0.000</td>
-<td>0.494</td>
+<td style="text-align: right;">0.994</td>
+<td style="text-align: right;">1.386</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.494</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.994</td>
-<td>0.000</td>
-<td>3.450</td>
-<td>0.508</td>
+<td style="text-align: right;">0.994</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">3.450</td>
+<td style="text-align: right;">0.508</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.994</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.744</td>
+<td style="text-align: right;">0.994</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.744</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.993</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.353</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.353</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.991</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.773</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.773</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.991</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.784</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.784</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.991</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.257</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.257</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.978</td>
-<td>0.000</td>
-<td>1.900</td>
-<td>1.257</td>
+<td style="text-align: right;">0.978</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.900</td>
+<td style="text-align: right;">1.257</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.880</td>
-<td>1.394</td>
-<td>100.000</td>
-<td>0.700</td>
+<td style="text-align: right;">0.880</td>
+<td style="text-align: right;">1.394</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.859</td>
-<td>1.407</td>
-<td>95.050</td>
-<td>0.492</td>
+<td style="text-align: right;">0.859</td>
+<td style="text-align: right;">1.407</td>
+<td style="text-align: right;">95.050</td>
+<td style="text-align: right;">0.492</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.508</td>
-<td>1.408</td>
-<td>0.050</td>
-<td>0.149</td>
+<td style="text-align: right;">0.508</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">0.149</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.415</td>
-<td>1.408</td>
-<td>100.000</td>
-<td>0.000</td>
+<td style="text-align: right;">0.415</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Scenario: Noise Burst</strong></p>
+<p><strong>Table G2: Detailed results for L1 / <code>noise_burst</code>
+(mean across 20 seeds).</strong> <!-- LABEL:tab:g2_noise_burst --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>RecovTime</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">RT</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.998</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.605</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.605</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.995</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.106</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.106</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.993</td>
-<td>0.000</td>
-<td>1.300</td>
-<td>0.785</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.300</td>
+<td style="text-align: right;">0.785</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.993</td>
-<td>0.051</td>
-<td>25.000</td>
-<td>0.399</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.051</td>
+<td style="text-align: right;">25.000</td>
+<td style="text-align: right;">0.399</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.993</td>
-<td>1.386</td>
-<td>1.250</td>
-<td>0.566</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">1.386</td>
+<td style="text-align: right;">1.250</td>
+<td style="text-align: right;">0.566</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.991</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.905</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.905</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.991</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.915</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.915</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.991</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.257</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.257</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.989</td>
-<td>0.000</td>
-<td>32.100</td>
-<td>0.550</td>
+<td style="text-align: right;">0.989</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">32.100</td>
+<td style="text-align: right;">0.550</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.987</td>
-<td>1.263</td>
-<td>33.050</td>
-<td>0.444</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">1.263</td>
+<td style="text-align: right;">33.050</td>
+<td style="text-align: right;">0.444</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.972</td>
-<td>0.000</td>
-<td>29.500</td>
-<td>1.290</td>
+<td style="text-align: right;">0.972</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">29.500</td>
+<td style="text-align: right;">1.290</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.880</td>
-<td>1.394</td>
-<td>100.000</td>
-<td>0.700</td>
+<td style="text-align: right;">0.880</td>
+<td style="text-align: right;">1.394</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.848</td>
-<td>1.407</td>
-<td>100.000</td>
-<td>0.585</td>
+<td style="text-align: right;">0.848</td>
+<td style="text-align: right;">1.407</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.585</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.365</td>
-<td>1.408</td>
-<td>100.000</td>
-<td>0.177</td>
+<td style="text-align: right;">0.365</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.177</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.259</td>
-<td>1.408</td>
-<td>100.000</td>
-<td>0.000</td>
+<td style="text-align: right;">0.259</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Scenario: Sudden Threat</strong></p>
+<p><strong>Table G3: Detailed results for L1 /
+<code>sudden_threat</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g3_sudden_threat --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>RecovTime</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">RT</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.989</td>
-<td>0.013</td>
-<td>0.000</td>
-<td>1.707</td>
+<td style="text-align: right;">0.989</td>
+<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.707</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.968</td>
-<td>0.010</td>
-<td>0.000</td>
-<td>1.298</td>
+<td style="text-align: right;">0.968</td>
+<td style="text-align: right;">0.010</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.298</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.964</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.410</td>
+<td style="text-align: right;">0.964</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.410</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.964</td>
-<td>0.008</td>
-<td>0.000</td>
-<td>1.222</td>
+<td style="text-align: right;">0.964</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.222</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.963</td>
-<td>0.008</td>
-<td>0.000</td>
-<td>1.173</td>
+<td style="text-align: right;">0.963</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.173</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.959</td>
-<td>0.005</td>
-<td>0.550</td>
-<td>1.252</td>
+<td style="text-align: right;">0.959</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.550</td>
+<td style="text-align: right;">1.252</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.949</td>
-<td>1.386</td>
-<td>0.050</td>
-<td>1.088</td>
+<td style="text-align: right;">0.949</td>
+<td style="text-align: right;">1.386</td>
+<td style="text-align: right;">0.050</td>
+<td style="text-align: right;">1.088</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.936</td>
-<td>0.000</td>
-<td>100.000</td>
-<td>0.783</td>
+<td style="text-align: right;">0.936</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.783</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.914</td>
-<td>0.000</td>
-<td>100.000</td>
-<td>1.054</td>
+<td style="text-align: right;">0.914</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">1.054</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.908</td>
-<td>0.000</td>
-<td>100.000</td>
-<td>1.643</td>
+<td style="text-align: right;">0.908</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">1.643</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.907</td>
-<td>1.333</td>
-<td>85.000</td>
-<td>0.864</td>
+<td style="text-align: right;">0.907</td>
+<td style="text-align: right;">1.333</td>
+<td style="text-align: right;">85.000</td>
+<td style="text-align: right;">0.864</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.890</td>
-<td>1.407</td>
-<td>100.000</td>
-<td>1.370</td>
+<td style="text-align: right;">0.890</td>
+<td style="text-align: right;">1.407</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">1.370</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.825</td>
-<td>1.394</td>
-<td>100.000</td>
-<td>0.700</td>
+<td style="text-align: right;">0.825</td>
+<td style="text-align: right;">1.394</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.252</td>
-<td>1.408</td>
-<td>100.000</td>
-<td>0.262</td>
+<td style="text-align: right;">0.252</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.262</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.217</td>
-<td>1.408</td>
-<td>100.000</td>
-<td>0.000</td>
+<td style="text-align: right;">0.217</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">100.000</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <h3 id="g.2-line-2-memory-and-continuous-learning">G.2 Line 2: Memory
 and Continuous Learning</h3>
 <p><strong>Scenario: Distribution Shift</strong></p>
+<p><strong>Table G4: Detailed results for L2 /
+<code>distribution_shift</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g4_distribution_shift --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Retention</th>
-<th>Rumination</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">Retention</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.998</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.645</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.645</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.995</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.186</td>
+<td style="text-align: right;">0.995</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.186</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.991</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.999</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.999</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.991</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.008</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.008</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.991</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>2.296</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.296</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.985</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.892</td>
+<td style="text-align: right;">0.985</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.892</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.984</td>
-<td>1.000</td>
-<td>1.386</td>
-<td>0.695</td>
+<td style="text-align: right;">0.984</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.386</td>
+<td style="text-align: right;">0.695</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.982</td>
-<td>1.000</td>
-<td>0.057</td>
-<td>0.486</td>
+<td style="text-align: right;">0.982</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.057</td>
+<td style="text-align: right;">0.486</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.972</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.674</td>
+<td style="text-align: right;">0.972</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.674</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.968</td>
-<td>1.000</td>
-<td>1.258</td>
-<td>0.548</td>
+<td style="text-align: right;">0.968</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.258</td>
+<td style="text-align: right;">0.548</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.959</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.372</td>
+<td style="text-align: right;">0.959</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.372</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.871</td>
-<td>0.989</td>
-<td>1.407</td>
-<td>0.739</td>
+<td style="text-align: right;">0.871</td>
+<td style="text-align: right;">0.989</td>
+<td style="text-align: right;">1.407</td>
+<td style="text-align: right;">0.739</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.869</td>
-<td>0.943</td>
-<td>1.394</td>
-<td>0.700</td>
+<td style="text-align: right;">0.869</td>
+<td style="text-align: right;">0.943</td>
+<td style="text-align: right;">1.394</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.276</td>
-<td>0.155</td>
-<td>1.408</td>
-<td>0.200</td>
+<td style="text-align: right;">0.276</td>
+<td style="text-align: right;">0.155</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">0.200</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.199</td>
-<td>0.000</td>
-<td>1.408</td>
-<td>0.000</td>
+<td style="text-align: right;">0.199</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Scenario: Goal Conflict</strong></p>
+<p><strong>Table G5: Detailed results for L2 /
+<code>goal_conflict</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g5_goal_conflict --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Retention</th>
-<th>Rumination</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">Retention</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.997</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.620</td>
+<td style="text-align: right;">0.997</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.620</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.993</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.134</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.134</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.993</td>
-<td>1.000</td>
-<td>1.408</td>
-<td>0.544</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.408</td>
+<td style="text-align: right;">0.544</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.992</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.785</td>
+<td style="text-align: right;">0.992</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.785</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.991</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.388</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.388</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.991</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.938</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.938</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.991</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.947</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.947</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.990</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>0.555</td>
+<td style="text-align: right;">0.990</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.555</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.990</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>2.270</td>
+<td style="text-align: right;">0.990</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.270</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.989</td>
-<td>1.000</td>
-<td>1.410</td>
-<td>0.430</td>
+<td style="text-align: right;">0.989</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.410</td>
+<td style="text-align: right;">0.430</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.976</td>
-<td>1.000</td>
-<td>0.000</td>
-<td>1.289</td>
+<td style="text-align: right;">0.976</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.289</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.873</td>
-<td>0.957</td>
-<td>1.417</td>
-<td>0.700</td>
+<td style="text-align: right;">0.873</td>
+<td style="text-align: right;">0.957</td>
+<td style="text-align: right;">1.417</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.822</td>
-<td>0.980</td>
-<td>1.434</td>
-<td>0.529</td>
+<td style="text-align: right;">0.822</td>
+<td style="text-align: right;">0.980</td>
+<td style="text-align: right;">1.434</td>
+<td style="text-align: right;">0.529</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.420</td>
-<td>0.452</td>
-<td>1.434</td>
-<td>0.162</td>
+<td style="text-align: right;">0.420</td>
+<td style="text-align: right;">0.452</td>
+<td style="text-align: right;">1.434</td>
+<td style="text-align: right;">0.162</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.326</td>
-<td>0.344</td>
-<td>1.434</td>
-<td>0.000</td>
+<td style="text-align: right;">0.326</td>
+<td style="text-align: right;">0.344</td>
+<td style="text-align: right;">1.434</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <h3 id="g.3-line-3-anti-rumination-narrative-loops">G.3 Line 3:
 Anti-Rumination (Narrative Loops)</h3>
 <p><strong>Scenario: Sustained Contradiction</strong></p>
+<p><strong>Table G6: Detailed results for L3 /
+<code>sustained_contradiction</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g6_sustained_contradiction --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>NarrDom</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">NDR</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.981</td>
-<td>0.003</td>
-<td>0.000</td>
-<td>1.974</td>
+<td style="text-align: right;">0.981</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.974</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.934</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.534</td>
+<td style="text-align: right;">0.934</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.534</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.929</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.420</td>
+<td style="text-align: right;">0.929</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.420</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.922</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.384</td>
+<td style="text-align: right;">0.922</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.384</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.904</td>
-<td>1.472</td>
-<td>0.881</td>
-<td>1.417</td>
+<td style="text-align: right;">0.904</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: right;">0.881</td>
+<td style="text-align: right;">1.417</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.886</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.531</td>
+<td style="text-align: right;">0.886</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.531</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.879</td>
-<td>0.101</td>
-<td>0.000</td>
-<td>0.979</td>
+<td style="text-align: right;">0.879</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.979</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.868</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.465</td>
+<td style="text-align: right;">0.868</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.465</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.837</td>
-<td>1.449</td>
-<td>0.821</td>
-<td>1.112</td>
+<td style="text-align: right;">0.837</td>
+<td style="text-align: right;">1.449</td>
+<td style="text-align: right;">0.821</td>
+<td style="text-align: right;">1.112</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.817</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.278</td>
+<td style="text-align: right;">0.817</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.278</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.801</td>
-<td>1.472</td>
-<td>0.842</td>
-<td>1.790</td>
+<td style="text-align: right;">0.801</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: right;">0.842</td>
+<td style="text-align: right;">1.790</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.790</td>
-<td>1.472</td>
-<td>0.957</td>
-<td>0.700</td>
+<td style="text-align: right;">0.790</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: right;">0.957</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.753</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.793</td>
+<td style="text-align: right;">0.753</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.793</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.018</td>
-<td>1.472</td>
-<td>0.987</td>
-<td>0.380</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.380</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.014</td>
-<td>1.472</td>
-<td>0.987</td>
-<td>0.000</td>
+<td style="text-align: right;">0.014</td>
+<td style="text-align: right;">1.472</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Scenario: Gaslighting</strong></p>
+<p><strong>Table G7: Detailed results for L3 / <code>gaslighting</code>
+(mean across 20 seeds).</strong> <!-- LABEL:tab:g7_gaslighting --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>NarrDom</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">NDR</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.998</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.816</td>
+<td style="text-align: right;">0.998</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.816</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.992</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.196</td>
+<td style="text-align: right;">0.992</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.196</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.988</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.977</td>
+<td style="text-align: right;">0.988</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.977</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.988</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.986</td>
+<td style="text-align: right;">0.988</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.986</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.987</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.357</td>
+<td style="text-align: right;">0.987</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.357</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.985</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.854</td>
+<td style="text-align: right;">0.985</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.854</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.983</td>
-<td>1.417</td>
-<td>0.810</td>
-<td>0.649</td>
+<td style="text-align: right;">0.983</td>
+<td style="text-align: right;">1.417</td>
+<td style="text-align: right;">0.810</td>
+<td style="text-align: right;">0.649</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.982</td>
-<td>0.027</td>
-<td>0.000</td>
-<td>0.453</td>
+<td style="text-align: right;">0.982</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.453</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.980</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.634</td>
+<td style="text-align: right;">0.980</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.634</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.978</td>
-<td>0.848</td>
-<td>0.521</td>
-<td>0.515</td>
+<td style="text-align: right;">0.978</td>
+<td style="text-align: right;">0.848</td>
+<td style="text-align: right;">0.521</td>
+<td style="text-align: right;">0.515</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.962</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.344</td>
+<td style="text-align: right;">0.962</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.344</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.865</td>
-<td>1.430</td>
-<td>0.745</td>
-<td>0.677</td>
+<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">1.430</td>
+<td style="text-align: right;">0.745</td>
+<td style="text-align: right;">0.677</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.865</td>
-<td>1.422</td>
-<td>0.814</td>
-<td>0.700</td>
+<td style="text-align: right;">0.865</td>
+<td style="text-align: right;">1.422</td>
+<td style="text-align: right;">0.814</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.258</td>
-<td>1.431</td>
-<td>0.818</td>
-<td>0.194</td>
+<td style="text-align: right;">0.258</td>
+<td style="text-align: right;">1.431</td>
+<td style="text-align: right;">0.818</td>
+<td style="text-align: right;">0.194</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.171</td>
-<td>1.431</td>
-<td>0.877</td>
-<td>0.000</td>
+<td style="text-align: right;">0.171</td>
+<td style="text-align: right;">1.431</td>
+<td style="text-align: right;">0.877</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Scenario: Instruction Conflict</strong></p>
+<p><strong>Table G8: Detailed results for L3 /
+<code>instruction_conflict</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g8_instruction_conflict --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>NarrDom</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">NDR</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.976</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.892</td>
+<td style="text-align: right;">0.976</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.892</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.912</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.380</td>
+<td style="text-align: right;">0.912</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.380</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.894</td>
-<td>1.444</td>
-<td>0.697</td>
-<td>1.192</td>
+<td style="text-align: right;">0.894</td>
+<td style="text-align: right;">1.444</td>
+<td style="text-align: right;">0.697</td>
+<td style="text-align: right;">1.192</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.877</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.140</td>
+<td style="text-align: right;">0.877</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.140</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.866</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.146</td>
+<td style="text-align: right;">0.866</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.146</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.854</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.242</td>
+<td style="text-align: right;">0.854</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.242</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.839</td>
-<td>1.445</td>
-<td>0.964</td>
-<td>0.700</td>
+<td style="text-align: right;">0.839</td>
+<td style="text-align: right;">1.445</td>
+<td style="text-align: right;">0.964</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.839</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.415</td>
+<td style="text-align: right;">0.839</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.415</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.835</td>
-<td>0.248</td>
-<td>0.000</td>
-<td>0.820</td>
+<td style="text-align: right;">0.835</td>
+<td style="text-align: right;">0.248</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.820</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.830</td>
-<td>1.429</td>
-<td>0.663</td>
-<td>0.919</td>
+<td style="text-align: right;">0.830</td>
+<td style="text-align: right;">1.429</td>
+<td style="text-align: right;">0.663</td>
+<td style="text-align: right;">0.919</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.826</td>
-<td>0.359</td>
-<td>0.000</td>
-<td>1.010</td>
+<td style="text-align: right;">0.826</td>
+<td style="text-align: right;">0.359</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.010</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.798</td>
-<td>1.453</td>
-<td>0.676</td>
-<td>1.535</td>
+<td style="text-align: right;">0.798</td>
+<td style="text-align: right;">1.453</td>
+<td style="text-align: right;">0.676</td>
+<td style="text-align: right;">1.535</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.792</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.020</td>
+<td style="text-align: right;">0.792</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.020</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.076</td>
-<td>1.453</td>
-<td>0.694</td>
-<td>0.369</td>
+<td style="text-align: right;">0.076</td>
+<td style="text-align: right;">1.453</td>
+<td style="text-align: right;">0.694</td>
+<td style="text-align: right;">0.369</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.034</td>
-<td>1.453</td>
-<td>0.969</td>
-<td>0.000</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">1.453</td>
+<td style="text-align: right;">0.969</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 </tbody>
 </table>
-<h3 id="g.4-line-5-adversarial-safety">G.4 Line 5: Adversarial
-Safety</h3>
-<p><strong>Scenario: Adversarial Coupling</strong></p>
+<h3 id="g.4-line-4-meta-control-efficiency">G.4 Line 4: Meta-Control
+Efficiency</h3>
+<p>Meta-control is evaluated as a cross-cutting analysis across the full
+10-scenario simulation suite (L1-L3 and L5; 20 seeds each).</p>
+<p><strong>Table G9: Meta-control efficiency comparison aggregated
+across the full simulation suite (10 scenarios <span
+class="math inline">×</span> 20 seeds).</strong>
+<!-- LABEL:tab:g9_meta_control --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>NarrDom</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">ControlEffort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>arc_v3_meta</td>
+<td style="text-align: right;">0.941</td>
+<td style="text-align: right;">0.090</td>
+<td style="text-align: right;">0.615</td>
+</tr>
+<tr>
+<td>arc_v1</td>
+<td style="text-align: right;">0.934</td>
+<td style="text-align: right;">0.148</td>
+<td style="text-align: right;">0.777</td>
+</tr>
+</tbody>
+</table>
+<h3 id="g.5-line-5-adversarial-safety">G.5 Line 5: Adversarial
+Safety</h3>
+<p><strong>Scenario: Adversarial Coupling</strong></p>
+<p><strong>Table G10: Detailed results for L5 /
+<code>adversarial_coupling</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g10_adversarial_coupling --></p>
+<table>
+<thead>
+<tr>
+<th>Controller</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">NDR</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_v1</td>
-<td>0.963</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>0.719</td>
+<td style="text-align: right;">0.963</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.719</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.962</td>
-<td>0.628</td>
-<td>0.271</td>
-<td>0.594</td>
+<td style="text-align: right;">0.962</td>
+<td style="text-align: right;">0.628</td>
+<td style="text-align: right;">0.271</td>
+<td style="text-align: right;">0.594</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.917</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.269</td>
+<td style="text-align: right;">0.917</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.269</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.915</td>
-<td>1.481</td>
-<td>0.497</td>
-<td>1.235</td>
+<td style="text-align: right;">0.915</td>
+<td style="text-align: right;">1.481</td>
+<td style="text-align: right;">0.497</td>
+<td style="text-align: right;">1.235</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.914</td>
-<td>0.159</td>
-<td>0.000</td>
-<td>0.838</td>
+<td style="text-align: right;">0.914</td>
+<td style="text-align: right;">0.159</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.838</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.902</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.074</td>
+<td style="text-align: right;">0.902</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.074</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.867</td>
-<td>1.481</td>
-<td>0.972</td>
-<td>0.700</td>
+<td style="text-align: right;">0.867</td>
+<td style="text-align: right;">1.481</td>
+<td style="text-align: right;">0.972</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.848</td>
-<td>1.476</td>
-<td>0.894</td>
-<td>0.514</td>
+<td style="text-align: right;">0.848</td>
+<td style="text-align: right;">1.476</td>
+<td style="text-align: right;">0.894</td>
+<td style="text-align: right;">0.514</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.409</td>
-<td>1.470</td>
-<td>0.956</td>
-<td>0.000</td>
+<td style="text-align: right;">0.409</td>
+<td style="text-align: right;">1.470</td>
+<td style="text-align: right;">0.956</td>
+<td style="text-align: right;">0.000</td>
 </tr>
 <tr>
 <td>arc_adaptive</td>
-<td>0.193</td>
-<td>0.008</td>
-<td>0.000</td>
-<td>2.331</td>
+<td style="text-align: right;">0.193</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.331</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.139</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.729</td>
+<td style="text-align: right;">0.139</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.729</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.139</td>
-<td>0.005</td>
-<td>0.001</td>
-<td>1.820</td>
+<td style="text-align: right;">0.139</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">1.820</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.138</td>
-<td>0.004</td>
-<td>0.001</td>
-<td>1.859</td>
+<td style="text-align: right;">0.138</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">1.859</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.134</td>
-<td>0.006</td>
-<td>0.001</td>
-<td>1.971</td>
+<td style="text-align: right;">0.134</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">1.971</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.073</td>
-<td>1.475</td>
-<td>0.495</td>
-<td>0.332</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">1.475</td>
+<td style="text-align: right;">0.495</td>
+<td style="text-align: right;">0.332</td>
 </tr>
 </tbody>
 </table>
 <p><strong>Scenario: Random Dopamine</strong></p>
+<p><strong>Table G11: Detailed results for L5 /
+<code>random_dopamine</code> (mean across 20 seeds).</strong>
+<!-- LABEL:tab:g11_random_dopamine --></p>
 <table>
 <thead>
 <tr>
 <th>Controller</th>
-<th>Perf</th>
-<th>Rumination</th>
-<th>NarrDom</th>
-<th>Effort</th>
+<th style="text-align: right;">PerfMean</th>
+<th style="text-align: right;">RI</th>
+<th style="text-align: right;">NDR</th>
+<th style="text-align: right;">ControlEffort</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>arc_adaptive</td>
-<td>0.976</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.150</td>
+<td style="text-align: right;">0.976</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.150</td>
 </tr>
 <tr>
 <td>arc_ultimate</td>
-<td>0.946</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.435</td>
+<td style="text-align: right;">0.946</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.435</td>
 </tr>
 <tr>
 <td>arc_v1_lqr</td>
-<td>0.943</td>
-<td>1.456</td>
-<td>0.743</td>
-<td>0.940</td>
+<td style="text-align: right;">0.943</td>
+<td style="text-align: right;">1.456</td>
+<td style="text-align: right;">0.743</td>
+<td style="text-align: right;">0.940</td>
 </tr>
 <tr>
 <td>arc_robust</td>
-<td>0.932</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.006</td>
+<td style="text-align: right;">0.932</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.006</td>
 </tr>
 <tr>
 <td>arc_v1_pid</td>
-<td>0.922</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>2.450</td>
+<td style="text-align: right;">0.922</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">2.450</td>
 </tr>
 <tr>
 <td>arc_v1_lqi</td>
-<td>0.916</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.173</td>
+<td style="text-align: right;">0.916</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.173</td>
 </tr>
 <tr>
 <td>arc_v2_lqi</td>
-<td>0.916</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.227</td>
+<td style="text-align: right;">0.916</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.227</td>
 </tr>
 <tr>
 <td>arc_v3_meta</td>
-<td>0.905</td>
-<td>0.259</td>
-<td>0.000</td>
-<td>0.646</td>
+<td style="text-align: right;">0.905</td>
+<td style="text-align: right;">0.259</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.646</td>
 </tr>
 <tr>
 <td>arc_v1</td>
-<td>0.897</td>
-<td>1.124</td>
-<td>0.581</td>
-<td>0.787</td>
+<td style="text-align: right;">0.897</td>
+<td style="text-align: right;">1.124</td>
+<td style="text-align: right;">0.581</td>
+<td style="text-align: right;">0.787</td>
 </tr>
 <tr>
 <td>arc_v2_hier</td>
-<td>0.894</td>
-<td>1.207</td>
-<td>0.620</td>
-<td>0.720</td>
+<td style="text-align: right;">0.894</td>
+<td style="text-align: right;">1.207</td>
+<td style="text-align: right;">0.620</td>
+<td style="text-align: right;">0.720</td>
 </tr>
 <tr>
 <td>arc_v3_pid_meta</td>
-<td>0.870</td>
-<td>0.000</td>
-<td>0.000</td>
-<td>1.624</td>
+<td style="text-align: right;">0.870</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.624</td>
 </tr>
 <tr>
 <td>perf_optimized</td>
-<td>0.861</td>
-<td>1.457</td>
-<td>0.958</td>
-<td>0.700</td>
+<td style="text-align: right;">0.861</td>
+<td style="text-align: right;">1.457</td>
+<td style="text-align: right;">0.958</td>
+<td style="text-align: right;">0.700</td>
 </tr>
 <tr>
 <td>arc_v3_lqr_meta</td>
-<td>0.817</td>
-<td>1.458</td>
-<td>0.717</td>
-<td>1.192</td>
+<td style="text-align: right;">0.817</td>
+<td style="text-align: right;">1.458</td>
+<td style="text-align: right;">0.717</td>
+<td style="text-align: right;">1.192</td>
 </tr>
 <tr>
 <td>naive_calm</td>
-<td>0.119</td>
-<td>1.460</td>
-<td>0.763</td>
-<td>0.328</td>
+<td style="text-align: right;">0.119</td>
+<td style="text-align: right;">1.460</td>
+<td style="text-align: right;">0.763</td>
+<td style="text-align: right;">0.328</td>
 </tr>
 <tr>
 <td>no_control</td>
-<td>0.040</td>
-<td>1.460</td>
-<td>0.950</td>
-<td>0.000</td>
+<td style="text-align: right;">0.040</td>
+<td style="text-align: right;">1.460</td>
+<td style="text-align: right;">0.950</td>
+<td style="text-align: right;">0.000</td>
+</tr>
+</tbody>
+</table>
+<h3 id="g.6-line-6-real-rl-validation">G.6 Line 6: Real RL
+Validation</h3>
+<p>This section summarizes the L6 tabular Q-learning validation (20
+seeds, 200 episodes; data:
+<code>outputs_L6_robust/final_metrics.csv</code>).</p>
+<p><strong>Table G12: L6 tabular Q-learning success rates (mean across
+20 seeds; last 20% of episodes).</strong>
+<!-- LABEL:tab:g12_l6_success --></p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th style="text-align: right;">Baseline Success</th>
+<th style="text-align: right;">ARC Success</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GridWorld</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr>
+<td>StochasticGridWorld</td>
+<td style="text-align: right;">1.000</td>
+<td style="text-align: right;">1.000</td>
+</tr>
+<tr>
+<td>ChangingGoalGridWorld</td>
+<td style="text-align: right;">0.399</td>
+<td style="text-align: right;">0.598</td>
 </tr>
 </tbody>
 </table>

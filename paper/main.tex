@@ -4,6 +4,7 @@
 \usepackage{arxiv}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{lmodern}
 \usepackage{hyperref}
 \usepackage{url}
 \usepackage{booktabs}
@@ -47,10 +48,10 @@ As AI agents become more sophisticated, there is growing interest in endowing th
 
 Our experiments across 6 research lines and \textbf{15 controller architectures} (including P, PID, LQR, LQI, hierarchical, meta-control, H$\infty$ robust, and adaptive variants) demonstrate that:
 \begin{enumerate}
-    \item ARC achieves \textbf{96.6\% average performance with zero rumination (in integral variants)} (vs. 30\% for uncontrolled agents) in stability scenarios.
+    \item ARC achieves \textbf{96.6\% average performance with RI=0} (vs. 29.7\% for uncontrolled agents) in stability scenarios.
     \item ARC meta-control reduces control effort by \textbf{21\%} while maintaining stability.
     \item \textbf{H$\infty$ Robust controllers} achieve the best overall balance, although integral controllers can suffer collapse in specific adversarial environments.
-    \item In reinforcement learning, ARC improves transfer learning success by \textbf{49.8\%} via memory gating and a shift detection mechanism.
+    \item In reinforcement learning, the integrated ARC-RL wrapper improves transfer learning success by \textbf{49.8\%} via memory gating and a context shift detection mechanism.
 \end{enumerate}
 
 All code and data are available for reproducibility.
@@ -62,7 +63,7 @@ All code and data are available for reproducibility.
 
 \subsection{Motivation}
 
-Modern AI systems increasingly incorporate internal state representations that go beyond task performance—including affective signals that prioritize learning, modulate memory, and signal internal needs \cite{Damasio1994, Picard1997}. However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (analogous to rumination in humans), and susceptibility to manipulation \cite{Amodei2016}.
+Modern AI systems increasingly incorporate internal state representations that go beyond task performance—including affective signals that prioritize learning, modulate memory, and signal internal needs \cite{Damasio1994, Picard1997}. However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (functionally analogous to rumination), and susceptibility to manipulation \cite{Amodei2016}.
 
 This paper addresses a fundamental question: \textbf{If an agent has internal affective states, what control mechanisms are necessary to maintain stability and recoverability under perturbation?}
 
@@ -78,7 +79,7 @@ This paper addresses a fundamental question: \textbf{If an agent has internal af
 
 \subsection{Scope}
 
-We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat the various internal variables (arousal, valence, narrative intensity) \textbf{strictly as functional signals} that modulate processing and prioritization. Any use of terms like "affect," "rumination," or "anxiety" refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains as future work. Current validation is based on empirical benchmarking across a wide range of conditions.
+We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat internal variables (arousal, valence, narrative intensity) \textbf{strictly as functional signals} that modulate processing and prioritization. Any use of terms like ``affect,'' ``rumination,'' or ``anxiety'' refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains as future work. Current validation is based on empirical benchmarking across a wide range of conditions.
 
 \section{Related Work}
 
@@ -560,15 +561,29 @@ StochasticGridWorld & 100\% & 100\% & 0\% \\
 \end{tabular}
 \end{table}
 
-\textbf{Key finding:} In non-stationary environments, ARC significantly improves transfer learning (+49.8\%). This is achieved via two mechanisms:
-\begin{enumerate}
-    \item \textbf{Memory Gating:} Blocks Q-learning updates when internal uncertainty is high.
-    \item \textbf{Shift Detection:} We implement an explicit mechanism that detects abrupt changes in the environment's prediction signal. Upon detecting a task shift, ARC temporarily boosts exploration rate ($\epsilon$) and learning rate ($\alpha$) for 30 steps, facilitating rapid adaptation without catastrophic forgetting of the prior policy.
-\end{enumerate}
+\textbf{Key finding:} In non-stationary environments, the integrated ARC-RL wrapper significantly improves transfer learning (+49.8\%). Our ablation study in \texttt{ChangingGoalGridWorld} isolates the contribution of each mechanism (Table \ref{tab:l6_ablation}).
+
+\begin{table}[h]
+\centering
+\caption{L6 Ablation Results (ChangingGoalGridWorld)}
+\label{tab:l6_ablation}
+\begin{tabular}{lrr}
+    \toprule
+    Agent Configuration & Success Rate & Final Reward (mean) \\
+    \midrule
+    Vanilla Q-Learning (Baseline) & 39.9\% & -0.40 \\
+    ARC (Memory Gating only) & 41.2\% & -0.37 \\
+    ARC (Shift Detection only) & \textbf{65.6\%} & \textbf{0.13} \\
+    \textbf{ARC Full Wrapper (Both)} & \textbf{59.8\%} & \textbf{-0.02} \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+The results indicate that \textbf{shift detection} (exploration/learning rate boost) is the primary driver of performance in non-stationary tasks, enabling the agent to adapt rapidly to goal changes. \textbf{Memory gating} provides a more conservative strategy that protects existing knowledge, which in this specific high-change environment slightly reduces peak success rate (from 65.6\% to 59.8\%) but maintains lower overall risk.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_L6/learning_curves.png}
+    \includegraphics[width=\textwidth]{figures/learning_curves.png}
     \caption{Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show $\pm$1 std across 20 seeds.}
     \label{fig:learning_curves}
 \end{figure}
@@ -732,11 +747,11 @@ Our deep analysis revealed four critical insights:
 \subsection{Limitations}
 
 \begin{enumerate}
-    \item \textbf{Simplified Dynamics:} Our 10-dimensional state-space model abstracts the complexity of real neurochemical interactions..
-    \item \textbf{Scalability:} Validated on tabular Q-learning; extending to Deep RL or LLMs remains future work.
-    \item \textbf{Environment Complexity:} GridWorlds capture non-stationarity but lack visual complexity.
-    \item \textbf{Fixed vs. Learned Control:} Parameters are hand-tuned; meta-learning could optimize them.
-    \item \textbf{Threshold Sensitivity:} $a_{safe}$ and $s_{safe}$ are fixed constants.
+    \item \textbf{Simplified Dynamics:} Our 10-dimensional state-space model abstracts the complexity of real neurochemical interactions. Biological affective systems involve non-linear, stochastic, and multi-timescale dynamics that our linear approximations do not fully capture.
+    \item \textbf{Scalability to Large Models:} We validated ARC on tabular Q-learning agents. Extending to deep RL (DQN, PPO) or large language models (LLMs) with emergent affective-like states remains an open challenge.
+    \item \textbf{Environment Complexity:} L6 is validated in GridWorld variants. While these capture key non-stationarity challenges, real-world environments (Atari, robotics) introduce additional visual and observability issues.
+    \item \textbf{Internal Validity (L6 Ablation):} Our ablation study (Section 6.7) demonstrates that shift detection is the primary driver of performance in non-stationary tasks, while memory gating acts as a conservative stabilizer. The reported +49.8\% reflects the integrated synergy of both mechanisms.
+    \item \textbf{Threshold Sensitivity:} While robust across a wide range ($a_{safe}, s_{safe} \in [0.4, 0.8]$) in the \texttt{reward\_flip} scenario, safety thresholds still require contextual tuning. Automatic adjustment remains a promising future direction.
 \end{enumerate}
 
 \subsection{Future Work}
@@ -1077,7 +1092,7 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 \subsection{Figure S8: Efficiency Comparison (Fast Convergence)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_L6/efficiency_comparison.png}
+    \includegraphics[width=\textwidth]{figures/efficiency_comparison.png}
     \caption{Efficiency comparison in GridWorld and StochasticGridWorld. Both agents reach 100\% success, but ARC converges faster.}
     \label{fig:efficiency}
 \end{figure}
@@ -1085,56 +1100,56 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 \subsection{Figure S9: Scenario Difficulty Analysis}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/sensitivity_scenario.png}
+    \includegraphics[width=\textwidth]{figures/sensitivity_scenario.png}
     \caption{Scenario-level analysis (ARC only): performance, rumination, and recovery time vary substantially by stressor type.}
 \end{figure}
 
 \subsection{Figure S10: Variance Sensitivity}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/sensitivity_variance.png}
+    \includegraphics[width=\textwidth]{figures/sensitivity_variance.png}
     \caption{Variance analysis across seeds. Lower variance indicates more reliable behavior; ARC controllers generally exhibit tighter performance distributions than baselines.}
 \end{figure}
 
 \subsection{Figure S11: Metric Correlations (L1)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_L1.png}
+    \includegraphics[width=\textwidth]{figures/correlation_L1.png}
     \caption{Correlation heatmap for L1 runs only (stability line).}
 \end{figure}
 
 \subsection{Figure S12: Metric Correlations (L2)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_L2.png}
+    \includegraphics[width=\textwidth]{figures/correlation_L2.png}
     \caption{Correlation heatmap for L2 runs only (memory \& continual learning line).}
 \end{figure}
 
 \subsection{Figure S13: Metric Correlations (L3)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_L3.png}
+    \includegraphics[width=\textwidth]{figures/correlation_L3.png}
     \caption{Correlation heatmap for L3 runs only (anti-rumination stress tests line).}
 \end{figure}
 
 \subsection{Figure S14: Metric Correlations (L4)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_L4.png}
+    \includegraphics[width=\textwidth]{figures/correlation_L4.png}
     \caption{Correlation heatmap for L4 runs only (meta-control efficiency line).}
 \end{figure}
 
 \subsection{Figure S15: Metric Correlations (L4 Meta-Control)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_L4_meta.png}
+    \includegraphics[width=\textwidth]{figures/correlation_L4_meta.png}
     \caption{Correlation heatmap for meta-control-focused runs (L4\_meta).}
 \end{figure}
 
 \subsection{Figure S16: Metric Correlations (L5)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_L5.png}
+    \includegraphics[width=\textwidth]{figures/correlation_L5.png}
     \caption{Correlation heatmap for L5 runs only (adversarial safety line).}
 \end{figure}
 
