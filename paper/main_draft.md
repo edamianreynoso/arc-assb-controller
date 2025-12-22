@@ -44,7 +44,7 @@ This paper addresses a fundamental question: **If an agent has internal affectiv
 
 ### 1.3 Scope
 
-We do not claim our model captures the full complexity of human emotion. We treat affective states as *functional signals* that influence behavior. Our contribution is demonstrating that such states require explicit control mechanisms.
+We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat the various internal variables (arousal, valence, narrative intensity) **strictly as functional signals** that modulate processing and prioritization. Any use of terms like "affect," "rumination," or "anxiety" refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains as future work. Current validation is based on empirical benchmarking across a wide range of conditions.
 
 ---
 

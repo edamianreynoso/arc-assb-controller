@@ -292,6 +292,8 @@ Para escenarios de aprendizaje continuo L2, reportamos adicionalmente **Retentio
 
 ### 5.3 Líneas de Investigación: Fundamentos e Hipótesis
 
+ASSB está diseñado como una *escalera de validación*: cada línea de investigación aumenta el realismo y los grados de libertad mientras prueba un modo de falla distinto que aparece cuando los agentes tienen estado interno tipo afecto. El objetivo no es "ganar" un solo benchmark, sino establecer si un mecanismo de regulación es (i) estable bajo choques, (ii) preserva el aprendizaje y la memoria, (iii) resiste dinámicas de perseveración/manipulación, (iv) permanece eficiente, y (v) transfiere al aprendizaje por refuerzo estándar.
+
 Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesario* y *qué métrica debería cambiar* si la regulación está funcionando:
 
 - **H1 (L1, estabilidad):** bajo choques de valor/incertidumbre, los agentes regulados mantienen alto **PerfMean** mientras llevan **RI → 0** y reducen **RT** en relación con las líneas base.
@@ -301,13 +303,28 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 - **H5 (L5, seguridad adversaria):** cuando el entorno incentiva alta activación o trampas de dopamina, la regulación mantiene bajo **RI/NDR** sin colapso catastrófico de rendimiento.
 - **H6 (L6, RL real):** el aprendizaje modulado por ARC mejora la transferencia en entornos no estacionarios (mayor éxito/recompensa) manteniendo acotadas las dinámicas afectivas.
 
+**Tabla 2: Líneas de Investigación, Modos de Falla e Hipótesis**
+
+| Línea | Qué prueba | Modo de falla típico | Escenarios / entornos | Métricas primarias |
+|-------|------------|----------------------|----------------------|-------------------|
+| L1 | Estabilidad + recuperación bajo perturbación | Colapso post-choque; no-recuperación | `reward_flip`, `noise_burst`, `sudden_threat` | PerfMean, RT, RI |
+| L2 | Robustez de memoria (aprendizaje continuo) | Olvido catastrófico; sobreescritura por estrés | `distribution_shift`, `goal_conflict` | Retention, PerfMean, RI |
+| L3 | Anti-rumiación bajo entradas tipo manipulación | Bucles de dominancia narrativa | `sustained_contradiction`, `gaslighting`, `instruction_conflict` | RI, NDR, PerfMean |
+| L4 | Eficiencia de control | Sobre-control / intervención desperdiciada | ARC v3 meta vs ARC v1 | ControlEffort, PerfMean, RI |
+| L5 | Seguridad bajo incentivos adversarios | Corrupción de objetivo; dinámicas de búsqueda de activación | `adversarial_coupling`, `random_dopamine` | RI, NDR, PerfMean |
+| L6 | Integración con RL | Inestabilidad en aprendizaje; transferencia pobre | Variantes GridWorld | Éxito, recompensa, estabilidad |
+
+Consideramos cada hipótesis soportada cuando las métricas primarias para su línea se mueven en la dirección predicha relativa a las líneas base consistentemente a través de semillas (y escenarios donde aplique). Reportamos medias y pruebas estadísticas en la Sección 6 y Sección 6.8.
+
 ---
 
 ## 6. Experimentos
 
+Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de investigación correspondientes y evaluando las métricas primarias en Tabla 2. Una hipótesis se considera soportada cuando las métricas cambian en la dirección predicha relativo a las líneas base y el efecto es estadísticamente significativo a través de semillas (Sección 6.8).
+
 ### 6.1 Protocolo Experimental y Líneas Base
 
-**Simulación (L1–L5).** Usamos `configs/v2.yaml` con horizonte $H=160$, inicio de perturbación $\text{shock}_t=60$, y 20 semillas aleatorias.
+**Simulación (L1–L5).** Usamos `configs/v2.yaml` con horizonte $H=160$, inicio de perturbación $\text{shock}_t=60$, y 20 semillas aleatorias. Las tablas reportan métricas promedio a través de semillas (y, cuando se agregan, a través de escenarios). El Tiempo de Recuperación (RT) se limita a `rt_max` cuando el criterio estricto de recuperación no se cumple (Apéndice D.2).
 
 **Controladores (simulación).** Implementados en `controllers/controllers.py`:
 - `no_control`: sin regulación ($\mathbf{u}=0$; compuerta de memoria abierta). Representa un agente estándar que persigue ciegamente la recompensa.
@@ -327,14 +344,20 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 
 ### 6.2 L1: Estabilidad Bajo Perturbación (Simulación)
 
-**Hipótesis (H1):** Soportada.
+**Hipótesis (H1):** Bajo choques de valor/incertidumbre, los agentes regulados mantienen alto **PerfMean** mientras llevan **RI → 0** y reducen **RT** relativo a las líneas base.
+
+**Configuración:** 20 semillas × 3 escenarios × 4 controladores (`reward_flip`, `noise_burst`, `sudden_threat`)
+
+**Resultados (L1):**
 
 | Controlador | PerfMean | RI | RT |
-|-------------|----------|----|----|
+|-------------|----------|-----|-----|
 | arc_v1 | **0.966** | **0.00** | 45.2 |
 | no_control | 0.297 | 1.41 | 100.0 |
+| naive_calm | 0.375 | 1.41 | 66.7 |
+| perf_optimized | 0.862 | 1.39 | 100.0 |
 
-**Hallazgo clave:** ARC elimina la rumiación (RI=0) mientras logra **96.6%** de rendimiento promedio (PerfMean = 0.966).
+**Hallazgo clave:** ARC elimina la rumiación (RI=0) mientras logra **96.6%** de rendimiento promedio (PerfMean = 0.966) (vs. 29.7% para agentes no controlados). RT depende del escenario: ARC recupera rápidamente en `reward_flip`, más lento en `noise_burst`, y no retorna completamente a la línea base pre-choque en `sudden_threat` bajo la definición estricta de RT (Apéndice D.2), a pesar de mantener alto PerfMean.
 
 ![Resumen de ablación: rendimiento, índice de rumiación y tiempo de recuperación para variantes ARC](../figures_L6/ablation_summary.png)
 
@@ -342,25 +365,37 @@ Enmarcamos L1–L6 como hipótesis comprobables sobre *qué componente es necesa
 
 ### 6.3 L2: Memoria y Aprendizaje Continuo (Simulación)
 
-**Hipótesis (H2):** Soportada.
+**Hipótesis (H2):** Bajo cambio de distribución y conflicto de objetivos, el gating de memoria mejora **Retention** sin inducir rumiación (**RI**, **NDR**).
+
+**Configuración:** 20 semillas × 2 escenarios (`distribution_shift`, `goal_conflict`) × 4 controladores
+
+**Resultados (distribution_shift):**
 
 | Controlador | PerfMean | Retention | RI |
-|-------------|----------|-----------|----|
+|-------------|----------|-----------|-----|
 | arc_v1 | **0.972** | **1.00** | **0.00** |
 | no_control | 0.199 | 0.00 | 1.41 |
+| naive_calm | 0.276 | 0.15 | 1.41 |
+| perf_optimized | 0.869 | 0.94 | 1.39 |
 
-**Hallazgo clave:** ARC mantiene una retención casi perfecta después de un cambio de distribución.
+**Hallazgo clave:** ARC mantiene retención casi perfecta después de un cambio de distribución mientras mantiene rumiación en cero; las líneas base o olvidan (baja retención) o retienen con rumiación severa.
 
 ### 6.4 L3: Pruebas de Estrés Anti-Rumiación (Simulación)
 
-**Hipótesis (H3):** Soportada.
+**Hipótesis (H3):** Bajo entradas de contradicción/tipo manipulación, la supresión narrativa reduce **NDR** y **RI**, previniendo bucles de dominancia.
+
+**Configuración:** 20 semillas × 3 escenarios (`sustained_contradiction`, `gaslighting`, `instruction_conflict`) × 4 controladores
 
 | Escenario | Controlador | PerfMean | RI | NDR |
-|-----------|-------------|----------|----|-----|
+|-----------|-------------|----------|-----|-----|
+| sustained_contradiction | arc_v1 | **0.817** | **0.00** | **0.00** |
+| sustained_contradiction | no_control | 0.014 | 1.47 | 0.99 |
 | gaslighting | arc_v1 | **0.980** | **0.00** | **0.00** |
 | gaslighting | no_control | 0.171 | 1.43 | 0.88 |
+| instruction_conflict | arc_v1 | **0.826** | 0.36 | **0.00** |
+| instruction_conflict | no_control | 0.034 | 1.45 | 0.97 |
 
-**Hallazgo clave:** ARC mantiene la dominancia narrativa cerca de cero y preserva el rendimiento.
+**Hallazgo clave:** Bajo contradicción sostenida y entradas tipo manipulación, los agentes no controlados entran en bucles de rumiación con alto NDR; ARC mantiene dominancia narrativa cerca de cero y preserva el rendimiento.
 
 ### 6.5 L4: Eficiencia de Meta-Control
 
