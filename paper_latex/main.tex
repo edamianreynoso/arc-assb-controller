@@ -54,7 +54,7 @@ Our experiments across 6 research lines and \textbf{15 controller architectures}
     \item ARC achieves \textbf{96.6\% average performance with zero rumination} (vs. 29.7\% for uncontrolled agents).
     \item ARC meta-control reduces control effort by \textbf{21\%} while maintaining stability.
     \item \textbf{H$\infty$ Robust controllers} achieve the best overall balance, although integral controllers can collapse under adversarial incentives.
-    \item In reinforcement learning, ARC improves transfer learning success by \textbf{50\%} via memory gating and a shift-detection boost.
+    \item In reinforcement learning, ARC improves transfer learning success by \textbf{49.8\%} via memory gating and a shift-detection boost.
 \end{enumerate}
 All code and data are available for reproducibility.
 \end{abstract}
@@ -243,6 +243,35 @@ ARC is implemented as a lightweight wrapper around an agent's step/update. At ea
 
 \subsection{Safety Objective and Control Cost}
 ARC enforces a \textit{safe operating region} defined by thresholds $(a_{safe}, s_{safe})$. Deviations increase $\text{risk}(t)$ and trigger proportional intervention. We also measure \textbf{ControlEffort}, the average per-step magnitude of intervention (Appendix D), to capture regulation cost/efficiency.
+
+\subsection{Theoretical Properties}
+To formalize the regulation dynamics, we state three results characterizing stability and trade-offs.
+
+\paragraph{Theorem 1 (Integral Action Rejects Constant Rumination Pressure).}
+Consider the simplified (unclipped) discrete-time narrative deviation dynamics
+\[
+\tilde{s}_{t+1} = (1-\mu)\tilde{s}_t + d - k\,u_t,
+\]
+where $\tilde{s}_t = s_t - s_0$, $\mu\in(0,1)$ is a leak term, $k>0$ is a control gain, and $d$ is an unknown constant disturbance (persistent rumination pressure).
+\begin{enumerate}
+    \item[(i)] Under proportional control $u_t = K_p\tilde{s}_t$, the unique equilibrium is $\tilde{s}_\infty = \dfrac{d}{\mu + kK_p}$, which is nonzero whenever $d\neq 0$.
+    \item[(ii)] Under PI control with integral state $z_{t+1}=z_t + \tilde{s}_t$ and control law $u_t = K_p\tilde{s}_t + K_i z_t$, any stable equilibrium necessarily satisfies $\tilde{s}_\infty = 0$ (exact rejection of constant $d$), provided the equilibrium is admissible (no saturation).
+\end{enumerate}
+\textit{Proof.} For (i), set $\tilde{s}_{t+1}=\tilde{s}_t=\tilde{s}_\infty$ and solve. For (ii), at equilibrium $z_{t+1}=z_t$ implies $\tilde{s}_\infty=0$; substituting into the state equation yields $0=d-k\,u_\infty$, so the integral term supplies the constant offset needed to cancel $d$.
+
+\textit{Remark.} This is a discrete-time instance of the internal model principle: rejecting unknown constant disturbances requires an integrator (or a disturbance observer). Note that RI can be zero even if $\tilde{s}_\infty\neq 0$ as long as $s_t \le s_{safe}$; integral action is mainly required when we demand strict setpoint regulation and is vulnerable to windup under saturation in adversarial environments (see L5 results).
+
+\paragraph{Theorem 2 (Convex Performance--Regulation Trade-off in Expectation).}
+Let $J_{\mathrm{perf}}(\pi)=\mathbb{E}[\mathrm{PerfMean}]$ and $J_{\mathrm{reg}}(\pi)=\mathbb{E}[\lVert S\rVert^2+\lVert A\rVert^2]$ for an episode under controller $\pi$. If we allow randomized selection between controllers at episode start, then the set of achievable pairs $\{(J_{\mathrm{reg}}(\pi),J_{\mathrm{perf}}(\pi))\}$ is convex.
+
+\textit{Proof.} Take any two controllers $\pi_1,\pi_2$ with pairs $(r_1,p_1)$ and $(r_2,p_2)$. Choose $\pi_1$ with probability $\lambda\in[0,1]$ and $\pi_2$ otherwise. Linearity of expectation gives $(J_{\mathrm{reg}},J_{\mathrm{perf}})=(\lambda r_1+(1-\lambda)r_2,\;\lambda p_1+(1-\lambda)p_2)$, a convex combination.
+
+\textit{Implication.} Driving regulation cost toward zero (e.g., suppressing perseveration until RI$=0$) moves along this frontier and can reduce peak performance, consistent with the empirical performance--regulation trade-offs discussed in Section 7.
+
+\paragraph{Proposition 1 (Paradox of Adaptation).}
+Adaptive ARC controllers require \textit{persistence of excitation} for reliable parameter convergence \citep{astrom2008feedback}. In benign environments (low variance in reward/PE), the parameter estimator $\hat{\theta}$ drifts or fails to converge, leading to suboptimal control laws upon sudden shock onset.
+
+\textit{Implication.} This explains the underperformance of \texttt{arc\_adaptive} in baseline scenarios compared to robust variants.
 
 \section{ASSB Benchmark}
 
@@ -475,12 +504,12 @@ We validate hypotheses H1--H6 (Section 5.3) by running the corresponding researc
     \midrule
     GridWorld & 100\% & 100\% & 0\% \\
     StochasticGridWorld & 100\% & 100\% & 0\% \\
-    \textbf{ChangingGoalGridWorld} & 39.9\% & \textbf{59.75\%} & \textbf{+50\%} \\
+    \textbf{ChangingGoalGridWorld} & 39.9\% & \textbf{59.75\%} & \textbf{+49.8\%} \\
     \bottomrule
 \end{tabular}}
 \end{center}
 
-\textbf{Key finding:} In non-stationary environments, ARC significantly improves transfer learning (+50\%). This is achieved via two mechanisms:
+\textbf{Key finding:} In non-stationary environments, ARC significantly improves transfer learning (+49.8\%). This is achieved via two mechanisms:
 \begin{enumerate}
     \item \textbf{Memory Gating:} Blocks Q-learning updates when internal uncertainty is high.
     \item \textbf{Shift Detection:} We implement an explicit mechanism that detects abrupt changes in the environment's prediction signal. Upon detecting a task shift, ARC temporarily boosts exploration rate ($\epsilon$) and learning rate ($\alpha$) for 30 steps, facilitating rapid adaptation without catastrophic forgetting of the prior policy.
@@ -500,20 +529,20 @@ To ensure rigor, we performed comprehensive statistical analysis across all expe
 We conducted independent t-tests comparing ARC vs baseline (\texttt{no\_control}) for each metric and research line:
 \begin{center}
 {\scriptsize
-\begin{tabular}{llrrrrl}
+\begin{tabular}{lllrrrrl}
     \toprule
-    Line & Metric & ARC Mean & Baseline Mean & p-value & Cohen's d & Sig. \\
+    Line & ARC Controller & Metric & ARC Mean & Baseline Mean & p-value & Cohen's d & Sig. \\
     \midrule
-    L1 & PerfMean & 0.966 & 0.297 & $2.84\times 10^{-86}$ & 10.11 & *** \\
-    L1 & RI & 0.00 & 1.41 & $1.05\times 10^{-293}$ & -589.7 & *** \\
-    L2 & PerfMean & 0.972 & 0.283 & $9.78\times 10^{-154}$ & 11.45 & *** \\
-    L3 & PerfMean & 0.935 & 0.204 & $2.77\times 10^{-182}$ & 7.08 & *** \\
-    L5 & PerfMean & 0.943 & 0.208 & $<1\times 10^{-200}$ & 8.41 & *** \\
+    L1 & \texttt{arc\_v1} & PerfMean & 0.966 & 0.297 & $2.84\times 10^{-86}$ & 10.11 & *** \\
+    L1 & \texttt{arc\_v1} & RI & 0.000 & 1.408 & $1.05\times 10^{-293}$ & -589.71 & *** \\
+    L2 & \texttt{arc\_v1} & PerfMean & 0.981 & 0.263 & $4.52\times 10^{-72}$ & 15.61 & *** \\
+    L3 & \texttt{arc\_v1} & PerfMean & 0.875 & 0.073 & $3.78\times 10^{-89}$ & 10.71 & *** \\
+    L5 & \texttt{arc\_robust} & PerfMean & 0.924 & 0.225 & $2.95\times 10^{-37}$ & 5.28 & *** \\
     \bottomrule
 \end{tabular}}
 \end{center}
 
-\textit{All comparisons are statistically significant (p $<0.001$). Cohen's d values indicate extremely large effect sizes (d $>0.8$ is considered ``large''). The extremely large d for RI (-589.7) reflects the near-deterministic elimination of rumination variance by integral controllers.}
+\textit{All comparisons are statistically significant (two-sided t-test; p $<0.001$). Cohen's d values indicate extremely large effect sizes (d $>0.8$ is considered ``large''). The extremely large d for RI reflects near-deterministic elimination of rumination variance (ARC achieves RI$=0$ across all seeds in the L1 scenario set). Aggregation is across all seeds and scenarios within each line (L1: $n=60$; L2: $n=40$; L3: $n=60$; L5: $n=40$).}
 
 \subsubsection{Correlation Analysis}
 We analyzed correlations between metrics to understand system dynamics:
@@ -535,9 +564,9 @@ We analyzed correlations between metrics to understand system dynamics:
 \subsubsection{Robustness Analysis}
 Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains future work. The current validation relies on empirical benchmarking across a wide range of conditions:
 \begin{itemize}
-    \item \textbf{L1--L5:} All ARC variants significantly outperform baselines (p $<0.001$ in all 25 comparisons)
+    \item \textbf{L1--L5:} ARC significantly outperforms \texttt{no\_control} on PerfMean in each research line (p $<0.001$ in the significance tests above).
     \item \textbf{Variance:} ARC controllers show lower variance (more consistent behavior)
-    \item \textbf{Scenario difficulty:} \texttt{sustained\_contradiction} is hardest (lowest ARC PerfMean: 0.817); \texttt{gaslighting} is easiest (0.980)
+    \item \textbf{Scenario difficulty:} For ARC v1, \texttt{sustained\_contradiction} is hardest (PerfMean 0.817) and \texttt{gaslighting} is easiest (0.980); across all controllers, \texttt{adversarial\_coupling} has the lowest mean performance (0.568).
 \end{itemize}
 
 \begin{figure}[h]
@@ -584,7 +613,7 @@ Beyond the basic proportional controller (ARC v1), we implemented and evaluated 
     \item \textbf{PID/LQI variants eliminate rumination} (RI$=0$) in stochastic environments but are fragile against adversaries.
     \item \textbf{Meta-control is most efficient} (0.61 effort) while maintaining high performance.
     \item \textbf{H$\infty$ Robust achieves best balance:} high performance (0.95) with zero rumination and moderate effort.
-    \item \textbf{Trade-off exists} between performance and anti-rumination: integral controllers sacrifice $\sim$5\% performance to eliminate perseverative loops.
+    \item \textbf{Performance--regulation trade-off:} integral control can enforce RI$=0$ but may reduce mean performance (PID is $\sim$6.9\% below ARC v1 in the full suite), motivating robust designs that avoid windup.
 \end{enumerate}
 
 \subsubsection{Performance Comparison}
@@ -651,9 +680,9 @@ If future AI systems incorporate affective-like states, they will need regulator
 \subsection{Trade-offs between Performance, Stability, and Complexity}
 Our deep analysis revealed four critical insights regarding the cost of stability and optimal control complexity:
 \begin{enumerate}
-    \item \textbf{The ``Mental Health Tax'':} The comparison between proportional controllers (ARC v1) and integral controllers (PID/LQI) suggests that eliminating rumination completely (RI$=0$) comes at a cost of $\sim$6.9\% in raw performance. This suggests a fundamental trade-off: agents that are ``obsessive'' (risk-tolerant) may perform slightly better in the short term, but ``healthy'' agents (integral control) guarantee long-term stability.
-    \item \textbf{The True ``Final Boss'':} Contrary to the assumption that noise is the main stressor, the \texttt{adversarial\_coupling} scenario proved to be the hardest test (lowest global performance: 0.56). This implies that resisting manipulation (environments that incentivize dangerous internal states) is significantly harder for agents than resisting uncertainty or shock.
-    \item \textbf{The Complexity Trap:} Our most complex controller, \texttt{arc\_ultimate} (MPC), underperformed the simpler architecture \texttt{arc\_robust} (0.88 vs 0.94 performance) and required higher control effort. This suggests that for homeostatic regulation, robust reactive control is superior to complex predictive modeling---``smarter'' is not always safer.
+    \item \textbf{Performance--Regulation Trade-off:} Across the full 10-scenario simulation suite, integral control can drive rumination essentially to zero (e.g., PID: RI$=0$) at the cost of lower mean performance (PerfMean 0.870 vs 0.934 for ARC v1; a 6.9\% drop). This trade-off is not universal: robust regulation (e.g., \texttt{arc\_robust}) achieves both high performance (PerfMean 0.948) and RI$=0$ by avoiding windup under adversarial incentives.
+    \item \textbf{Adversarial Incentives Are the Hardest Stressor:} Across all controller families, \texttt{adversarial\_coupling} has the lowest mean performance (0.568), exposing failures where control actions are directly rewarded (incentive misalignment) rather than penalized. This suggests that resisting manipulation-like incentives can be harder than resisting noise or shock.
+    \item \textbf{Complexity vs. Robustness:} Our most complex controller, \texttt{arc\_ultimate} (MPC), underperformed the simpler \texttt{arc\_robust} on average (PerfMean 0.886 vs 0.948) while requiring higher control effort (1.33 vs 1.03). In this benchmark, robust reactive control provides a better safety--performance balance than heavyweight predictive modeling.
     \item \textbf{The Adaptation Paradox and Persistence of Excitation:} We observed that \texttt{arc\_adaptive} performs poorly in the ``No Perturbation'' baseline but excels in chaotic environments. This illustrates the classic \textbf{persistence of excitation} problem \citep{astrom2008feedback}: in benign environments, lack of variation prevents the estimator from identifying correct parameters, leading to control drift. Noisy environments paradoxically stabilize the adaptive controller by providing necessary excitation.
 \end{enumerate}
 
@@ -693,7 +722,7 @@ We presented ARC, a homeostatic control framework for agents with internal affec
 \begin{enumerate}
     \item \textbf{Affective states without regulation lead to collapse} (96.6\% vs 29.7\% performance)
     \item \textbf{Meta-control reduces effort while improving stability} (-21\% ControlEffort)
-    \item \textbf{ARC improves RL transfer learning} (+50\% success in non-stationary environments)
+    \item \textbf{ARC improves RL transfer learning} (+49.8\% success in non-stationary environments)
 \end{enumerate}
 
 This work opens directions for learned control, integration with modern RL algorithms, and application to real-world AI systems with affective components.
@@ -705,12 +734,12 @@ This work opens directions for learned control, integration with modern RL algor
 
 Reproducibility checklist:
 \begin{itemize}
-    \item[$\square$] Install dependencies (\texttt{pip install -r requirements.txt})
-    \item[$\square$] Run L1--L5 simulation benchmark (generates \texttt{outputs\_final/metrics.csv})
-    \item[$\square$] Generate controller comparison figures (writes to \texttt{figures\_controllers/})
-    \item[$\square$] Run ablation study (writes to \texttt{outputs\_ablation/})
-    \item[$\square$] Run L6 RL validation (writes to \texttt{outputs\_L6\_robust/})
-    \item[$\square$] Generate L6 figures (writes to \texttt{figures\_L6/})
+    \item Install dependencies (\texttt{pip install -r requirements.txt})
+    \item Run L1--L5 simulation benchmark (generates \texttt{outputs\_final/metrics.csv})
+    \item Generate controller comparison figures (writes to \texttt{figures\_controllers/})
+    \item Run ablation study (writes to \texttt{outputs\_ablation/})
+    \item Run L6 RL validation (writes to \texttt{outputs\_L6\_robust/})
+    \item Generate L6 figures (writes to \texttt{figures\_L6/})
 \end{itemize}
 
 All experiments can be reproduced with:

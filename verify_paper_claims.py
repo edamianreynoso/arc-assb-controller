@@ -1,5 +1,17 @@
 import pandas as pd
 from pathlib import Path
+import numpy as np
+from scipy.stats import ttest_ind
+
+def cohens_d(x: np.ndarray, y: np.ndarray) -> float:
+    x = np.asarray(x, dtype=float)
+    y = np.asarray(y, dtype=float)
+    nx = x.size
+    ny = y.size
+    sx = x.std(ddof=1)
+    sy = y.std(ddof=1)
+    s_pooled = np.sqrt(((nx - 1) * sx * sx + (ny - 1) * sy * sy) / (nx + ny - 2))
+    return (x.mean() - y.mean()) / s_pooled
 
 def verify_claims():
     print("Verifying Paper Claims...")
@@ -52,6 +64,33 @@ def verify_claims():
     print(f"\nClaim 3: Robust Controller")
     print(f"  Robust PerfMean: {arc_robust['PerfMean'].mean():.3f} (Claim: 0.95)")
     print(f"  Robust RI: {arc_robust['RI'].mean():.3f} (Claim: 0.00)")
+
+    # 4. Significance tests (matches Table 10 in paper)
+    print(f"\nClaim 4: Table 10 / Significance Tests (ARC vs no_control)")
+    lines = {
+        "L1": {"scenarios": ["reward_flip", "noise_burst", "sudden_threat"], "arc": "arc_v1", "metrics": ["PerfMean", "RI"]},
+        "L2": {"scenarios": ["distribution_shift", "goal_conflict"], "arc": "arc_v1", "metrics": ["PerfMean"]},
+        "L3": {"scenarios": ["sustained_contradiction", "gaslighting", "instruction_conflict"], "arc": "arc_v1", "metrics": ["PerfMean"]},
+        "L5": {"scenarios": ["adversarial_coupling", "random_dopamine"], "arc": "arc_robust", "metrics": ["PerfMean"]},
+    }
+    for line, spec in lines.items():
+        sub = df[df["scenario"].isin(spec["scenarios"])]
+        arc = sub[sub["controller"] == spec["arc"]]
+        base = sub[sub["controller"] == "no_control"]
+        for metric in spec["metrics"]:
+            x = arc[metric].to_numpy()
+            y = base[metric].to_numpy()
+            p = ttest_ind(x, y, equal_var=True).pvalue
+            d = cohens_d(x, y)
+            print(
+                f"  {line} {spec['arc']} {metric}: "
+                f"ARC={x.mean():.3f}, Baseline={y.mean():.3f}, p={p:.3e}, d={d:.2f}, n={x.size}"
+            )
+
+    # 5. Scenario difficulty (global, across controllers)
+    print(f"\nClaim 5: Scenario Difficulty (mean PerfMean across all controllers)")
+    scenario_mean = df.groupby("scenario")["PerfMean"].mean().sort_values()
+    print(scenario_mean.head(3).to_string())
 
 if __name__ == "__main__":
     verify_claims()

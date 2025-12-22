@@ -175,7 +175,7 @@ $$u_{dmg} = k_{dmg} \cdot \text{risk}$$
 **ARC v1 PID:** Adds integral and derivative terms:
 $$u(t) = K_p \cdot e(t) + K_i \cdot \int e(\tau) d\tau + K_d \cdot \frac{de}{dt}$$
 
-The integral term on narrative error ($S$) rejects persistent rumination pressure, driving the steady-state narrative error toward zero (and typically RI $\\rightarrow$ 0 under sustained disturbance).
+The integral term on narrative error ($S$) rejects persistent rumination pressure, driving the steady-state narrative error toward zero (and typically RI $\rightarrow 0$ under sustained disturbance).
 
 #### 4.3.3 Optimal Controllers (LQR/LQI)
 
@@ -266,15 +266,15 @@ where $\tilde{s}_t = s_t - s_0$, $\mu\in(0,1)$ is a leak term, $k>0$ is a contro
 
 *Remark:* This is a discrete-time instance of the internal model principle: rejecting unknown constant disturbances requires an integrator (or a disturbance observer). Note that $RI$ can be zero even if $\tilde{s}_\infty\neq 0$ as long as $s_t \le s_{safe}$; integral action is mainly required when we demand strict setpoint regulation and is vulnerable to windup under saturation (Section 6.6).
 
-**Theorem 2 (Convex Performance\u2013Regulation Trade-off in Expectation).**
+**Theorem 2 (Convex Performance–Regulation Trade-off in Expectation).**
 Let $J_{perf}(\pi)=\mathbb{E}[\text{PerfMean}]$ and $J_{reg}(\pi)=\mathbb{E}[||S||^2+||A||^2]$ for an episode under controller $\pi$. If we allow randomized selection between controllers at episode start, then the set of achievable pairs $\{(J_{reg}(\pi),J_{perf}(\pi))\}$ is convex.
 
-*Proof:* Take any two controllers $\\pi_1,\\pi_2$ with pairs $(r_1,p_1)$ and $(r_2,p_2)$. Choose $\\pi_1$ with probability $\\lambda\\in[0,1]$ and $\\pi_2$ otherwise. Linearity of expectation gives $(J_{reg},J_{perf})=(\\lambda r_1+(1-\\lambda)r_2,\\;\\lambda p_1+(1-\\lambda)p_2)$, a convex combination.
+*Proof:* Take any two controllers $\pi_1,\pi_2$ with pairs $(r_1,p_1)$ and $(r_2,p_2)$. Choose $\pi_1$ with probability $\lambda\in[0,1]$ and $\pi_2$ otherwise. Linearity of expectation gives $(J_{reg},J_{perf})=(\lambda r_1+(1-\lambda)r_2,\;\lambda p_1+(1-\lambda)p_2)$, a convex combination.
 
-*Implication:* Driving regulation cost toward zero (e.g., suppressing perseveration until $RI=0$) typically moves along this frontier and can reduce peak performance\u2014consistent with the "Mental Health Tax" observed empirically (Section 7.3).
+*Implication:* Driving regulation cost toward zero (e.g., suppressing perseveration until $RI=0$) typically moves along this frontier and can reduce peak performance—consistent with the empirical performance–regulation trade-offs discussed in Section 7.3.
 
 **Proposition 1 (Paradox of Adaptation).**
-Adaptive ARC controllers require *persistence of excitation* for reliable parameter convergence (Åström & Murray, 2008). In benign environments (low variance in reward/PE), the parameter estimator $\\hat{\\theta}$ drifts or fails to converge, leading to suboptimal control laws upon sudden shock onset.
+Adaptive ARC controllers require *persistence of excitation* for reliable parameter convergence (Åström & Murray, 2008). In benign environments (low variance in reward/PE), the parameter estimator $\hat{\theta}$ drifts or fails to converge, leading to suboptimal control laws upon sudden shock onset.
 
 *Implication:* This explains the underperformance of `arc_adaptive` in baseline scenarios compared to robust variants.
 
@@ -312,7 +312,7 @@ ASSB is designed as a *validation ladder*: each research line increases the real
 
 We frame L1–L6 as testable hypotheses about *which component is necessary* and *which metric should change* if regulation is working:
 
-- **H1 (L1, stability):** under value/uncertainty shocks, regulated agents keep high **PerfMean** while driving **RI $\\rightarrow$ 0** and reducing **RT** relative to baselines.
+- **H1 (L1, stability):** under value/uncertainty shocks, regulated agents keep high **PerfMean** while driving **RI $\rightarrow 0$** and reducing **RT** relative to baselines.
 - **H2 (L2, memory):** under distribution shift and goal conflict, memory gating improves **Retention** without inducing rumination (**RI**, **NDR**).
 - **H3 (L3, anti-rumination):** under contradiction/manipulation-like inputs, narrative suppression reduces **NDR** and **RI**, preventing dominance loops.
 - **H4 (L4, efficiency):** meta-control reduces **ControlEffort** while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
@@ -353,7 +353,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 ### 6.2 L1: Stability Under Perturbation (Simulation)
 
-**Hypothesis (H1):** Under value/uncertainty shocks, regulated agents keep high **PerfMean** while driving **RI $\\rightarrow$ 0** and reducing **RT** relative to baselines.
+**Hypothesis (H1):** Under value/uncertainty shocks, regulated agents keep high **PerfMean** while driving **RI $\rightarrow 0$** and reducing **RT** relative to baselines.
 
 **Setup:** 20 seeds $\times$ 3 scenarios $\times$ 4 controllers (`reward_flip`, `noise_burst`, `sudden_threat`)
 
@@ -466,15 +466,15 @@ To ensure rigor, we performed comprehensive statistical analysis across all expe
 
 **Table 10: Statistical Significance Tests**
 
-| Line | Metric | ARC Mean | Baseline Mean | p-value | Cohen's d | Sig. |
-|------|--------|----------|---------------|---------|-----------|------|
-| L1 | PerfMean | 0.966 | 0.297 | 2.84e-86 | 10.11 | *** |
-| L1 | RI | 0.00 | 1.41 | 1.05e-293 | -589.7 | *** |
-| L2 | PerfMean | 0.972 | 0.283 | 9.78e-154 | 11.45 | *** |
-| L3 | PerfMean | 0.935 | 0.204 | 2.77e-182 | 7.08 | *** |
-| L5 | PerfMean | 0.934 | 0.208 | 3.20e-216 | 6.59 | *** |
+| Line | ARC Controller | Metric | ARC Mean | Baseline Mean | p-value | Cohen's d | Sig. |
+|------|----------------|--------|----------|---------------|---------|-----------|------|
+| L1 | arc_v1 | PerfMean | 0.966 | 0.297 | 2.84e-86 | 10.11 | *** |
+| L1 | arc_v1 | RI | 0.000 | 1.408 | 1.05e-293 | -589.71 | *** |
+| L2 | arc_v1 | PerfMean | 0.981 | 0.263 | 4.52e-72 | 15.61 | *** |
+| L3 | arc_v1 | PerfMean | 0.875 | 0.073 | 3.78e-89 | 10.71 | *** |
+| L5 | arc_robust | PerfMean | 0.924 | 0.225 | 2.95e-37 | 5.28 | *** |
 
-*All comparisons are statistically significant (p < 0.001). Cohen's d values indicate extremely large effect sizes (d > 0.8 is considered "large"). The extremely large d for RI (-589.7) reflects the near-deterministic elimination of rumination variance (here: ARC achieves RI=0 across all seeds in the L1 scenario set).*
+*All comparisons are statistically significant (two-sided t-test; p < 0.001). Cohen's d values indicate extremely large effect sizes (d > 0.8 is considered "large"). The extremely large d for RI reflects near-deterministic elimination of rumination variance (ARC achieves RI=0 across all seeds in the L1 scenario set). Aggregation is across all seeds and scenarios within each line (L1: n=60; L2: n=40; L3: n=60; L5: n=40).*
 
 #### 6.8.2 Correlation Analysis
 
@@ -492,9 +492,9 @@ We analyzed correlations between metrics to understand system dynamics:
 
 Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains future work. The current validation relies on empirical benchmarking across a wide range of conditions:
 
-- **L1-L5:** All ARC variants significantly outperform baselines (p < 0.001 in all 25 comparisons)
+- **L1–L5:** ARC significantly outperforms `no_control` on PerfMean in each research line (p < 0.001 in the significance tests above).
 - **Variance:** ARC controllers show lower variance (more consistent behavior)
-- **Scenario difficulty:** `sustained_contradiction` is hardest (lowest ARC PerfMean: 0.817); `gaslighting` is easiest (0.980)
+- **Scenario difficulty:** For ARC v1, `sustained_contradiction` is hardest (PerfMean 0.817) and `gaslighting` is easiest (0.980); across all controllers, `adversarial_coupling` has the lowest mean performance (0.568).
 
 ![Controller Performance Comparison](../analysis/sensitivity_controller.png)
 
@@ -591,11 +591,11 @@ If future AI systems incorporate affective-like states, they will need regulator
 
 Our deep analysis revealed four critical insights regarding the cost of stability and optimal control complexity:
 
-**1. The "Mental Health Tax":** The comparison between proportional controllers (ARC v1) and integral controllers (PID/LQI) reveals that eliminating rumination completely (RI=0) comes at a cost of approximately ~6.9% in raw performance. This suggests a fundamental trade-off: agents that are "obsessive" (risk-tolerant) may perform slightly better in the short term, but "healthy" agents (integral control) guarantee long-term stability.
+**1. Performance–Regulation Trade-off:** Across the full 10-scenario simulation suite, integral control can drive rumination essentially to zero (e.g., PID: RI=0) at the cost of lower mean performance (PerfMean 0.870 vs 0.934 for ARC v1; a 6.9% drop). This trade-off is not universal: robust regulation (e.g., `arc_robust`) achieves both high performance (PerfMean 0.948) and RI=0 by avoiding windup under adversarial incentives.
 
-**2. The True "Final Boss":** Contrary to the assumption that noise is the main stressor, the `adversarial_coupling` scenario proved to be the hardest test (lowest global performance: 0.56). This implies that resisting manipulation (environments that incentivize dangerous internal states) is significantly harder for agents than resisting uncertainty or shock.
+**2. Adversarial Incentives Are the Hardest Stressor:** Across all controller families, `adversarial_coupling` has the lowest mean performance (0.568), exposing failures where control actions are directly rewarded (incentive misalignment) rather than penalized. This suggests that resisting manipulation-like incentives can be harder than resisting noise or shock.
 
-**3. The Complexity Trap:** Our most complex controller, `arc_ultimate` (MPC), underperformed the simpler architecture `arc_robust` (0.88 vs 0.94 performance) and required higher control effort. This suggests that for homeostatic regulation, robust reactive control is superior to complex predictive modeling—"smarter" is not always safer.
+**3. Complexity vs. Robustness:** Our most complex controller, `arc_ultimate` (MPC), underperformed the simpler `arc_robust` on average (PerfMean 0.886 vs 0.948) while requiring higher control effort (1.33 vs 1.03). In this benchmark, robust reactive control provides a better safety–performance balance than heavyweight predictive modeling.
 
 **4. The Adaptation Paradox and Persistence of Excitation:** We observed that `arc_adaptive` performs poorly in the "No Perturbation" baseline but excels in chaotic environments. This illustrates the classic **persistence of excitation** problem (Åström & Murray, 2008): in benign environments, lack of variation prevents the estimator from identifying correct parameters, leading to control drift. Noisy environments paradoxically stabilize the adaptive controller by providing necessary excitation.
 
@@ -660,10 +660,10 @@ This work opens directions for learned control, integration with modern RL algor
 - Amodei, D., et al. (2016). Concrete problems in AI safety. arXiv:1606.06565.
 - Åström, K.J. & Murray, R.M. (2008). Feedback Systems: An Introduction for Scientists and Engineers. Princeton University Press.
 - Baars, B.J. (1988). A Cognitive Theory of Consciousness. Cambridge.
-- Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124.
+- Buckner, R.L., Andrews-Hanna, J.R. & Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124(1), 1–38.
 - Carver, C.S. & Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111–135.
 - Damasio, A.R. (1994). Descartes' Error. Putnam.
-- Friston, K. (2010). The free-energy principle. Nature Reviews Neuroscience, 11(2).
+- Friston, K. (2010). The free-energy principle: a unified brain theory? Nature Reviews Neuroscience, 11(2), 127–138.
 - Garcia, J. & Fernández, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437–1480.
 - Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271–299.
 - Hamilton, J.P., Farmer, M., Fogelman, P. & Gotlib, I.H. (2015). Depressive rumination, the default-mode network, and the dark matter of clinical neuroscience. Biological Psychiatry, 78(4), 224–230.
@@ -672,14 +672,14 @@ This work opens directions for learned control, integration with modern RL algor
 - Leike, J., Martic, M., Krakovna, V., Ortega, P.A., Everitt, T., Lefrancq, A., Orseau, L., & Legg, S. (2017). AI Safety Gridworlds. arXiv:1711.09883.
 - Lucas, C., Shahmirzadi, D., & Sheikholeslami, N. (2004). Introducing Belbic: Brain Emotional Learning Based Intelligent Controller. Intelligent Automation & Soft Computing, 10(1), 11–21.
 - Moerland, T.M., Broekens, J., & Jonker, C.M. (2018). Emotion in reinforcement learning agents and robots: a survey. Machine Learning, 107(2), 443–480.
-- Ochsner, K.N. & Gross, J.J. (2005). The cognitive control of emotion. TICS, 9(5).
+- Ochsner, K.N. & Gross, J.J. (2005). The cognitive control of emotion. Trends in Cognitive Sciences, 9(5), 242–249.
 - Picard, R.W. (1997). Affective Computing. MIT Press.
 - Raichle, M.E., et al. (2001). A default mode of brain function. Proceedings of the National Academy of Sciences, 98(2), 676–682.
 - Ray, A., Achiam, J., & Amodei, D. (2019). Benchmarking Safe Exploration in Deep Reinforcement Learning. Safety Gym benchmark suite. https://github.com/openai/safety-gym.
 - Russell, J.A. (1980). A circumplex model of affect. Journal of Personality and Social Psychology, 39(6), 1161–1178.
 - Scherer, K.R., et al. (2010). Blueprint for Affective Computing. Oxford.
 - Sutton, R.S. & Barto, A.G. (2018). Reinforcement Learning: An Introduction (2nd ed.). MIT Press.
-- Tononi, G. (2008). Consciousness as integrated information. Biological Bulletin, 215(3).
+- Tononi, G. (2008). Consciousness as integrated information: a provisional manifesto. The Biological Bulletin, 215(3), 216–242.
 - Wachi, A., Shen, X., & Sui, Y. (2024). A Survey of Constraint Formulations in Safe Reinforcement Learning. IJCAI 2024. arXiv:2402.02025.
 - Watkins, C.J.C.H. & Dayan, P. (1992). Q-learning. Machine Learning, 8, 279–292.
 
@@ -688,12 +688,12 @@ This work opens directions for learned control, integration with modern RL algor
 ## Appendix A: Reproducibility
 
 Reproducibility checklist:
-- [ ] Install dependencies (`pip install -r requirements.txt`)
-- [ ] Run L1–L5 simulation benchmark (generates `outputs_final/metrics.csv`)
-- [ ] Generate controller comparison figures (writes to `figures_controllers/`)
-- [ ] Run ablation study (writes to `outputs_ablation/`)
-- [ ] Run L6 RL validation (writes to `outputs_L6_robust/`)
-- [ ] Generate L6 figures (writes to `figures_L6/`)
+- Install dependencies (`pip install -r requirements.txt`)
+- Run L1–L5 simulation benchmark (generates `outputs_final/metrics.csv`)
+- Generate controller comparison figures (writes to `figures_controllers/`)
+- Run ablation study (writes to `outputs_ablation/`)
+- Run L6 RL validation (writes to `outputs_L6_robust/`)
+- Generate L6 figures (writes to `figures_L6/`)
 
 All experiments can be reproduced with:
 
