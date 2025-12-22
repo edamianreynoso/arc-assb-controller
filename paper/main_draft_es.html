@@ -1062,7 +1062,7 @@ estados</strong> (Apéndice B/C), o - <strong>Dentro del bucle de
 aprendizaje</strong>, ej., activando actualizaciones de Q-learning bajo
 alto riesgo (Sección 6.7).</p>
 <figure>
-<img src="../figures_controllers/fig_arc_architecture.png"
+<img src="../figures_controllers/fig_arc_architecture_v2.png"
 alt="Arquitectura ARC: El Núcleo de Regulación Afectiva actúa como un envoltorio homeostático alrededor del agente, procesando estado interno, señales exógenas y aplicando acciones de control." />
 <figcaption aria-hidden="true">Arquitectura ARC: El Núcleo de Regulación
 Afectiva actúa como un envoltorio homeostático alrededor del agente,
@@ -1745,6 +1745,76 @@ por ARC (cyan) vs Q-learning línea base (naranja) en GridWorld,
 StochasticGridWorld y ChangingGoalGridWorld. Las regiones sombreadas
 muestran ±1 std sobre 20 seeds.</em></p>
 <h3 id="análisis-estadístico">6.8 Análisis Estadístico</h3>
+<p><strong>Tabla 11: Pruebas de Significancia Estadística</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 12%" />
+<col style="width: 15%" />
+<col style="width: 25%" />
+<col style="width: 12%" />
+<col style="width: 15%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>Línea</th>
+<th>Métrica</th>
+<th>Media ARC</th>
+<th>Media Línea Base</th>
+<th>p-value</th>
+<th>Cohen’s d</th>
+<th>Sig.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1</td>
+<td>PerfMean</td>
+<td>0.966</td>
+<td>0.297</td>
+<td>2.84e-86</td>
+<td>10.11</td>
+<td>***</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>RI</td>
+<td>0.00</td>
+<td>1.41</td>
+<td>1.05e-293</td>
+<td>-589.7</td>
+<td>***</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>PerfMean</td>
+<td>0.972</td>
+<td>0.283</td>
+<td>9.78e-154</td>
+<td>11.45</td>
+<td>***</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>PerfMean</td>
+<td>0.935</td>
+<td>0.204</td>
+<td>2.77e-182</td>
+<td>7.08</td>
+<td>***</td>
+</tr>
+<tr>
+<td>L5</td>
+<td>PerfMean</td>
+<td>0.943</td>
+<td>0.208</td>
+<td>&lt;1e-200</td>
+<td>8.41</td>
+<td>***</td>
+</tr>
+</tbody>
+</table>
 <p><em>Todas las comparaciones son estadísticamente significativas (p
 &lt; 0.001). Los valores de d de Cohen indican tamaños del efecto
 extremadamente grandes (d &gt; 0.8 se considera “grande”). El valor

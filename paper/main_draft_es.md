@@ -237,7 +237,7 @@ ARC se implementa como un envoltorio ligero alrededor del paso/actualización de
 - **Dentro de la dinámica de estados** (Apéndice B/C), o
 - **Dentro del bucle de aprendizaje**, ej., activando actualizaciones de Q-learning bajo alto riesgo (Sección 6.7).
 
-![Arquitectura ARC: El Núcleo de Regulación Afectiva actúa como un envoltorio homeostático alrededor del agente, procesando estado interno, señales exógenas y aplicando acciones de control.](../figures_controllers/fig_arc_architecture.png)
+![Arquitectura ARC: El Núcleo de Regulación Afectiva actúa como un envoltorio homeostático alrededor del agente, procesando estado interno, señales exógenas y aplicando acciones de control.](../figures_controllers/fig_arc_architecture_v2.png)
 
 ### 4.5 Objetivo de Seguridad y Costo de Control
 
@@ -446,6 +446,16 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 *Figura 3: Curvas de aprendizaje comparando Q-learning modulado por ARC (cyan) vs Q-learning línea base (naranja) en GridWorld, StochasticGridWorld y ChangingGoalGridWorld. Las regiones sombreadas muestran ±1 std sobre 20 seeds.*
 
 ### 6.8 Análisis Estadístico
+
+**Tabla 11: Pruebas de Significancia Estadística**
+
+| Línea | Métrica | Media ARC | Media Línea Base | p-value | Cohen's d | Sig. |
+|-------|---------|-----------|------------------|---------|-----------|------|
+| L1 | PerfMean | 0.966 | 0.297 | 2.84e-86 | 10.11 | *** |
+| L1 | RI | 0.00 | 1.41 | 1.05e-293 | -589.7 | *** |
+| L2 | PerfMean | 0.972 | 0.283 | 9.78e-154 | 11.45 | *** |
+| L3 | PerfMean | 0.935 | 0.204 | 2.77e-182 | 7.08 | *** |
+| L5 | PerfMean | 0.943 | 0.208 | <1e-200 | 8.41 | *** |
 
 *Todas las comparaciones son estadísticamente significativas (p < 0.001). Los valores de d de Cohen indican tamaños del efecto extremadamente grandes (d > 0.8 se considera "grande"). El valor extremadamente alto para RI (-589.7) refleja la eliminación casi determinista de la varianza de la rumiación por los controladores integrales.*
 
