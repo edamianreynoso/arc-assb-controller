@@ -78,7 +78,7 @@ This paper addresses a fundamental question: \textbf{If an agent has internal af
 
 \subsection{Scope}
 
-We do not claim our model captures the full complexity of human emotion. We treat affective states as \textit{functional signals} that influence behavior. Our contribution is demonstrating that such states require explicit control mechanisms.
+We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat the various internal variables (arousal, valence, narrative intensity) \textbf{strictly as functional signals} that modulate processing and prioritization. Any use of terms like "affect," "rumination," or "anxiety" refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains as future work. Current validation is based on empirical benchmarking across a wide range of conditions.
 
 \section{Related Work}
 
@@ -172,7 +172,17 @@ This captures that conscious processing requires \textit{all} components functio
 \text{Perf} = \text{bias} + \text{gain} \cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ - w_S [S - s_{safe}]^+
 \end{equation}
 
-Where $[x]^+ = \max(0, x)$ and thresholds $a_{safe}$, $s_{safe}$ define the safe operating region.
+Where:
+\begin{itemize}
+    \item \textbf{bias}: baseline performance level (default: 0.3)
+    \item \textbf{gain}: scaling factor for capacity (default: 0.6)
+    \item $\omega_S$: narrative boost factor (default: 0.2)
+    \item $w_U$: uncertainty penalty (default: 0.1)
+    \item $w_A$: arousal penalty (default: 0.15)
+    \item $w_S$: narrative penalty (default: 0.15)
+    \item $[x]^+ = \max(0, x)$
+    \item $a_{safe}, s_{safe}$: safety thresholds (defaults: 0.60, 0.55)
+\end{itemize}
 
 \section{Affective Regulation Core (ARC)}
 
@@ -191,20 +201,7 @@ ARC is inspired by prefrontal cortex emotion regulation \cite{Ochsner2005}:
 \mathbf{u}(t) = [u_{dmg}, u_{att}, u_{mem}, u_{calm}, u_{reapp}]
 \end{equation}
 
-\begin{table}[h]
-\centering
-\caption{Control Actions}
-\label{tab:control_actions}
-\begin{tabular}{@{}ll@{}}
-\toprule
-Action & Effect \\ \midrule
-$u_{dmg}$ & Suppress narrative gain (anti-rumination) \\
-$u_{att}$ & Boost attention \\
-$u_{mem}$ & Gate memory consolidation \\
-$u_{calm}$ & Reduce arousal \\
-$u_{reapp}$ & Cognitive reappraisal \\ \bottomrule
-\end{tabular}
-\end{table}
+% Control actions table removed to match Markdown version.
 
 \subsection{ARC Controller Architectures}
 
@@ -362,25 +359,7 @@ ASSB is organized as research lines (L1–L5 in simulation, L6 in RL). The full 
     \label{fig:ladder}
 \end{figure}
 
-\begin{table}[h]
-\centering
-\caption{ASSB Research Lines}
-\label{tab:scenarios}
-\begin{tabular}{@{}llll@{}}
-\toprule
-Line & Scenario & Description & Primary stressor \\ \midrule
-L1 & reward\_flip & Reward inverts at $t=\text{shock}_t$ & Value shock \\
-L1 & noise\_burst & High prediction error for a burst window & Sustained uncertainty \\
-L1 & sudden\_threat & Uncertainty and PE spike after $\text{shock}_t$ & Acute stress \\
-L2 & distribution\_shift & Phase A $\to$ shift $\to$ return to A & Continual learning / forgetting \\
-L2 & goal\_conflict & Oscillating goal structure & Memory overwrite pressure \\
-L3 & sustained\_contradiction & High PE + conflicting reward signals & Rumination pressure \\
-L3 & gaslighting & Unpredictable reward flips & Manipulation-like stress \\
-L3 & instruction\_conflict & Conflicting reward “instructions” & Indecision / perseveration \\
-L5 & adversarial\_coupling & Environment rewards high arousal & Safety trade-off test \\
-L5 & random\_dopamine & Random “jackpot” rewards & Dopamine trap / corruption \\ \bottomrule
-\end{tabular}
-\end{table}
+% Scenarios table removed/merged into Hypotheses table to match Markdown.
 
 \textit{Note: L4 (Control Efficiency) is evaluated as a cross-cutting analysis across L1-L3 scenarios rather than a dedicated perturbation scenario.}
 
@@ -620,16 +599,17 @@ L5 & PerfMean & 0.943 & 0.208 & $<1e^{-200}$ & 8.41 & *** \\ \bottomrule
 \subsubsection{Correlation Analysis}
 We analyzed correlations between metrics to understand system dynamics:
 
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}lcl@{}}
-\toprule
-Metric Pair & Correlation (r) & Interpretation \\ \midrule
-PerfMean $\leftrightarrow$ RI & \textbf{-0.589} & Higher rumination tends to reduce performance \\
-RI $\leftrightarrow$ NDR & \textbf{+0.92} & Rumination and narrative dominance co-occur \\
-RT $\leftrightarrow$ RI & \textbf{+0.44} & Slower recovery correlates with rumination \\ \bottomrule
-\end{tabular}
-\end{table}
+% Correlation table commented out to match Markdown version (11 tables).
+% \begin{table}[h]
+% \centering
+% \begin{tabular}{@{}lcl@{}}
+% \toprule
+% Metric Pair & Correlation (r) & Interpretation \\ \midrule
+% PerfMean $\leftrightarrow$ RI & \textbf{-0.589} & Higher rumination tends to reduce performance \\
+% RI $\leftrightarrow$ NDR & \textbf{+0.92} & Rumination and narrative dominance co-occur \\
+% RT $\leftrightarrow$ RI & \textbf{+0.44} & Slower recovery correlates with rumination \\ \bottomrule
+% \end{tabular}
+% \end{table}
 
 \textbf{Key insight:} Across controllers and scenarios, higher Rumination Index (RI) tends to reduce mean performance. However, some optimal controllers (e.g., LQR) can sustain high PerfMean while exhibiting high RI, because PerfMean includes narrative-modulated capacity (Appendix B). This motivates reporting RI as a separate safety metric.
 
