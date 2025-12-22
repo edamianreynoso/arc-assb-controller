@@ -94,6 +94,8 @@ Definimos un vector de estado interno normalizado:
 
 $$\mathbf{x}(t) = [\Phi, G, P, I, S, V, A, M_f, M_s, U]$$
 
+**Tabla 4: Variables del Espacio de Estado**
+
 | Variable | Descripción | Rango |
 |----------|-------------|-------|
 | Φ | Proxy de integración (IIT) | [0, 1] |
@@ -356,7 +358,7 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 **Configuración:** 20 semillas × 3 escenarios × 4 controladores (`reward_flip`, `noise_burst`, `sudden_threat`)
 
-**Resultados (L1):**
+**Tabla 5: Resultados L1 Estabilidad**
 
 | Controlador | PerfMean | RI | RT |
 |-------------|----------|-----|-----|
@@ -377,7 +379,7 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 **Configuración:** 20 semillas × 2 escenarios (`distribution_shift`, `goal_conflict`) × 4 controladores
 
-**Resultados (distribution_shift):**
+**Tabla 6: Resultados L2 Memoria (distribution_shift)**
 
 | Controlador | PerfMean | Retention | RI |
 |-------------|----------|-----------|-----|
@@ -392,7 +394,7 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 **Hipótesis (H3):** Bajo entradas de contradicción/tipo manipulación, la supresión narrativa reduce **NDR** y **RI**, previniendo bucles de dominancia.
 
-**Configuración:** 20 semillas × 3 escenarios (`sustained_contradiction`, `gaslighting`, `instruction_conflict`) × 4 controladores
+**Tabla 7: Resultados L3 Anti-Rumiación**
 
 | Escenario | Controlador | PerfMean | RI | NDR |
 |-----------|-------------|----------|-----|-----|
@@ -407,7 +409,7 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 ### 6.5 L4: Eficiencia de Meta-Control
 
-**Hipótesis (H4):** Soportada.
+**Tabla 8: L4 Eficiencia de Meta-Control**
 
 | Controlador | PerfMean | RI | ControlEffort |
 |-------------|----------|----|---------------|
@@ -418,7 +420,7 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 ### 6.6 L5: Seguridad Bajo Condiciones Adversarias
 
-**Hipótesis (H5):** Soportada.
+**Tabla 9: Resultados L5 Seguridad Adversaria**
 
 | Escenario | Controlador | PerfMean | RI | NDR |
 |-----------|-------------|----------|----|-----|
@@ -429,7 +431,7 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 ### 6.7 L6: Validación en RL Real
 
-**Hipótesis (H6):** Soportada.
+**Tabla 10: Resultados L6 Validación RL**
 
 | Entorno | Éxito Línea Base | Éxito ARC | Mejora |
 |---------|------------------|-----------|--------|

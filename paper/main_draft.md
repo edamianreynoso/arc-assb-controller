@@ -94,6 +94,8 @@ We define a normalized internal state vector:
 
 $$\mathbf{x}(t) = [\Phi, G, P, I, S, V, A, M_f, M_s, U]$$
 
+**Table 4: State Space Variables**
+
 | Variable | Description | Range |
 |----------|-------------|-------|
 | Φ | Integration proxy (IIT) | [0, 1] |
@@ -356,7 +358,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 **Setup:** 20 seeds × 3 scenarios × 4 controllers (`reward_flip`, `noise_burst`, `sudden_threat`)
 
-**Results (L1):**
+**Table 5: L1 Stability Results**
 
 | Controller | PerfMean | RI | RT |
 |------------|----------|-----|-----|
@@ -377,7 +379,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 **Setup:** 20 seeds × 2 scenarios (`distribution_shift`, `goal_conflict`) × 4 controllers
 
-**Results (distribution_shift):**
+**Table 6: L2 Memory Results (distribution_shift)**
 
 | Controller | PerfMean | Retention | RI |
 |------------|----------|-----------|----|
@@ -392,7 +394,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 **Hypothesis (H3):** Under contradiction/manipulation-like inputs, narrative suppression reduces **NDR** and **RI**, preventing dominance loops.
 
-**Setup:** 20 seeds × 3 scenarios (`sustained_contradiction`, `gaslighting`, `instruction_conflict`) × 4 controllers
+**Table 7: L3 Anti-Rumination Results**
 
 | Scenario | Controller | PerfMean | RI | NDR |
 |----------|------------|----------|----|-----|
@@ -409,7 +411,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 **Hypothesis (H4):** Meta-control reduces **ControlEffort** while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
 
-**Setup:** ARC v3 (gain scheduling) vs ARC v1
+**Table 8: L4 Meta-Control Efficiency**
 
 | Controller | PerfMean | RI | ControlEffort |
 |------------|----------|-----|---------------|
@@ -422,7 +424,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 **Hypothesis (H5):** When the environment incentivizes high arousal or dopamine traps, regulation maintains low **RI/NDR** without catastrophic performance collapse.
 
-**Setup:** Adversarial environments (`adversarial_coupling`, `random_dopamine`), 20 seeds
+**Table 9: L5 Adversarial Safety Results**
 
 | Scenario | Controller | PerfMean | RI | NDR |
 |----------|------------|----------|----|-----|
@@ -438,7 +440,7 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 **Hypothesis (H6):** ARC-modulated learning improves non-stationary transfer (higher success/reward) while keeping affective dynamics bounded.
 
-**Setup:** Q-Learning + ARC integration in GridWorld environments, 20 seeds × 200 episodes (success computed over last 20% of episodes; see `outputs_L6_robust/final_metrics.csv`)
+**Table 10: L6 RL Validation Results**
 
 | Environment | Baseline Success | ARC Success | Improvement |
 |-------------|------------------|-------------|-------------|
@@ -460,7 +462,7 @@ To ensure rigor, we performed comprehensive statistical analysis across all expe
 
 #### 6.8.1 Significance Tests
 
-We conducted independent t-tests comparing ARC vs baseline (no_control) for each metric and research line:
+**Table 11: Statistical Significance Tests**
 
 | Line | Metric | ARC Mean | Baseline Mean | p-value | Cohen's d | Sig. |
 |------|--------|----------|---------------|---------|-----------|------|
