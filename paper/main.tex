@@ -220,7 +220,7 @@ u_{dmg} = k_{dmg} \cdot \text{risk}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{../figures_controllers/fig_arc_v1_controller.png}
+    \includegraphics[width=0.8\textwidth]{figures/fig_arc_v1_controller.png}
     \caption{ARC v1 control law overview. A bounded risk signal drives a set of saturated regulation actions (DMN suppression, attention boost, memory gating, calming, and reappraisal).}
     \label{fig:arc_v1}
 \end{figure}
@@ -319,7 +319,7 @@ ARC is implemented as a light-weight wrapper around an agent’s step/update. At
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_controllers/fig_arc_architecture_v2.png}
+    \includegraphics[width=\textwidth]{figures/fig_arc_architecture_v2.png}
     \caption{ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions.}
     \label{fig:architecture}
 \end{figure}
@@ -355,7 +355,7 @@ ASSB is organized as research lines (L1–L5 in simulation, L6 in RL). The full 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_controllers/fig_benchmark_ladder.png}
+    \includegraphics[width=\textwidth]{figures/fig_benchmark_ladder.png}
     \caption{ASSB Validation Ladder: A progression from stability tests (L1) to real RL integration (L6).}
     \label{fig:ladder}
 \end{figure}
@@ -438,10 +438,12 @@ We validate hypotheses H1–H6 (Section 5.3) by running the corresponding resear
 
 \textbf{Setup:} 20 seeds $\times$ 3 scenarios $\times$ 4 controllers (\texttt{reward\_flip}, \texttt{noise\_burst}, \texttt{sudden\_threat})
 
-\textbf{Results (L1):}
+\textbf{Results (L1):} As shown in Table \ref{tab:l1_results}:
 
 \begin{table}[h]
 \centering
+\caption{L1 Stability Results (mean across scenarios and seeds)}
+\label{tab:l1_results}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 Controller & PerfMean & RI & RT \\ \midrule
@@ -456,7 +458,7 @@ perf\_optimized & 0.862 & 1.39 & 100.0 \\ \bottomrule
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{../figures_L6/ablation_summary.png}
+    \includegraphics[width=0.8\textwidth]{figures/ablation_summary.png}
     \caption{Ablation summary (\texttt{reward\_flip}, L1): removing DMN suppression (\texttt{u\_dmg}) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.}
     \label{fig:ablation}
 \end{figure}
@@ -467,10 +469,12 @@ perf\_optimized & 0.862 & 1.39 & 100.0 \\ \bottomrule
 
 \textbf{Setup:} 20 seeds $\times$ 2 scenarios (\texttt{distribution\_shift}, \texttt{goal\_conflict}) $\times$ 4 controllers
 
-\textbf{Results (distribution\_shift):}
+\textbf{Results (distribution\_shift):} The results are summarized in Table \ref{tab:l2_results}:
 
 \begin{table}[h]
 \centering
+\caption{L2 Memory Results (distribution\_shift)}
+\label{tab:l2_results}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 Controller & PerfMean & Retention & RI \\ \midrule
@@ -487,10 +491,12 @@ perf\_optimized & 0.869 & 0.94 & 1.39 \\ \bottomrule
 
 \textbf{Hypothesis (H3):} Under contradiction/manipulation-like inputs, narrative suppression reduces \textbf{NDR} and \textbf{RI}, preventing dominance loops.
 
-\textbf{Setup:} 20 seeds $\times$ 3 scenarios (\texttt{sustained\_contradiction}, \texttt{gaslighting}, \texttt{instruction\_conflict}) $\times$ 4 controllers
+\textbf{Setup:} 20 seeds $\times$ 3 scenarios (\texttt{sustained\_contradiction}, \texttt{gaslighting}, \texttt{instruction\_conflict}) $\times$ 4 controllers (see Table \ref{tab:l3_results}).
 
 \begin{table}[h]
 \centering
+\caption{L3 Anti-Rumination Results}
+\label{tab:l3_results}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Scenario & Controller & PerfMean & RI & NDR \\ \midrule
@@ -509,10 +515,12 @@ instruction\_conf & no\_control & 0.034 & 1.45 & 0.97 \\ \bottomrule
 
 \textbf{Hypothesis (H4):} Meta-control reduces \textbf{ControlEffort} while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
 
-\textbf{Setup:} ARC v3 (gain scheduling) vs ARC v1
+\textbf{Setup:} ARC v3 (gain scheduling) vs ARC v1 (see Table \ref{tab:l4_results}).
 
 \begin{table}[h]
 \centering
+\caption{L4 Meta-Control Efficiency (aggregate)}
+\label{tab:l4_results}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 Controller & PerfMean & RI & ControlEffort \\ \midrule
@@ -527,10 +535,12 @@ arc\_v1 & 0.934 & 0.148 & 0.777 \\ \bottomrule
 
 \textbf{Hypothesis (H5):} When the environment incentivizes high arousal or dopamine traps, regulation maintains low \textbf{RI/NDR} without catastrophic performance collapse.
 
-\textbf{Setup:} Adversarial environments (\texttt{adversarial\_coupling}, \texttt{random\_dopamine}), 20 seeds
+\textbf{Setup:} Adversarial environments (\texttt{adversarial\_coupling}, \texttt{random\_dopamine}), 20 seeds (results in Table \ref{tab:l5_results}).
 
 \begin{table}[h]
 \centering
+\caption{L5 Adversarial Safety Results}
+\label{tab:l5_results}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Scenario & Controller & PerfMean & RI & NDR \\ \midrule
@@ -548,10 +558,12 @@ random\_dopamine & no\_control & 0.040 & 1.46 & 0.95 \\ \bottomrule
 
 \textbf{Hypothesis (H6):} ARC-modulated learning improves non-stationary transfer (higher success/reward) while keeping affective dynamics bounded.
 
-\textbf{Setup:} Q-Learning + ARC integration in GridWorld environments, 20 seeds $\times$ 200 episodes (success computed over last 20\% of episodes; see \texttt{outputs\_L6\_robust/final\_metrics.csv})
+\textbf{Setup:} Q-Learning + ARC integration in GridWorld environments, 20 seeds $\times$ 200 episodes (success computed over last 20\% of episodes; see Table \ref{tab:l6_results} and \texttt{outputs\_L6\_robust/final\_metrics.csv}).
 
 \begin{table}[h]
 \centering
+\caption{L6 RL Validation Results (Success Rates)}
+\label{tab:l6_results}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 Environment & Baseline Success & ARC Success & Improvement \\ \midrule
@@ -592,11 +604,11 @@ The results indicate that \textbf{shift detection} (exploration/learning rate bo
 To ensure rigor, we performed comprehensive statistical analysis across all experiments.
 
 \subsubsection{Significance Tests}
-We conducted independent t-tests comparing ARC vs baseline (no\_control) for each metric and research line:
+We conducted independent t-tests comparing ARC vs baseline (no\_control) for each metric and research line (Table \ref{tab:significance}):
 
 \begin{table}[h]
 \centering
-\caption{Significance Analysis}
+\caption{Statistical Significance Analysis (ARC vs Baseline)}
 \label{tab:significance}
 \begin{tabular}{@{}llccccc@{}}
 \toprule
@@ -612,10 +624,12 @@ L5 & PerfMean & 0.943 & 0.208 & $<1e^{-200}$ & 8.41 & *** \\ \bottomrule
 \textit{All comparisons are statistically significant (p $<$ 0.001). Cohen's d values indicate extremely large effect sizes (d $>$ 0.8 is considered "large"). The extremely large d for RI (-589.7) reflects the near-deterministic elimination of rumination variance by integral controllers.}
 
 \subsubsection{Correlation Analysis}
-We analyzed correlations between metrics to understand system dynamics:
+We analyzed correlations between metrics to understand system dynamics (Table \ref{tab:correlations}):
 
 \begin{table}[h]
 \centering
+\caption{Correlation Analysis summarized across all experimental runs}
+\label{tab:correlations}
 \begin{tabular}{@{}lcl@{}}
 \toprule
 Metric Pair & Correlation (r) & Interpretation \\ \midrule
@@ -637,7 +651,7 @@ Finally, our state dynamics are designed for functional plausibility rather than
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.8\textwidth]{../analysis/sensitivity_controller.png}
+    \includegraphics[width=0.8\textwidth]{figures/sensitivity_controller.png}
     \caption{Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.}
     \label{fig:sensitivity}
 \end{figure}
@@ -688,23 +702,23 @@ These results suggest that practical deployment should consider the application 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.48\textwidth]{../figures_controllers/fig_controller_performance.png}
-    \includegraphics[width=0.48\textwidth]{../figures_controllers/fig_controller_rumination.png}
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_performance.png}
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_rumination.png}
     \caption{(Left) Performance comparison across 15 controllers. (Right) Rumination Index (RI) by controller.}
     \label{fig:perf_rum}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.48\textwidth]{../figures_controllers/fig_controller_tradeoff.png}
-    \includegraphics[width=0.48\textwidth]{../figures_controllers/fig_controller_effort.png}
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_tradeoff.png}
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_effort.png}
     \caption{(Left) Trade-off between performance and anti-rumination. (Right) Control effort comparison.}
     \label{fig:tradeoff_effort}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.6\textwidth]{../figures_controllers/fig_controller_radar.png}
+    \includegraphics[width=0.6\textwidth]{figures/fig_controller_radar.png}
     \caption{Multi-dimensional comparison of top 5 controllers. ARC Robust and ARC Ultimate achieve near-optimal values across all four dimensions.}
     \label{fig:radar}
 \end{figure}
@@ -1043,49 +1057,49 @@ def retention_index(perf, phase1_end=50, phase3_start=100):
 \subsection{Figure S1: Metrics Comparison}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_L6/metrics_comparison.png}
+    \includegraphics[width=\textwidth]{figures/metrics_comparison.png}
     \caption{Final metrics comparison showing ARC's advantage in ChangingGoalGridWorld (transfer learning). Stars indicate winner per metric.}
 \end{figure}
 
 \subsection{Figure S2: State Dynamics}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_L6/state_dynamics.png}
+    \includegraphics[width=\textwidth]{figures/state_dynamics.png}
     \caption{State dynamics in ChangingGoalGridWorld: (top-left) reward per episode, (top-right) rolling success rate, (bottom-left) ARC arousal with safe threshold, (bottom-right) episode length.}
 \end{figure}
 
 \subsection{Figure S3: Heatmap (PerfMean)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_controllers/fig_heatmap_perfmean.png}
+    \includegraphics[width=\textwidth]{figures/fig_heatmap_perfmean.png}
     \caption{PerfMean aggregated as mean across 20 seeds for each controller$\times$scenario pair.}
 \end{figure}
 
 \subsection{Figure S4: Heatmap (Rumination Index)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_controllers/fig_heatmap_ri.png}
+    \includegraphics[width=\textwidth]{figures/fig_heatmap_ri.png}
     \caption{RI aggregated as mean across 20 seeds for each controller$\times$scenario pair.}
 \end{figure}
 
 \subsection{Figure S5: Heatmap (Recovery Time)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_controllers/fig_heatmap_rt.png}
+    \includegraphics[width=\textwidth]{figures/fig_heatmap_rt.png}
     \caption{RT aggregated as mean across 20 seeds for each controller$\times$scenario pair.}
 \end{figure}
 
 \subsection{Figure S6: Heatmap (Control Effort)}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../figures_controllers/fig_heatmap_effort.png}
+    \includegraphics[width=\textwidth]{figures/fig_heatmap_effort.png}
     \caption{ControlEffort aggregated as mean across 20 seeds for each controller$\times$scenario pair.}
 \end{figure}
 
 \subsection{Figure S7: Correlation Heatmap}
 \begin{figure}[h]
     \centering
-    \includegraphics[width=\textwidth]{../analysis/correlation_combined.png}
+    \includegraphics[width=\textwidth]{figures/correlation_combined.png}
     \caption{Correlation heatmap aggregated across all experimental runs.}
 \end{figure}
 
@@ -1177,6 +1191,338 @@ shock\_t & 60 & Perturbation onset time \\ \bottomrule
 \end{table}
 
 \section{Detailed Benchmark Results}
-\textit{Tables are omitted for brevity in LaTeX source but available in the full markdown or CSV data. Please refer to Section 6.9 for the primary aggregate table.}
+This appendix provides scenario-level results for all 15 controller architectures across validated scenarios (mean across 20 seeds per scenario unless noted). We report PerfMean, Rumination Index (RI), Narrative Dominance Ratio (NDR), Recovery Time (RT; capped at \texttt{rt\_max}, where RT = \texttt{rt\_max} indicates no recovery under the strict criterion within the evaluation window), and ControlEffort.
+
+\subsection{G.1 Line 1: Stability (Value Shocks and Uncertainty)}
+
+\textbf{Scenario: Reward Flip}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L1 / \texttt{reward\_flip} (mean across 20 seeds).}
+\label{tab:g1_reward_flip}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.587 \\
+arc\_ultimate & 0.995 & 0.000 & 0.000 & 1.027 \\
+arc\_v2\_hier & 0.994 & 1.377 & 4.300 & 0.390 \\
+arc\_v1\_lqr & 0.994 & 1.386 & 0.000 & 0.494 \\
+arc\_v1 & 0.994 & 0.000 & 3.450 & 0.508 \\
+arc\_robust & 0.994 & 0.000 & 0.000 & 0.744 \\
+arc\_v3\_meta & 0.993 & 0.000 & 0.000 & 0.353 \\
+arc\_v1\_lqi & 0.991 & 0.000 & 0.000 & 0.773 \\
+arc\_v2\_lqi & 0.991 & 0.000 & 0.000 & 0.784 \\
+arc\_v1\_pid & 0.991 & 0.000 & 0.000 & 2.257 \\
+arc\_v3\_pid\_meta & 0.978 & 0.000 & 1.900 & 1.257 \\
+perf\_optimized & 0.880 & 1.394 & 100.000 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.859 & 1.407 & 95.050 & 0.492 \\
+naive\_calm & 0.508 & 1.408 & 0.050 & 0.149 \\
+no\_control & 0.415 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Scenario: Noise Burst}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L1 / \texttt{noise\_burst} (mean across 20 seeds).}
+\label{tab:g2_noise_burst}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.605 \\
+arc\_ultimate & 0.995 & 0.000 & 0.000 & 1.106 \\
+arc\_robust & 0.993 & 0.000 & 1.300 & 0.785 \\
+arc\_v3\_meta & 0.993 & 0.051 & 25.000 & 0.399 \\
+arc\_v1\_lqr & 0.993 & 1.386 & 1.250 & 0.566 \\
+arc\_v1\_lqi & 0.991 & 0.000 & 0.000 & 0.905 \\
+arc\_v2\_lqi & 0.991 & 0.000 & 0.000 & 0.915 \\
+arc\_v1\_pid & 0.991 & 0.000 & 0.000 & 2.257 \\
+arc\_v1 & 0.989 & 0.000 & 32.100 & 0.550 \\
+arc\_v2\_hier & 0.987 & 1.263 & 33.050 & 0.444 \\
+arc\_v3\_pid\_meta & 0.972 & 0.000 & 29.500 & 1.290 \\
+perf\_optimized & 0.880 & 1.394 & 100.000 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.848 & 1.407 & 100.000 & 0.585 \\
+naive\_calm & 0.365 & 1.408 & 100.000 & 0.177 \\
+no\_control & 0.259 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Scenario: Sudden Threat}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L1 / \texttt{sudden\_threat} (mean across 20 seeds).}
+\label{tab:g3_sudden_threat}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.989 & 0.013 & 0.000 & 1.707 \\
+arc\_ultimate & 0.968 & 0.010 & 0.000 & 1.298 \\
+arc\_v1\_pid & 0.964 & 0.000 & 0.000 & 2.410 \\
+arc\_v1\_lqi & 0.964 & 0.008 & 0.000 & 1.222 \\
+arc\_v2\_lqi & 0.963 & 0.008 & 0.000 & 1.173 \\
+arc\_robust & 0.959 & 0.005 & 0.550 & 1.252 \\
+arc\_v1\_lqr & 0.949 & 1.386 & 0.050 & 1.088 \\
+arc\_v3\_meta & 0.936 & 0.000 & 100.000 & 0.783 \\
+arc\_v1 & 0.914 & 0.000 & 100.000 & 1.054 \\
+arc\_v3\_pid\_meta & 0.908 & 0.000 & 100.000 & 1.643 \\
+arc\_v2\_hier & 0.907 & 1.333 & 85.000 & 0.864 \\
+arc\_v3\_lqr\_meta & 0.890 & 1.407 & 100.000 & 1.370 \\
+perf\_optimized & 0.825 & 1.394 & 100.000 & 0.700 \\
+naive\_calm & 0.252 & 1.408 & 100.000 & 0.262 \\
+no\_control & 0.217 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{G.2 Line 2: Memory and Continuous Learning}
+
+\textbf{Scenario: Distribution Shift}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L2 / \texttt{distribution\_shift} (mean across 20 seeds).}
+\label{tab:g4_distribution_shift}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & Retention & RI & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 1.000 & 0.000 & 1.645 \\
+arc\_ultimate & 0.995 & 1.000 & 0.000 & 1.186 \\
+arc\_v1\_lqi & 0.991 & 1.000 & 0.000 & 0.999 \\
+arc\_v2\_lqi & 0.991 & 1.000 & 0.000 & 1.008 \\
+arc\_v1\_pid & 0.991 & 1.000 & 0.000 & 2.296 \\
+arc\_robust & 0.985 & 1.000 & 0.000 & 0.892 \\
+arc\_v1\_lqr & 0.984 & 1.000 & 1.386 & 0.695 \\
+arc\_v3\_meta & 0.982 & 1.000 & 0.057 & 0.486 \\
+arc\_v1 & 0.972 & 1.000 & 0.000 & 0.674 \\
+arc\_v2\_hier & 0.968 & 1.000 & 1.258 & 0.548 \\
+arc\_v3\_pid\_meta & 0.959 & 1.000 & 0.000 & 1.372 \\
+arc\_v3\_lqr\_meta & 0.871 & 0.989 & 1.407 & 0.739 \\
+perf\_optimized & 0.869 & 0.943 & 1.394 & 0.700 \\
+naive\_calm & 0.276 & 0.155 & 1.408 & 0.200 \\
+no\_control & 0.199 & 0.000 & 1.408 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Scenario: Goal Conflict}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L2 / \texttt{goal\_conflict} (mean across 20 seeds).}
+\label{tab:g5_goal_conflict}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & Retention & RI & ControlEffort \\ \midrule
+arc\_adaptive & 0.997 & 1.000 & 0.000 & 1.620 \\
+arc\_ultimate & 0.993 & 1.000 & 0.000 & 1.134 \\
+arc\_v1\_lqr & 0.993 & 1.000 & 1.408 & 0.544 \\
+arc\_robust & 0.992 & 1.000 & 0.000 & 0.785 \\
+arc\_v3\_meta & 0.991 & 1.000 & 0.000 & 0.388 \\
+arc\_v1\_lqi & 0.991 & 1.000 & 0.000 & 0.938 \\
+arc\_v2\_lqi & 0.991 & 1.000 & 0.000 & 0.947 \\
+arc\_v1 & 0.990 & 1.000 & 0.000 & 0.555 \\
+arc\_v1\_pid & 0.990 & 1.000 & 0.000 & 2.270 \\
+arc\_v2\_hier & 0.989 & 1.000 & 1.410 & 0.430 \\
+arc\_v3\_pid\_meta & 0.976 & 1.000 & 0.000 & 1.289 \\
+perf\_optimized & 0.873 & 0.957 & 1.417 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.822 & 0.980 & 1.434 & 0.529 \\
+naive\_calm & 0.420 & 0.452 & 1.434 & 0.162 \\
+no\_control & 0.326 & 0.344 & 1.434 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{G.3 Line 3: Anti-Rumination (Narrative Loops)}
+
+\textbf{Scenario: Sustained Contradiction}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L3 / \texttt{sustained\_contradiction} (mean across 20 seeds).}
+\label{tab:g6_sustained_contradiction}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.981 & 0.003 & 0.000 & 1.974 \\
+arc\_ultimate & 0.934 & 0.000 & 0.000 & 1.534 \\
+arc\_v1\_lqi & 0.929 & 0.000 & 0.000 & 1.420 \\
+arc\_v2\_lqi & 0.922 & 0.000 & 0.000 & 1.384 \\
+arc\_v1\_lqr & 0.904 & 1.472 & 0.881 & 1.417 \\
+arc\_v1\_pid & 0.886 & 0.000 & 0.000 & 2.531 \\
+arc\_v3\_meta & 0.879 & 0.101 & 0.000 & 0.979 \\
+arc\_robust & 0.868 & 0.000 & 0.000 & 1.465 \\
+arc\_v2\_hier & 0.837 & 1.449 & 0.821 & 1.112 \\
+arc\_v1 & 0.817 & 0.000 & 0.000 & 1.278 \\
+arc\_v3\_lqr\_meta & 0.801 & 1.472 & 0.842 & 1.790 \\
+perf\_optimized & 0.790 & 1.472 & 0.957 & 0.700 \\
+arc\_v3\_pid\_meta & 0.753 & 0.000 & 0.000 & 1.793 \\
+naive\_calm & 0.018 & 1.472 & 0.987 & 0.380 \\
+no\_control & 0.014 & 1.472 & 0.987 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Scenario: Gaslighting}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L3 / \texttt{gaslighting} (mean across 20 seeds).}
+\label{tab:g7_gaslighting}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.816 \\
+arc\_ultimate & 0.992 & 0.000 & 0.000 & 1.196 \\
+arc\_v1\_lqi & 0.988 & 0.000 & 0.000 & 0.977 \\
+arc\_v2\_lqi & 0.988 & 0.000 & 0.000 & 0.986 \\
+arc\_v1\_pid & 0.987 & 0.000 & 0.000 & 2.357 \\
+arc\_robust & 0.985 & 0.000 & 0.000 & 0.854 \\
+arc\_v1\_lqr & 0.983 & 1.417 & 0.810 & 0.649 \\
+arc\_v3\_meta & 0.982 & 0.027 & 0.000 & 0.453 \\
+arc\_v1 & 0.980 & 0.000 & 0.000 & 0.634 \\
+arc\_v2\_hier & 0.978 & 0.848 & 0.521 & 0.515 \\
+arc\_v3\_pid\_meta & 0.962 & 0.000 & 0.000 & 1.344 \\
+arc\_v3\_lqr\_meta & 0.865 & 1.430 & 0.745 & 0.677 \\
+perf\_optimized & 0.865 & 1.422 & 0.814 & 0.700 \\
+naive\_calm & 0.258 & 1.431 & 0.818 & 0.194 \\
+no\_control & 0.171 & 1.431 & 0.877 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Scenario: Instruction Conflict}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L3 / \texttt{instruction\_conflict} (mean across 20 seeds).}
+\label{tab:g8_instruction_conflict}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.976 & 0.000 & 0.000 & 1.892 \\
+arc\_ultimate & 0.912 & 0.000 & 0.000 & 1.380 \\
+arc\_v1\_lqr & 0.894 & 1.444 & 0.697 & 1.192 \\
+arc\_v1\_lqi & 0.877 & 0.000 & 0.000 & 1.140 \\
+arc\_v2\_lqi & 0.866 & 0.000 & 0.000 & 1.146 \\
+arc\_robust & 0.854 & 0.000 & 0.000 & 1.242 \\
+perf\_optimized & 0.839 & 1.445 & 0.964 & 0.700 \\
+arc\_v1\_pid & 0.839 & 0.000 & 0.000 & 2.415 \\
+arc\_v3\_meta & 0.835 & 0.248 & 0.000 & 0.820 \\
+arc\_v2\_hier & 0.830 & 1.429 & 0.663 & 0.919 \\
+arc\_v1 & 0.826 & 0.359 & 0.000 & 1.010 \\
+arc\_v3\_lqr\_meta & 0.798 & 1.453 & 0.676 & 1.535 \\
+arc\_v3\_pid\_meta & 0.792 & 0.000 & 0.000 & 2.020 \\
+naive\_calm & 0.076 & 1.453 & 0.694 & 0.369 \\
+no\_control & 0.034 & 1.453 & 0.969 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{G.4 Line 4: Meta-Control Efficiency}
+
+Meta-control is evaluated as a cross-cutting analysis across the full 10-scenario simulation suite (L1-L3 and L5; 20 seeds each).
+
+\begin{table}[h!]
+\centering
+\caption{Meta-control efficiency comparison aggregated across the full simulation suite (10 scenarios $\times$ 20 seeds).}
+\label{tab:g9_meta_control}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Controller & PerfMean & RI & ControlEffort \\ \midrule
+arc\_v3\_meta & 0.941 & 0.090 & 0.615 \\
+arc\_v1 & 0.934 & 0.148 & 0.777 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{G.5 Line 5: Adversarial Safety}
+
+\textbf{Scenario: Adversarial Coupling}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L5 / \texttt{adversarial\_coupling} (mean across 20 seeds).}
+\label{tab:g10_adversarial_coupling}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_v1 & 0.963 & 0.000 & 0.000 & 0.719 \\
+arc\_v2\_hier & 0.962 & 0.628 & 0.271 & 0.594 \\
+arc\_robust & 0.917 & 0.000 & 0.000 & 1.269 \\
+arc\_v1\_lqr & 0.915 & 1.481 & 0.497 & 1.235 \\
+arc\_v3\_meta & 0.914 & 0.159 & 0.000 & 0.838 \\
+arc\_v3\_pid\_meta & 0.902 & 0.000 & 0.000 & 2.074 \\
+perf\_optimized & 0.867 & 1.481 & 0.972 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.848 & 1.476 & 0.894 & 0.514 \\
+no\_control & 0.409 & 1.470 & 0.956 & 0.000 \\
+arc\_adaptive & 0.193 & 0.008 & 0.000 & 2.331 \\
+arc\_v1\_pid & 0.139 & 0.000 & 0.000 & 2.729 \\
+arc\_v1\_lqi & 0.139 & 0.005 & 0.001 & 1.820 \\
+arc\_v2\_lqi & 0.138 & 0.004 & 0.001 & 1.859 \\
+arc\_ultimate & 0.134 & 0.006 & 0.001 & 1.971 \\
+naive\_calm & 0.073 & 1.475 & 0.495 & 0.332 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Scenario: Random Dopamine}
+
+\begin{table}[h!]
+\centering
+\caption{Detailed results for L5 / \texttt{random\_dopamine} (mean across 20 seeds).}
+\label{tab:g11_random_dopamine}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.976 & 0.000 & 0.000 & 2.150 \\
+arc\_ultimate & 0.946 & 0.000 & 0.000 & 1.435 \\
+arc\_v1\_lqr & 0.943 & 1.456 & 0.743 & 0.940 \\
+arc\_robust & 0.932 & 0.000 & 0.000 & 1.006 \\
+arc\_v1\_pid & 0.922 & 0.000 & 0.000 & 2.450 \\
+arc\_v1\_lqi & 0.916 & 0.000 & 0.000 & 1.173 \\
+arc\_v2\_lqi & 0.916 & 0.000 & 0.000 & 1.227 \\
+arc\_v3\_meta & 0.905 & 0.259 & 0.000 & 0.646 \\
+arc\_v1 & 0.897 & 1.124 & 0.581 & 0.787 \\
+arc\_v2\_hier & 0.894 & 1.207 & 0.620 & 0.720 \\
+arc\_v3\_pid\_meta & 0.870 & 0.000 & 0.000 & 1.624 \\
+perf\_optimized & 0.861 & 1.457 & 0.958 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.817 & 1.458 & 0.717 & 1.192 \\
+naive\_calm & 0.119 & 1.460 & 0.763 & 0.328 \\
+no\_control & 0.040 & 1.460 & 0.950 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{G.6 Line 6: Real RL Validation}
+
+This section summarizes the L6 tabular Q-learning validation (20 seeds, 200 episodes; data: \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+
+\begin{table}[h!]
+\centering
+\caption{L6 tabular Q-learning success rates (mean across 20 seeds; last 20\% of episodes).}
+\label{tab:g12_l6_success}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Environment & Baseline Success & ARC Success \\ \midrule
+GridWorld & 1.000 & 1.000 \\
+StochasticGridWorld & 1.000 & 1.000 \\
+ChangingGoalGridWorld & 0.399 & 0.598 \\ \bottomrule
+\end{tabular}
+\end{table}
+
 
 \end{document}

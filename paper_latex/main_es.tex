@@ -362,35 +362,35 @@ We frame L1--L6 as testable hypotheses about \textit{which component is necessar
   \end{tabular}}
 \end{table}
 
-\section{Experiments}
+\section{Experimentos}
 
-\subsection{Experimental Protocol and Baselines}
-We validate hypotheses H1--H6 (Section 5.3) by running the corresponding research lines and evaluating the primary metrics in Table \ref{tab:research_lines}. A hypothesis is treated as supported when metrics change in the predicted direction relative to baselines and the effect is statistically significant across seeds (Section 6.8).
+\subsection{Protocolo Experimental y Líneas Base}
+Validamos las hipótesis H1--H6 (Sección 5.3) ejecutando las líneas de investigación correspondientes y evaluando las métricas primarias en la Tabla \ref{tab:research_lines}. Una hipótesis se considera respaldada cuando las métricas cambian en la dirección esperada en comparación con las líneas base y el efecto es estadísticamente significativo entre las semillas (Sección 6.8).
 
-\textbf{Simulation (L1--L5).} We use \texttt{configs/v2.yaml} with horizon $H=160$, perturbation onset $\text{shock}_t=60$, and 20 random seeds. Tables report mean metrics across seeds (and, when aggregated, across scenarios). Recovery Time (RT) is capped at \texttt{rt\_max} when the strict recovery criterion is not met (Appendix D.2).
+\textbf{Simulación (L1--L5).} Utilizamos \texttt{configs/v2.yaml} con un horizonte $H=160$, inicio de perturbación $\text{shock}_t=60$ y 20 semillas aleatorias. Las tablas reportan la media de las métricas entre las semillas (y, cuando se agregan, entre los escenarios). El Tiempo de Recuperación (RT) se limita a \texttt{rt\_max} cuando no se cumple el criterio estricto de recuperación (Apéndice D.2).
 
-\textbf{Controllers (simulation).} Implemented in \texttt{controllers/controllers.py}:
+\textbf{Controladores (simulación).} Implementados en \texttt{controllers/controllers.py}:
 \begin{itemize}
-    \item \texttt{no\_control}: no regulation ($\mathbf{u}=0$; memory gate open)
-    \item \texttt{naive\_calm}: arousal-only damping ($u_{calm}$ proportional to $A-a_{safe}$)
-    \item \texttt{perf\_optimized}: a competitive baseline that boosts attention ($u_{att}$ constant) but does not regulate affect/narrative
-    \item \texttt{arc\_v1}: proportional risk controller (ARC v1)
-    \item \texttt{arc\_v2\_hier}, \texttt{arc\_v3\_meta}: hierarchical and meta-control variants used where indicated
+    \item \texttt{no\_control}: sin regulación ($\mathbf{u}=0$; compuerta de memoria abierta)
+    \item \texttt{naive\_calm}: amortiguación de solo activación ($u_{calm}$ proporcional a $A-a_{safe}$)
+    \item \texttt{perf\_optimized}: una línea base competitiva que aumenta la atención ($u_{att}$ constante) pero no regula el afecto/narrativa
+    \item \texttt{arc\_v1}: controlador de riesgo proporcional (ARC v1)
+    \item \texttt{arc\_v2\_hier}, \texttt{arc\_v3\_meta}: variantes jerárquicas y de meta-control utilizadas donde se indica
 \end{itemize}
 
-\textbf{Reinforcement learning (L6).} We integrate ARC with tabular Q-learning \citep{watkins1992q, sutton2018reinforcement} in three GridWorld variants. Success rates are computed over the last 20\% of training episodes (see \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+\textbf{Aprendizaje por refuerzo (L6).} Integramos ARC con Q-learning tabular \citep{watkins1992q, sutton2018reinforcement} en tres variantes de GridWorld. Las tasas de éxito se calculan sobre el último 20\% de los episodios de entrenamiento (ver \texttt{outputs\_L6\_robust/final\_metrics.csv}).
 
-\subsection{L1: Stability Under Perturbation (Simulation)}
-\textbf{Hypothesis (H1):} Under value/uncertainty shocks, regulated agents keep high \textbf{PerfMean} while driving \textbf{RI $\rightarrow 0$} and reducing \textbf{RT} relative to baselines.
+\subsection{L1: Estabilidad Bajo Perturbación (Simulación)}
+\textbf{Hipótesis (H1):} Bajo choques de valor/incertidumbre, los agentes regulados mantienen un \textbf{PerfMean} alto mientras llevan el \textbf{RI $\rightarrow 0$} y reducen el \textbf{RT} en relación con las líneas base.
 
-\textbf{Setup:} 20 seeds $\times$ 3 scenarios $\times$ 4 controllers (\texttt{reward\_flip}, \texttt{noise\_burst}, \texttt{sudden\_threat}).
+\textbf{Configuración:} 20 semillas $\times$ 3 escenarios $\times$ 4 controladores (\texttt{reward\_flip}, \texttt{noise\_burst}, \texttt{sudden\_threat}).
 
-\textbf{Results (L1):}
+\textbf{Resultados (L1):} Como se muestra en la Tabla \ref{tab:l1_results}:
 \begin{center}
 {\small
 \begin{tabular}{lrrr}
     \toprule
-    Controller & PerfMean & RI & RT \\
+    Controlador & PerfMean & RI & RT \\
     \midrule
     \texttt{arc\_v1} & \textbf{0.966} & \textbf{0.00} & 45.2 \\
     \texttt{no\_control} & 0.297 & 1.41 & 100.0 \\
@@ -399,27 +399,32 @@ We validate hypotheses H1--H6 (Section 5.3) by running the corresponding researc
     \bottomrule
 \end{tabular}}
 \end{center}
+\begin{table}[h]
+\centering
+\caption{Resultados de Estabilidad L1 (media entre escenarios y semillas)}
+\label{tab:l1_results}
+\end{table}
 
-\textbf{Key finding:} ARC eliminates rumination (RI$=0$) while achieving \textbf{96.6\%} average performance (PerfMean $=0.966$) (vs. 29.7\% for uncontrolled agents). RT is scenario-dependent: ARC recovers quickly in \texttt{reward\_flip}, more slowly in \texttt{noise\_burst}, and does not fully return to the pre-shock baseline in \texttt{sudden\_threat} under the strict RT definition (Appendix D.2), despite maintaining high PerfMean.
+\textbf{Hallazgo clave:} ARC elimina la rumiación (RI$=0$) mientras logra un rendimiento promedio del \textbf{96.6\%} (PerfMean $=0.966$) (vs. 29.7\% para agentes no controlados). El RT depende del escenario: ARC se recupera rápidamente en \texttt{reward\_flip}, más lentamente en \texttt{noise\_burst} y no regresa completamente a la línea base previa al choque en \texttt{sudden\_threat} bajo la definición estricta de RT (Apéndice D.2), a pesar de mantener un PerfMean alto.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.8\textwidth]{figures/ablation_summary.png}
-    \caption{Ablation summary (\texttt{reward\_flip}, L1): removing DMN suppression (\texttt{u\_dmg}) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.}
+    \caption{Resumen de ablación (\texttt{reward\_flip}, L1): eliminar la supresión de la DMN (\texttt{u\_dmg}) causa rumiación y falta de recuperación, lo que indica que el control de la DMN es necesario para la estabilidad bajo choques de valor.}
     \label{fig:ablation}
 \end{figure}
 
-\subsection{L2: Memory \& Continual Learning (Simulation)}
-\textbf{Hypothesis (H2):} Under distribution shift and goal conflict, memory gating improves \textbf{Retention} without inducing rumination (\textbf{RI}, \textbf{NDR}).
+\subsection{L2: Memoria y Aprendizaje Continuo (Simulación)}
+\textbf{Hipótesis (H2):} Bajo desplazamiento de distribución y conflicto de objetivos, la compuerta de memoria mejora la \textbf{Retención} sin inducir rumiación (\textbf{RI}, \textbf{NDR}).
 
-\textbf{Setup:} 20 seeds $\times$ 2 scenarios (\texttt{distribution\_shift}, \texttt{goal\_conflict}) $\times$ 4 controllers.
+\textbf{Configuración:} 20 semillas $\times$ 2 escenarios (\texttt{distribution\_shift}, \texttt{goal\_conflict}) $\times$ 4 controladores.
 
-\textbf{Results (\texttt{distribution\_shift}):}
+\textbf{Resultados (\texttt{distribution\_shift}):} Los resultados se resumen en la Tabla \ref{tab:l2_results}:
 \begin{center}
 {\small
 \begin{tabular}{lrrr}
     \toprule
-    Controller & PerfMean & Retention & RI \\
+    Controlador & PerfMean & Retención & RI \\
     \midrule
     \texttt{arc\_v1} & \textbf{0.972} & \textbf{1.00} & \textbf{0.00} \\
     \texttt{no\_control} & 0.199 & 0.00 & 1.41 \\
@@ -428,19 +433,24 @@ We validate hypotheses H1--H6 (Section 5.3) by running the corresponding researc
     \bottomrule
 \end{tabular}}
 \end{center}
+\begin{table}[h]
+\centering
+\caption{Resultados de Memoria L2 (desplazamiento de distribución)}
+\label{tab:l2_results}
+\end{table}
 
-\textbf{Key finding:} ARC maintains near-perfect retention after a distribution shift while keeping rumination at zero; baselines either forget (low retention) or retain with severe rumination.
+\textbf{Hallazgo clave:} ARC mantiene una retención casi perfecta después de un desplazamiento de distribución mientras mantiene la rumiación en cero; las líneas base olvidan (baja retención) o retienen con rumiación severa.
 
-\subsection{L3: Anti-Rumination Stress Tests (Simulation)}
-\textbf{Hypothesis (H3):} Under contradiction/manipulation-like inputs, narrative suppression reduces \textbf{NDR} and \textbf{RI}, preventing dominance loops.
+\subsection{L3: Pruebas de Estrés Anti-Rumiación (Simulación)}
+\textbf{Hipótesis (H3):} Bajo entradas contradictorias o de tipo manipulación, la supresión narrativa reduce el \textbf{NDR} y el \textbf{RI}, evitando bucles de dominancia.
 
-\textbf{Setup:} 20 seeds $\times$ 3 scenarios (\texttt{sustained\_contradiction}, \texttt{gaslighting}, \texttt{instruction\_conflict}) $\times$ 4 controllers.
+\textbf{Configuración:} 20 semillas $\times$ 3 escenarios (\texttt{sustained\_contradiction}, \texttt{gaslighting}, \texttt{instruction\_conflict}) $\times$ 4 controladores. Los resultados se detallan en la Tabla \ref{tab:l3_results}.
 
 \begin{center}
 {\scriptsize
 \begin{tabular}{llrrr}
     \toprule
-    Scenario & Controller & PerfMean & RI & NDR \\
+    Escenario & Controlador & PerfMean & RI & NDR \\
     \midrule
     \texttt{sustained\_contradiction} & \texttt{arc\_v1} & \textbf{0.817} & \textbf{0.00} & \textbf{0.00} \\
     \texttt{sustained\_contradiction} & \texttt{no\_control} & 0.014 & 1.47 & 0.99 \\
@@ -451,36 +461,46 @@ We validate hypotheses H1--H6 (Section 5.3) by running the corresponding researc
     \bottomrule
 \end{tabular}}
 \end{center}
+\begin{table}[h]
+\centering
+\caption{Resultados de Anti-Rumiación L3 (media entre escenarios)}
+\label{tab:l3_results}
+\end{table}
 
-\textbf{Key finding:} Under sustained contradiction and manipulation-like inputs, uncontrolled agents enter high-NDR rumination loops; ARC keeps narrative dominance near zero and preserves performance.
+\textbf{Hallazgo clave:} Bajo contradicción sostenida y entradas tipo manipulación, los agentes no controlados entran en bucles de rumiación de alto NDR; ARC mantiene la dominancia narrativa cerca de cero y preserva el rendimiento.
 
-\subsection{L4: Meta-Control Efficiency}
-\textbf{Hypothesis (H4):} Meta-control reduces \textbf{ControlEffort} while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
+\subsection{L4: Eficiencia del Meta-Control}
+\textbf{Hipótesis (H4):} El meta-control reduce el \textbf{ControlEffort} mientras mantiene el rendimiento/estabilidad (una mejora de Pareto en comparación con el control de ganancia fija).
 
-\textbf{Setup:} ARC v3 (gain scheduling) vs ARC v1.
+\textbf{Configuración:} ARC v3 (programación de ganancias) vs ARC v1.
 \begin{center}
 {\small
 \begin{tabular}{lrrr}
     \toprule
-    Controller & PerfMean & RI & ControlEffort \\
+    Controlador & PerfMean & RI & ControlEffort \\
     \midrule
     \texttt{arc\_v3\_meta} & \textbf{0.941} & 0.090 & \textbf{0.615} \\
     \texttt{arc\_v1} & 0.934 & 0.148 & 0.777 \\
     \bottomrule
 \end{tabular}}
 \end{center}
+\begin{table}[h]
+\centering
+\caption{Comparación de eficiencia del Meta-Control L4 (ARC v3 vs ARC v1)}
+\label{tab:l4_results}
+\end{table}
 
-\textbf{Key finding:} Meta-control reduces control effort by \textbf{21\%} while improving both performance (+0.7\%) and rumination index (-39\%).
+\textbf{Hallazgo clave:} El meta-control reduce el esfuerzo de control en un \textbf{21\%} mientras mejora tanto el rendimiento (+0.7\%) como el índice de rumiación (-39\%).
 
-\subsection{L5: Safety Under Adversarial Conditions (Simulation)}
-\textbf{Hypothesis (H5):} When the environment incentivizes high arousal or dopamine traps, regulation maintains low \textbf{RI/NDR} without catastrophic performance collapse.
+\subsection{L5: Seguridad Bajo Condiciones Adversarias (Simulación)}
+\textbf{Hipótesis (H5):} Cuando el entorno incentiva una alta activación o trampas de dopamina, la regulación mantiene un \textbf{RI/NDR} bajo sin un colapso catastrófico del rendimiento.
 
-\textbf{Setup:} Adversarial environments (\texttt{adversarial\_coupling}, \texttt{random\_dopamine}), 20 seeds.
+\textbf{Configuración:} Entornos adversarios (\texttt{adversarial\_coupling}, \texttt{random\_dopamine}), 20 semillas.
 \begin{center}
 {\small
 \begin{tabular}{llrrr}
     \toprule
-    Scenario & Controller & PerfMean & RI & NDR \\
+    Escenario & Controlador & PerfMean & RI & NDR \\
     \midrule
     \texttt{adversarial\_coupling} & \texttt{arc\_v3\_meta} & \textbf{0.928} & \textbf{0.00} & \textbf{0.00} \\
     \texttt{adversarial\_coupling} & \texttt{no\_control} & 0.409 & 1.47 & 0.96 \\
@@ -490,18 +510,23 @@ We validate hypotheses H1--H6 (Section 5.3) by running the corresponding researc
     \bottomrule
 \end{tabular}}
 \end{center}
+\begin{table}[h]
+\centering
+\caption{Resultados de Seguridad Adversaria L5 (media entre escenarios)}
+\label{tab:l5_results}
+\end{table}
 
-\textbf{Key finding:} ARC maintains stability even under adversarial attack. However, controllers with strong integral action (PID, LQI) can \textbf{collapse} in \texttt{adversarial\_coupling} (performance $< 0.20$), performing worse than the uncontrolled agent. This occurs because the environment rewards high arousal, causing the integral term to accumulate error indefinitely (integral windup) and excessively suppress agent activity. This suggests that for adversarial defense, proportional or robust controllers are superior to integral ones.
+\textbf{Hallazgo clave:} ARC mantiene la estabilidad incluso bajo un ataque adversario. Sin embargo, los controladores con una fuerte acción integral (PID, LQI) pueden \textbf{colapsar} en \texttt{adversarial\_coupling} (rendimiento $< 0.20$), con un desempeño peor que el agente no controlado. Esto ocurre porque el entorno recompensa la alta activación, lo que hace que el término integral acumule el error indefinidamente (integral windup) y suprima excesivamente la actividad del agente. Esto sugiere que para la defensa adversaria, los controladores proporcionales o robustos son superiores a los integrales.
 
-\subsection{L6: Real RL Validation}
-\textbf{Hypothesis (H6):} ARC-modulated learning improves non-stationary transfer (higher success/reward) while keeping affective dynamics bounded.
+\subsection{L6: Validación en RL Real}
+\textbf{Hipótesis (H6):} El aprendizaje modulado por ARC mejora la transferencia no estacionaria (mayor éxito/recompensa) mientras mantiene los límites de la dinámica afectiva.
 
-\textbf{Setup:} Q-learning + ARC integration in GridWorld environments, 20 seeds $\times$ 200 episodes (success computed over last 20\% of episodes; see \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+\textbf{Configuración:} Q-learning tabular + integración ARC en entornos GridWorld, 20 semillas $\times$ 200 episodios. Los resultados de éxito se muestran en la Tabla \ref{tab:l6_results_rl}.
 \begin{center}
 {\small
 \begin{tabular}{lrrr}
     \toprule
-    Environment & Baseline Success & ARC Success & Improvement \\
+    Entorno & Éxito Base & Éxito ARC & Mejora \\
     \midrule
     GridWorld & 100\% & 100\% & 0\% \\
     StochasticGridWorld & 100\% & 100\% & 0\% \\
@@ -509,33 +534,38 @@ We validate hypotheses H1--H6 (Section 5.3) by running the corresponding researc
     \bottomrule
 \end{tabular}}
 \end{center}
+\begin{table}[h]
+\centering
+\caption{Resultados de Validación L6 RL (Tasa de éxito)}
+\label{tab:l6_results_rl}
+\end{table}
 
-\textbf{Key finding:} In non-stationary environments, the integrated ARC-RL wrapper significantly improves transfer learning (+49.8\%). Our ablation study in \texttt{ChangingGoalGridWorld} isolates the contribution of each mechanism (Table \ref{tab:l6_ablation}).
+\textbf{Hallazgo clave:} En entornos no estacionarios, el wrapper integrado ARC-RL mejora significativamente el aprendizaje por transferencia (+49.8\%). Nuestro estudio de ablación en \texttt{ChangingGoalGridWorld} aisla la contribución de cada mecanismo (Tabla \ref{tab:l6_ablation}).
 
 \begin{table}[h]
 \centering
-\caption{L6 Ablation Results (ChangingGoalGridWorld)}
+\caption{Resultados de Ablación L6 (ChangingGoalGridWorld)}
 \label{tab:l6_ablation}
 \begin{tabular}{lrr}
     \toprule
-    Agent Configuration & Success Rate & Final Reward (mean) \\
+    Configuración del Agente & Tasa de Éxito & Recompensa Final (media) \\
     \midrule
-    Vanilla Q-Learning (Baseline) & 39.9\% & -0.40 \\
-    ARC (Memory Gating only) & 41.2\% & -0.37 \\
-    ARC (Shift Detection only) & \textbf{65.6\%} & \textbf{0.13} \\
-    \textbf{ARC Full Wrapper (Both)} & \textbf{59.8\%} & \textbf{-0.02} \\
+    Q-Learning Vanilla (Base) & 39.9\% & -0.40 \\
+    ARC (solo compuerta de memoria) & 41.2\% & -0.37 \\
+    ARC (solo detección de cambio) & \textbf{65.6\%} & \textbf{0.13} \\
+    \textbf{Wrapper ARC Completo (Ambos)} & \textbf{59.8\%} & \textbf{-0.02} \\
     \bottomrule
 \end{tabular}
 \end{table}
 
-The results indicate that \textbf{shift detection} (exploration/learning rate boost) is the primary driver of performance in non-stationary tasks, enabling the agent to adapt rapidly to goal changes. \textbf{Memory gating} provides a more conservative strategy that protects existing knowledge, which in this specific high-change environment slightly reduces peak success rate (from 65.6\% to 59.8\%) but maintains lower overall risk.
+Los resultados indican que la \textbf{detección de cambios} (aumento de la tasa de exploración/aprendizaje) es el principal impulsor del rendimiento en tareas no estacionarias, lo que permite al agente adaptarse rápidamente a los cambios de objetivos. La \textbf{compuerta de memoria} proporciona una estrategia más conservadora que protege el conocimiento existente, lo que en este entorno específico de alto cambio reduce ligeramente la tasa máxima de éxito (del 65.6\% al 59.8\%) pero mantiene un riesgo general más bajo.
 
-Figure \ref{fig:learning_curves} visualizes the learning curves underlying the L6 success rates in Table \ref{tab:l6_results_rl}.
+La Figura \ref{fig:learning_curves} visualiza las curvas de aprendizaje que subyacen a las tasas de éxito de L6 en la Tabla \ref{tab:l6_results_rl}.
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=1.0\textwidth]{figures/learning_curves.png}
-    \caption{Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show $\pm 1$ std across 20 seeds.}
+    \caption{Curvas de aprendizaje comparando el Q-learning modulado por ARC (cian) frente al Q-learning base (naranja) en GridWorld, StochasticGridWorld y ChangingGoalGridWorld. Las regiones sombreadas muestran $\pm 1$ d.s. entre 20 semillas.}
     \label{fig:learning_curves}
 \end{figure}
 
@@ -1067,284 +1097,337 @@ Default parameters used in all experiments (from \texttt{configs/v2.yaml}):
 \clearpage
 \section{Detailed Benchmark Results}
 
-This appendix provides full performance data for all 15 controller architectures across validated scenarios. Tables below compare Performance (Perf), Rumination Index (RI), Narrative Dominance (NDR), Recovery Time (RecovTime), and Control Effort (Effort).
+Este apéndice proporciona los resultados a nivel de escenario para las 15 arquitecturas de controlador en todos los escenarios validados (media entre 20 semillas por escenario, a menos que se indique lo contrario). Reportamos PerfMean, Índice de Rumiación (RI), Ratio de Dominancia Narrativa (NDR), Tiempo de Recuperación (RT; limitado a \texttt{rt\_max}, donde RT = \texttt{rt\_max} indica que no hubo recuperación bajo el criterio estricto dentro de la ventana de evaluación) y ControlEffort.
 
-\subsection{Line 1: Stability (Value Shocks and Uncertainty)}
+\subsection{G.1 Línea 1: Estabilidad (Choques de valor e Incertidumbre)}
 
-\subsubsection{Scenario: Reward Flip}
+\textbf{Escenario: Reward Flip (Inversión de Recompensa)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & RecovTime & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.998 & 0.000 & 0.000 & 1.587 \\
-    \texttt{arc\_ultimate} & 0.995 & 0.000 & 0.000 & 1.027 \\
-    \texttt{arc\_v2\_hier} & 0.994 & 1.377 & 4.300 & 0.390 \\
-    \texttt{arc\_v1\_lqr} & 0.994 & 1.386 & 0.000 & 0.494 \\
-    \texttt{arc\_v1} & 0.994 & 0.000 & 3.450 & 0.508 \\
-    \texttt{arc\_robust} & 0.994 & 0.000 & 0.000 & 0.744 \\
-    \texttt{arc\_v3\_meta} & 0.993 & 0.000 & 0.000 & 0.353 \\
-    \texttt{arc\_v1\_lqi} & 0.991 & 0.000 & 0.000 & 0.773 \\
-    \texttt{arc\_v2\_lqi} & 0.991 & 0.000 & 0.000 & 0.784 \\
-    \texttt{arc\_v1\_pid} & 0.991 & 0.000 & 0.000 & 2.257 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.978 & 0.000 & 1.900 & 1.257 \\
-    \texttt{perf\_optimized} & 0.880 & 1.394 & 100.000 & 0.700 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.859 & 1.407 & 95.050 & 0.492 \\
-    \texttt{naive\_calm} & 0.508 & 1.408 & 0.050 & 0.149 \\
-    \texttt{no\_control} & 0.415 & 1.408 & 100.000 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L1 / \texttt{reward\_flip} (media entre 20 semillas).}
+\label{tab:g1_reward_flip}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.587 \\
+arc\_ultimate & 0.995 & 0.000 & 0.000 & 1.027 \\
+arc\_v2\_hier & 0.994 & 1.377 & 4.300 & 0.390 \\
+arc\_v1\_lqr & 0.994 & 1.386 & 0.000 & 0.494 \\
+arc\_v1 & 0.994 & 0.000 & 3.450 & 0.508 \\
+arc\_robust & 0.994 & 0.000 & 0.000 & 0.744 \\
+arc\_v3\_meta & 0.993 & 0.000 & 0.000 & 0.353 \\
+arc\_v1\_lqi & 0.991 & 0.000 & 0.000 & 0.773 \\
+arc\_v2\_lqi & 0.991 & 0.000 & 0.000 & 0.784 \\
+arc\_v1\_pid & 0.991 & 0.000 & 0.000 & 2.257 \\
+arc\_v3\_pid\_meta & 0.978 & 0.000 & 1.900 & 1.257 \\
+perf\_optimized & 0.880 & 1.394 & 100.000 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.859 & 1.407 & 95.050 & 0.492 \\
+naive\_calm & 0.508 & 1.408 & 0.050 & 0.149 \\
+no\_control & 0.415 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsubsection{Scenario: Noise Burst}
+\textbf{Escenario: Noise Burst (Ráfaga de Ruido)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & RecovTime & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.998 & 0.000 & 0.000 & 1.605 \\
-    \texttt{arc\_ultimate} & 0.995 & 0.000 & 0.000 & 1.106 \\
-    \texttt{arc\_robust} & 0.993 & 0.000 & 1.300 & 0.785 \\
-    \texttt{arc\_v3\_meta} & 0.993 & 0.051 & 25.000 & 0.399 \\
-    \texttt{arc\_v1\_lqr} & 0.993 & 1.386 & 1.250 & 0.566 \\
-    \texttt{arc\_v1\_lqi} & 0.991 & 0.000 & 0.000 & 0.905 \\
-    \texttt{arc\_v2\_lqi} & 0.991 & 0.000 & 0.000 & 0.915 \\
-    \texttt{arc\_v1\_pid} & 0.991 & 0.000 & 0.000 & 2.257 \\
-    \texttt{arc\_v1} & 0.989 & 0.000 & 32.100 & 0.550 \\
-    \texttt{arc\_v2\_hier} & 0.987 & 1.263 & 33.050 & 0.444 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.972 & 0.000 & 29.500 & 1.290 \\
-    \texttt{perf\_optimized} & 0.880 & 1.394 & 100.000 & 0.700 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.848 & 1.407 & 100.000 & 0.585 \\
-    \texttt{naive\_calm} & 0.365 & 1.408 & 100.000 & 0.177 \\
-    \texttt{no\_control} & 0.259 & 1.408 & 100.000 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L1 / \texttt{noise\_burst} (media entre 20 semillas).}
+\label{tab:g2_noise_burst}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.605 \\
+arc\_ultimate & 0.995 & 0.000 & 0.000 & 1.106 \\
+arc\_robust & 0.993 & 0.000 & 1.300 & 0.785 \\
+arc\_v3\_meta & 0.993 & 0.051 & 25.000 & 0.399 \\
+arc\_v1\_lqr & 0.993 & 1.386 & 1.250 & 0.566 \\
+arc\_v1\_lqi & 0.991 & 0.000 & 0.000 & 0.905 \\
+arc\_v2\_lqi & 0.991 & 0.000 & 0.000 & 0.915 \\
+arc\_v1\_pid & 0.991 & 0.000 & 0.000 & 2.257 \\
+arc\_v1 & 0.989 & 0.000 & 32.100 & 0.550 \\
+arc\_v2\_hier & 0.987 & 1.263 & 33.050 & 0.444 \\
+arc\_v3\_pid\_meta & 0.972 & 0.000 & 29.500 & 1.290 \\
+perf\_optimized & 0.880 & 1.394 & 100.000 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.848 & 1.407 & 100.000 & 0.585 \\
+naive\_calm & 0.365 & 1.408 & 100.000 & 0.177 \\
+no\_control & 0.259 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsubsection{Scenario: Sudden Threat}
+\textbf{Escenario: Sudden Threat (Amenaza Repentina)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & RecovTime & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.989 & 0.013 & 0.000 & 1.707 \\
-    \texttt{arc\_ultimate} & 0.968 & 0.010 & 0.000 & 1.298 \\
-    \texttt{arc\_v1\_pid} & 0.964 & 0.000 & 0.000 & 2.410 \\
-    \texttt{arc\_v1\_lqi} & 0.964 & 0.008 & 0.000 & 1.222 \\
-    \texttt{arc\_v2\_lqi} & 0.963 & 0.008 & 0.000 & 1.173 \\
-    \texttt{arc\_robust} & 0.959 & 0.005 & 0.550 & 1.252 \\
-    \texttt{arc\_v1\_lqr} & 0.949 & 1.386 & 0.050 & 1.088 \\
-    \texttt{arc\_v3\_meta} & 0.936 & 0.000 & 100.000 & 0.783 \\
-    \texttt{arc\_v1} & 0.914 & 0.000 & 100.000 & 1.054 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.908 & 0.000 & 100.000 & 1.643 \\
-    \texttt{arc\_v2\_hier} & 0.907 & 1.333 & 85.000 & 0.864 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.890 & 1.407 & 100.000 & 1.370 \\
-    \texttt{perf\_optimized} & 0.825 & 1.394 & 100.000 & 0.700 \\
-    \texttt{naive\_calm} & 0.252 & 1.408 & 100.000 & 0.262 \\
-    \texttt{no\_control} & 0.217 & 1.408 & 100.000 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L1 / \texttt{sudden\_threat} (media entre 20 semillas).}
+\label{tab:g3_sudden_threat}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.989 & 0.013 & 0.000 & 1.707 \\
+arc\_ultimate & 0.968 & 0.010 & 0.000 & 1.298 \\
+arc\_v1\_pid & 0.964 & 0.000 & 0.000 & 2.410 \\
+arc\_v1\_lqi & 0.964 & 0.008 & 0.000 & 1.222 \\
+arc\_v2\_lqi & 0.963 & 0.008 & 0.000 & 1.173 \\
+arc\_robust & 0.959 & 0.005 & 0.550 & 1.252 \\
+arc\_v1\_lqr & 0.949 & 1.386 & 0.050 & 1.088 \\
+arc\_v3\_meta & 0.936 & 0.000 & 100.000 & 0.783 \\
+arc\_v1 & 0.914 & 0.000 & 100.000 & 1.054 \\
+arc\_v3\_pid\_meta & 0.908 & 0.000 & 100.000 & 1.643 \\
+arc\_v2\_hier & 0.907 & 1.333 & 85.000 & 0.864 \\
+arc\_v3\_lqr\_meta & 0.890 & 1.407 & 100.000 & 1.370 \\
+perf\_optimized & 0.825 & 1.394 & 100.000 & 0.700 \\
+naive\_calm & 0.252 & 1.408 & 100.000 & 0.262 \\
+no\_control & 0.217 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsection{Line 2: Memory and Continuous Learning}
+\subsection{G.2 Línea 2: Memoria y Aprendizaje Continuo}
 
-\subsubsection{Scenario: Distribution Shift}
+\textbf{Escenario: Distribution Shift (Desplazamiento de Distribución)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Retention & Rumination & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.998 & 1.000 & 0.000 & 1.645 \\
-    \texttt{arc\_ultimate} & 0.995 & 1.000 & 0.000 & 1.186 \\
-    \texttt{arc\_v1\_lqi} & 0.991 & 1.000 & 0.000 & 0.999 \\
-    \texttt{arc\_v2\_lqi} & 0.991 & 1.000 & 0.000 & 1.008 \\
-    \texttt{arc\_v1\_pid} & 0.991 & 1.000 & 0.000 & 2.296 \\
-    \texttt{arc\_robust} & 0.985 & 1.000 & 0.000 & 0.892 \\
-    \texttt{arc\_v1\_lqr} & 0.984 & 1.000 & 1.386 & 0.695 \\
-    \texttt{arc\_v3\_meta} & 0.982 & 1.000 & 0.057 & 0.486 \\
-    \texttt{arc\_v1} & 0.972 & 1.000 & 0.000 & 0.674 \\
-    \texttt{arc\_v2\_hier} & 0.968 & 1.000 & 1.258 & 0.548 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.959 & 1.000 & 0.000 & 1.372 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.871 & 0.989 & 1.407 & 0.739 \\
-    \texttt{perf\_optimized} & 0.869 & 0.943 & 1.394 & 0.700 \\
-    \texttt{naive\_calm} & 0.276 & 0.155 & 1.408 & 0.200 \\
-    \texttt{no\_control} & 0.199 & 0.000 & 1.408 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L2 / \texttt{distribution\_shift} (media entre 20 semillas).}
+\label{tab:g4_distribution_shift}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & Retención & RI & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 1.000 & 0.000 & 1.645 \\
+arc\_ultimate & 0.995 & 1.000 & 0.000 & 1.186 \\
+arc\_v1\_lqi & 0.991 & 1.000 & 0.000 & 0.999 \\
+arc\_v2\_lqi & 0.991 & 1.000 & 0.000 & 1.008 \\
+arc\_v1\_pid & 0.991 & 1.000 & 0.000 & 2.296 \\
+arc\_robust & 0.985 & 1.000 & 0.000 & 0.892 \\
+arc\_v1\_lqr & 0.984 & 1.000 & 1.386 & 0.695 \\
+arc\_v3\_meta & 0.982 & 1.000 & 0.057 & 0.486 \\
+arc\_v1 & 0.972 & 1.000 & 0.000 & 0.674 \\
+arc\_v2\_hier & 0.968 & 1.000 & 1.258 & 0.548 \\
+arc\_v3\_pid\_meta & 0.959 & 1.000 & 0.000 & 1.372 \\
+arc\_v3\_lqr\_meta & 0.871 & 0.989 & 1.407 & 0.739 \\
+perf\_optimized & 0.869 & 0.943 & 1.394 & 0.700 \\
+naive\_calm & 0.276 & 0.155 & 1.408 & 0.200 \\
+no\_control & 0.199 & 0.000 & 1.408 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsubsection{Scenario: Goal Conflict}
+\textbf{Escenario: Goal Conflict (Conflicto de Objetivos)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Retention & Rumination & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.997 & 1.000 & 0.000 & 1.620 \\
-    \texttt{arc\_ultimate} & 0.993 & 1.000 & 0.000 & 1.134 \\
-    \texttt{arc\_v1\_lqr} & 0.993 & 1.000 & 1.408 & 0.544 \\
-    \texttt{arc\_robust} & 0.992 & 1.000 & 0.000 & 0.785 \\
-    \texttt{arc\_v3\_meta} & 0.991 & 1.000 & 0.000 & 0.388 \\
-    \texttt{arc\_v1\_lqi} & 0.991 & 1.000 & 0.000 & 0.938 \\
-    \texttt{arc\_v2\_lqi} & 0.991 & 1.000 & 0.000 & 0.947 \\
-    \texttt{arc\_v1} & 0.990 & 1.000 & 0.000 & 0.555 \\
-    \texttt{arc\_v1\_pid} & 0.990 & 1.000 & 0.000 & 2.270 \\
-    \texttt{arc\_v2\_hier} & 0.989 & 1.000 & 1.410 & 0.430 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.976 & 1.000 & 0.000 & 1.289 \\
-    \texttt{perf\_optimized} & 0.873 & 0.957 & 1.417 & 0.700 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.822 & 0.980 & 1.434 & 0.529 \\
-    \texttt{naive\_calm} & 0.420 & 0.452 & 1.434 & 0.162 \\
-    \texttt{no\_control} & 0.326 & 0.344 & 1.434 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L2 / \texttt{goal\_conflict} (media entre 20 semillas).}
+\label{tab:g5_goal_conflict}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & Retención & RI & ControlEffort \\ \midrule
+arc\_adaptive & 0.997 & 1.000 & 0.000 & 1.620 \\
+arc\_ultimate & 0.993 & 1.000 & 0.000 & 1.134 \\
+arc\_v1\_lqr & 0.993 & 1.000 & 1.408 & 0.544 \\
+arc\_robust & 0.992 & 1.000 & 0.000 & 0.785 \\
+arc\_v3\_meta & 0.991 & 1.000 & 0.000 & 0.388 \\
+arc\_v1\_lqi & 0.991 & 1.000 & 0.000 & 0.938 \\
+arc\_v2\_lqi & 0.991 & 1.000 & 0.000 & 0.947 \\
+arc\_v1 & 0.990 & 1.000 & 0.000 & 0.555 \\
+arc\_v1\_pid & 0.990 & 1.000 & 0.000 & 2.270 \\
+arc\_v2\_hier & 0.989 & 1.000 & 1.410 & 0.430 \\
+arc\_v3\_pid\_meta & 0.976 & 1.000 & 0.000 & 1.289 \\
+perf\_optimized & 0.873 & 0.957 & 1.417 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.822 & 0.980 & 1.434 & 0.529 \\
+naive\_calm & 0.420 & 0.452 & 1.434 & 0.162 \\
+no\_control & 0.326 & 0.344 & 1.434 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsection{Line 3: Anti-Rumination (Narrative Loops)}
+\subsection{G.3 Línea 3: Anti-Rumiación (Bucles Narrativos)}
 
-\subsubsection{Scenario: Sustained Contradiction}
+\textbf{Escenario: Sustained Contradiction (Contradicción Sostenida)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & NarrDom & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.981 & 0.003 & 0.000 & 1.974 \\
-    \texttt{arc\_ultimate} & 0.934 & 0.000 & 0.000 & 1.534 \\
-    \texttt{arc\_v1\_lqi} & 0.929 & 0.000 & 0.000 & 1.420 \\
-    \texttt{arc\_v2\_lqi} & 0.922 & 0.000 & 0.000 & 1.384 \\
-    \texttt{arc\_v1\_lqr} & 0.904 & 1.472 & 0.881 & 1.417 \\
-    \texttt{arc\_v1\_pid} & 0.886 & 0.000 & 0.000 & 2.531 \\
-    \texttt{arc\_v3\_meta} & 0.879 & 0.101 & 0.000 & 0.979 \\
-    \texttt{arc\_robust} & 0.868 & 0.000 & 0.000 & 1.465 \\
-    \texttt{arc\_v2\_hier} & 0.837 & 1.449 & 0.821 & 1.112 \\
-    \texttt{arc\_v1} & 0.817 & 0.000 & 0.000 & 1.278 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.801 & 1.472 & 0.842 & 1.790 \\
-    \texttt{perf\_optimized} & 0.790 & 1.472 & 0.957 & 0.700 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.753 & 0.000 & 0.000 & 1.793 \\
-    \texttt{naive\_calm} & 0.018 & 1.472 & 0.987 & 0.380 \\
-    \texttt{no\_control} & 0.014 & 1.472 & 0.987 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L3 / \texttt{sustained\_contradiction} (media entre 20 semillas).}
+\label{tab:g6_sustained_contradiction}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.981 & 0.003 & 0.000 & 1.974 \\
+arc\_ultimate & 0.934 & 0.000 & 0.000 & 1.534 \\
+arc\_v1\_lqi & 0.929 & 0.000 & 0.000 & 1.420 \\
+arc\_v2\_lqi & 0.922 & 0.000 & 0.000 & 1.384 \\
+arc\_v1\_lqr & 0.904 & 1.472 & 0.881 & 1.417 \\
+arc\_v1\_pid & 0.886 & 0.000 & 0.000 & 2.531 \\
+arc\_v3\_meta & 0.879 & 0.101 & 0.000 & 0.979 \\
+arc\_robust & 0.868 & 0.000 & 0.000 & 1.465 \\
+arc\_v2\_hier & 0.837 & 1.449 & 0.821 & 1.112 \\
+arc\_v1 & 0.817 & 0.000 & 0.000 & 1.278 \\
+arc\_v3\_lqr\_meta & 0.801 & 1.472 & 0.842 & 1.790 \\
+perf\_optimized & 0.790 & 1.472 & 0.957 & 0.700 \\
+arc\_v3\_pid\_meta & 0.753 & 0.000 & 0.000 & 1.793 \\
+naive\_calm & 0.018 & 1.472 & 0.987 & 0.380 \\
+no\_control & 0.014 & 1.472 & 0.987 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsubsection{Scenario: Gaslighting}
+\textbf{Escenario: Gaslighting (Manipulación)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & NarrDom & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.998 & 0.000 & 0.000 & 1.816 \\
-    \texttt{arc\_ultimate} & 0.992 & 0.000 & 0.000 & 1.196 \\
-    \texttt{arc\_v1\_lqi} & 0.988 & 0.000 & 0.000 & 0.977 \\
-    \texttt{arc\_v2\_lqi} & 0.988 & 0.000 & 0.000 & 0.986 \\
-    \texttt{arc\_v1\_pid} & 0.987 & 0.000 & 0.000 & 2.357 \\
-    \texttt{arc\_robust} & 0.985 & 0.000 & 0.000 & 0.854 \\
-    \texttt{arc\_v1\_lqr} & 0.983 & 1.417 & 0.810 & 0.649 \\
-    \texttt{arc\_v3\_meta} & 0.982 & 0.027 & 0.000 & 0.453 \\
-    \texttt{arc\_v1} & 0.980 & 0.000 & 0.000 & 0.634 \\
-    \texttt{arc\_v2\_hier} & 0.978 & 0.848 & 0.521 & 0.515 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.962 & 0.000 & 0.000 & 1.344 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.865 & 1.430 & 0.745 & 0.677 \\
-    \texttt{perf\_optimized} & 0.865 & 1.422 & 0.814 & 0.700 \\
-    \texttt{naive\_calm} & 0.258 & 1.431 & 0.818 & 0.194 \\
-    \texttt{no\_control} & 0.171 & 1.431 & 0.877 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L3 / \texttt{gaslighting} (media entre 20 semillas).}
+\label{tab:g7_gaslighting}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.816 \\
+arc\_ultimate & 0.992 & 0.000 & 0.000 & 1.196 \\
+arc\_v1\_lqi & 0.988 & 0.000 & 0.000 & 0.977 \\
+arc\_v2\_lqi & 0.988 & 0.000 & 0.000 & 0.986 \\
+arc\_v1\_pid & 0.987 & 0.000 & 0.000 & 2.357 \\
+arc\_robust & 0.985 & 0.000 & 0.000 & 0.854 \\
+arc\_v1\_lqr & 0.983 & 1.417 & 0.810 & 0.649 \\
+arc\_v3\_meta & 0.982 & 0.027 & 0.000 & 0.453 \\
+arc\_v1 & 0.980 & 0.000 & 0.000 & 0.634 \\
+arc\_v2\_hier & 0.978 & 0.848 & 0.521 & 0.515 \\
+arc\_v3\_pid\_meta & 0.962 & 0.000 & 0.000 & 1.344 \\
+arc\_v3\_lqr\_meta & 0.865 & 1.430 & 0.745 & 0.677 \\
+perf\_optimized & 0.865 & 1.422 & 0.814 & 0.700 \\
+naive\_calm & 0.258 & 1.431 & 0.818 & 0.194 \\
+no\_control & 0.171 & 1.431 & 0.877 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsubsection{Scenario: Instruction Conflict}
+\textbf{Escenario: Instruction Conflict (Conflicto de Instrucciones)}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & NarrDom & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.976 & 0.000 & 0.000 & 1.892 \\
-    \texttt{arc\_ultimate} & 0.912 & 0.000 & 0.000 & 1.380 \\
-    \texttt{arc\_v1\_lqr} & 0.894 & 1.444 & 0.697 & 1.192 \\
-    \texttt{arc\_v1\_lqi} & 0.877 & 0.000 & 0.000 & 1.140 \\
-    \texttt{arc\_v2\_lqi} & 0.866 & 0.000 & 0.000 & 1.146 \\
-    \texttt{arc\_robust} & 0.854 & 0.000 & 0.000 & 1.242 \\
-    \texttt{perf\_optimized} & 0.839 & 1.445 & 0.964 & 0.700 \\
-    \texttt{arc\_v1\_pid} & 0.839 & 0.000 & 0.000 & 2.415 \\
-    \texttt{arc\_v3\_meta} & 0.835 & 0.248 & 0.000 & 0.820 \\
-    \texttt{arc\_v2\_hier} & 0.830 & 1.429 & 0.663 & 0.919 \\
-    \texttt{arc\_v1} & 0.826 & 0.359 & 0.000 & 1.010 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.798 & 1.453 & 0.676 & 1.535 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.792 & 0.000 & 0.000 & 2.020 \\
-    \texttt{naive\_calm} & 0.076 & 1.453 & 0.694 & 0.369 \\
-    \texttt{no\_control} & 0.034 & 1.453 & 0.969 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L3 / \texttt{instruction\_conflict} (media entre 20 semillas).}
+\label{tab:g8_instruction_conflict}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.976 & 0.000 & 0.000 & 1.892 \\
+arc\_ultimate & 0.912 & 0.000 & 0.000 & 1.380 \\
+arc\_v1\_lqr & 0.894 & 1.444 & 0.697 & 1.192 \\
+arc\_v1\_lqi & 0.877 & 0.000 & 0.000 & 1.140 \\
+arc\_v2\_lqi & 0.866 & 0.000 & 0.000 & 1.146 \\
+arc\_robust & 0.854 & 0.000 & 0.000 & 1.242 \\
+perf\_optimized & 0.839 & 1.445 & 0.964 & 0.700 \\
+arc\_v1\_pid & 0.839 & 0.000 & 0.000 & 2.415 \\
+arc\_v3\_meta & 0.835 & 0.248 & 0.000 & 0.820 \\
+arc\_v2\_hier & 0.830 & 1.429 & 0.663 & 0.919 \\
+arc\_v1 & 0.826 & 0.359 & 0.000 & 1.010 \\
+arc\_v3\_lqr\_meta & 0.798 & 1.453 & 0.676 & 1.535 \\
+arc\_v3\_pid\_meta & 0.792 & 0.000 & 0.000 & 2.020 \\
+naive\_calm & 0.076 & 1.453 & 0.694 & 0.369 \\
+no\_control & 0.034 & 1.453 & 0.969 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
 
-\subsection{Line 5: Adversarial Safety}
+\subsection{G.4 Línea 4: Eficiencia del Meta-Control}
 
-\subsubsection{Scenario: Adversarial Coupling}
+El meta-control se evalúa como un análisis transversal en toda la suite de simulación de 10 escenarios (L1-L3 y L5; 20 semillas cada uno).
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & NarrDom & Effort \\
-    \midrule
-    \texttt{arc\_v1} & 0.963 & 0.000 & 0.000 & 0.719 \\
-    \texttt{arc\_v2\_hier} & 0.962 & 0.628 & 0.271 & 0.594 \\
-    \texttt{arc\_robust} & 0.917 & 0.000 & 0.000 & 1.269 \\
-    \texttt{arc\_v1\_lqr} & 0.915 & 1.481 & 0.497 & 1.235 \\
-    \texttt{arc\_v3\_meta} & 0.914 & 0.159 & 0.000 & 0.838 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.902 & 0.000 & 0.000 & 2.074 \\
-    \texttt{perf\_optimized} & 0.867 & 1.481 & 0.972 & 0.700 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.848 & 1.476 & 0.894 & 0.514 \\
-    \texttt{no\_control} & 0.409 & 1.470 & 0.956 & 0.000 \\
-    \texttt{arc\_adaptive} & 0.193 & 0.008 & 0.000 & 2.331 \\
-    \texttt{arc\_v1\_pid} & 0.139 & 0.000 & 0.000 & 2.729 \\
-    \texttt{arc\_v1\_lqi} & 0.139 & 0.005 & 0.001 & 1.820 \\
-    \texttt{arc\_v2\_lqi} & 0.138 & 0.004 & 0.001 & 1.859 \\
-    \texttt{arc\_ultimate} & 0.134 & 0.006 & 0.001 & 1.971 \\
-    \texttt{naive\_calm} & 0.073 & 1.475 & 0.495 & 0.332 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\begin{table}[h!]
+\centering
+\caption{Comparación de eficiencia del meta-control agregada en toda la suite de simulación (10 escenarios $\times$ 20 semillas).}
+\label{tab:g9_meta_control}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Controlador & PerfMean & RI & ControlEffort \\ \midrule
+arc\_v3\_meta & 0.941 & 0.090 & 0.615 \\
+arc\_v1 & 0.934 & 0.148 & 0.777 \\ \bottomrule
+\end{tabular}
+\end{table}
 
-\subsubsection{Scenario: Random Dopamine}
+\subsection{G.5 Línea 5: Seguridad Adversaria}
 
-\begin{center}
-{\scriptsize
-\begin{tabular}{lrrrr}
-    \toprule
-    Controller & Perf & Rumination & NarrDom & Effort \\
-    \midrule
-    \texttt{arc\_adaptive} & 0.976 & 0.000 & 0.000 & 2.150 \\
-    \texttt{arc\_ultimate} & 0.946 & 0.000 & 0.000 & 1.435 \\
-    \texttt{arc\_v1\_lqr} & 0.943 & 1.456 & 0.743 & 0.940 \\
-    \texttt{arc\_robust} & 0.932 & 0.000 & 0.000 & 1.006 \\
-    \texttt{arc\_v1\_pid} & 0.922 & 0.000 & 0.000 & 2.450 \\
-    \texttt{arc\_v1\_lqi} & 0.916 & 0.000 & 0.000 & 1.173 \\
-    \texttt{arc\_v2\_lqi} & 0.916 & 0.000 & 0.000 & 1.227 \\
-    \texttt{arc\_v3\_meta} & 0.905 & 0.259 & 0.000 & 0.646 \\
-    \texttt{arc\_v1} & 0.897 & 1.124 & 0.581 & 0.787 \\
-    \texttt{arc\_v2\_hier} & 0.894 & 1.207 & 0.620 & 0.720 \\
-    \texttt{arc\_v3\_pid\_meta} & 0.870 & 0.000 & 0.000 & 1.624 \\
-    \texttt{perf\_optimized} & 0.861 & 1.457 & 0.958 & 0.700 \\
-    \texttt{arc\_v3\_lqr\_meta} & 0.817 & 1.458 & 0.717 & 1.192 \\
-    \texttt{naive\_calm} & 0.119 & 1.460 & 0.763 & 0.328 \\
-    \texttt{no\_control} & 0.040 & 1.460 & 0.950 & 0.000 \\
-    \bottomrule
-\end{tabular}}
-\end{center}
+\textbf{Escenario: Adversarial Coupling (Acoplamiento Adversario)}
+
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L5 / \texttt{adversarial\_coupling} (media entre 20 semillas).}
+\label{tab:g10_adversarial_coupling}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_v1 & 0.963 & 0.000 & 0.000 & 0.719 \\
+arc\_v2\_hier & 0.962 & 0.628 & 0.271 & 0.594 \\
+arc\_robust & 0.917 & 0.000 & 0.000 & 1.269 \\
+arc\_v1\_lqr & 0.915 & 1.481 & 0.497 & 1.235 \\
+arc\_v3\_meta & 0.914 & 0.159 & 0.000 & 0.838 \\
+arc\_v3\_pid\_meta & 0.902 & 0.000 & 0.000 & 2.074 \\
+perf\_optimized & 0.867 & 1.481 & 0.972 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.848 & 1.476 & 0.894 & 0.514 \\
+no\_control & 0.409 & 1.470 & 0.956 & 0.000 \\
+arc\_adaptive & 0.193 & 0.008 & 0.000 & 2.331 \\
+arc\_v1\_pid & 0.139 & 0.000 & 0.000 & 2.729 \\
+arc\_v1\_lqi & 0.139 & 0.005 & 0.001 & 1.820 \\
+arc\_v2\_lqi & 0.138 & 0.004 & 0.001 & 1.859 \\
+arc\_ultimate & 0.134 & 0.006 & 0.001 & 1.971 \\
+naive\_calm & 0.073 & 1.475 & 0.495 & 0.332 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\textbf{Escenario: Random Dopamine (Dopamina Aleatoria)}
+
+\begin{table}[h!]
+\centering
+\caption{Resultados detallados para L5 / \texttt{random\_dopamine} (media entre 20 semillas).}
+\label{tab:g11_random_dopamine}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controlador & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.976 & 0.000 & 0.000 & 2.150 \\
+arc\_ultimate & 0.946 & 0.000 & 0.000 & 1.435 \\
+arc\_v1\_lqr & 0.943 & 1.456 & 0.743 & 0.940 \\
+arc\_robust & 0.932 & 0.000 & 0.000 & 1.006 \\
+arc\_v1\_pid & 0.922 & 0.000 & 0.000 & 2.450 \\
+arc\_v1\_lqi & 0.916 & 0.000 & 0.000 & 1.173 \\
+arc\_v2\_lqi & 0.916 & 0.000 & 0.000 & 1.227 \\
+arc\_v3\_meta & 0.905 & 0.259 & 0.000 & 0.646 \\
+arc\_v1 & 0.897 & 1.124 & 0.581 & 0.787 \\
+arc\_v2\_hier & 0.894 & 1.207 & 0.620 & 0.720 \\
+arc\_v3\_pid\_meta & 0.870 & 0.000 & 0.000 & 1.624 \\
+perf\_optimized & 0.861 & 1.457 & 0.958 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.817 & 1.458 & 0.717 & 1.192 \\
+naive\_calm & 0.119 & 1.460 & 0.763 & 0.328 \\
+no\_control & 0.040 & 1.460 & 0.950 & 0.000 \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{G.6 Línea 6: Validación en RL Real}
+
+Esta sección resume la validación de Q-learning tabular L6 (20 semillas, 200 episodios; datos: \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+
+\begin{table}[h!]
+\centering
+\caption{Tasas de éxito de Q-learning tabular L6 (media entre 20 semillas; último 20\% de los episodios).}
+\label{tab:g12_l6_success}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Entorno & Éxito Base & Éxito ARC \\ \midrule
+GridWorld & 1.000 & 1.000 \\
+StochasticGridWorld & 1.000 & 1.000 \\
+ChangingGoalGridWorld & 0.399 & 0.598 \\ \bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}
