@@ -788,13 +788,27 @@ class="math display"><em>C</em><sub><em>c</em><em>o</em><em>g</em></sub>(<em>t</
 <h3 id="función-de-rendimiento">3.3 Función de Rendimiento</h3>
 <p><span
 class="math display">Perf = bias + gain ⋅ <em>C</em><sub><em>c</em><em>o</em><em>g</em></sub> ⋅ (1 + <em>ω</em><sub><em>S</em></sub><em>S</em>) − <em>w</em><sub><em>U</em></sub><em>U</em> − <em>w</em><sub><em>A</em></sub>[<em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> − <em>w</em><sub><em>S</em></sub>[<em>S</em> − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span></p>
-<p>Donde <span
-class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span>
-y los umbrales <span
+<p>Donde: - <strong>bias</strong>: nivel base de rendimiento (default:
+0.3) - <strong>gain</strong>: factor de escala para la contribución de
+capacidad cognitiva (default: 0.6) - <strong><span
+class="math inline"><em>ω</em><sub><em>S</em></sub></span></strong>:
+factor de impulso narrativo—la intensidad narrativa moderada puede
+mejorar el rendimiento (default: 0.2) - <strong><span
+class="math inline"><em>w</em><sub><em>U</em></sub></span></strong>:
+peso de penalización por incertidumbre (default: 0.1) - <strong><span
+class="math inline"><em>w</em><sub><em>A</em></sub></span></strong>:
+peso de penalización por activación sobre el umbral seguro (default:
+0.15) - <strong><span
+class="math inline"><em>w</em><sub><em>S</em></sub></span></strong>:
+peso de penalización por intensidad narrativa sobre el umbral seguro
+(default: 0.15) - <strong><span
+class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span></strong>:
+función lineal rectificada - <strong><span
 class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>,
 <span
-class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>
-definen la región operativa segura.</p>
+class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span></strong>:
+umbrales que definen la región operativa segura (defaults: 0.60,
+0.55)</p>
 <hr />
 <h2 id="núcleo-de-regulación-afectiva-arc">4. Núcleo de Regulación
 Afectiva (ARC)</h2>

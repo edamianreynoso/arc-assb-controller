@@ -120,7 +120,15 @@ This captures that conscious processing requires *all* components functional.
 
 $$\text{Perf} = \text{bias} + \text{gain} \cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ - w_S [S - s_{safe}]^+$$
 
-Where $[x]^+ = \max(0, x)$ and thresholds $a_{safe}$, $s_{safe}$ define the safe operating region.
+Where:
+- **bias**: baseline performance level (default: 0.3)
+- **gain**: scaling factor for cognitive capacity contribution (default: 0.6)
+- **$\omega_S$**: narrative boost factor—moderate narrative intensity can enhance performance (default: 0.2)
+- **$w_U$**: penalty weight for uncertainty (default: 0.1)
+- **$w_A$**: penalty weight for arousal above safe threshold (default: 0.15)
+- **$w_S$**: penalty weight for narrative intensity above safe threshold (default: 0.15)
+- **$[x]^+ = \max(0, x)$**: rectified linear function
+- **$a_{safe}$, $s_{safe}$**: thresholds defining the safe operating region (defaults: 0.60, 0.55)
 
 ---
 

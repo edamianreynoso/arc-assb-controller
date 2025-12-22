@@ -120,7 +120,15 @@ Esto captura que el procesamiento consciente requiere que *todos* los componente
 
 $$\text{Perf} = \text{bias} + \text{gain} \cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ - w_S [S - s_{safe}]^+$$
 
-Donde $[x]^+ = \max(0, x)$ y los umbrales $a_{safe}$, $s_{safe}$ definen la región operativa segura.
+Donde:
+- **bias**: nivel base de rendimiento (default: 0.3)
+- **gain**: factor de escala para la contribución de capacidad cognitiva (default: 0.6)
+- **$\omega_S$**: factor de impulso narrativo—la intensidad narrativa moderada puede mejorar el rendimiento (default: 0.2)
+- **$w_U$**: peso de penalización por incertidumbre (default: 0.1)
+- **$w_A$**: peso de penalización por activación sobre el umbral seguro (default: 0.15)
+- **$w_S$**: peso de penalización por intensidad narrativa sobre el umbral seguro (default: 0.15)
+- **$[x]^+ = \max(0, x)$**: función lineal rectificada
+- **$a_{safe}$, $s_{safe}$**: umbrales que definen la región operativa segura (defaults: 0.60, 0.55)
 
 ---
 

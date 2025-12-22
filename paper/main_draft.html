@@ -741,13 +741,26 @@ components functional.</p>
 <h3 id="performance-function">3.3 Performance Function</h3>
 <p><span
 class="math display">Perf = bias + gain ⋅ <em>C</em><sub><em>c</em><em>o</em><em>g</em></sub> ⋅ (1 + <em>ω</em><sub><em>S</em></sub><em>S</em>) − <em>w</em><sub><em>U</em></sub><em>U</em> − <em>w</em><sub><em>A</em></sub>[<em>A</em> − <em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup> − <em>w</em><sub><em>S</em></sub>[<em>S</em> − <em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub>]<sup>+</sup></span></p>
-<p>Where <span
-class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span>
-and thresholds <span
+<p>Where: - <strong>bias</strong>: baseline performance level (default:
+0.3) - <strong>gain</strong>: scaling factor for cognitive capacity
+contribution (default: 0.6) - <strong><span
+class="math inline"><em>ω</em><sub><em>S</em></sub></span></strong>:
+narrative boost factor—moderate narrative intensity can enhance
+performance (default: 0.2) - <strong><span
+class="math inline"><em>w</em><sub><em>U</em></sub></span></strong>:
+penalty weight for uncertainty (default: 0.1) - <strong><span
+class="math inline"><em>w</em><sub><em>A</em></sub></span></strong>:
+penalty weight for arousal above safe threshold (default: 0.15) -
+<strong><span
+class="math inline"><em>w</em><sub><em>S</em></sub></span></strong>:
+penalty weight for narrative intensity above safe threshold (default:
+0.15) - <strong><span
+class="math inline">[<em>x</em>]<sup>+</sup> = max (0, <em>x</em>)</span></strong>:
+rectified linear function - <strong><span
 class="math inline"><em>a</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>,
 <span
-class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span>
-define the safe operating region.</p>
+class="math inline"><em>s</em><sub><em>s</em><em>a</em><em>f</em><em>e</em></sub></span></strong>:
+thresholds defining the safe operating region (defaults: 0.60, 0.55)</p>
 <hr />
 <h2 id="affective-regulation-core-arc">4. Affective Regulation Core
 (ARC)</h2>
