@@ -324,7 +324,7 @@ $$
 
 ### 4.4 ARC in the Agent Loop
 
-ARC is implemented as a light-weight wrapper around an agentâ€™s step/update. At each timestep, ARC reads the internal state $\mathbf{x}(t)$ and exogenous signals (reward, prediction error, uncertainty), computes a bounded risk signal, and applies control actions that modulate *narrative gain*, *attention*, *memory writing*, and *arousal damping*. The resulting control signal can be used either:
+ARC is implemented as a light-weight wrapper around an agent's step/update. At each timestep, ARC reads the internal state $\mathbf{x}(t)$ and exogenous signals (reward, prediction error, uncertainty), computes a bounded risk signal, and applies control actions that modulate *narrative gain*, *attention*, *memory writing*, and *arousal damping*. The resulting control signal can be used either:
 - **Inside the state dynamics** (Appendix B/C), or
 - **Inside the learning loop**, e.g., gating Q-learning updates under high risk (Section 6.7).
 
@@ -715,7 +715,7 @@ Figure 10 compares the amount of intervention required by each controller family
 
 ![Control Effort by Controller](figures/fig_controller_effort.png)
 
-*Figure 10: ControlEffort by controller architecture (lower is better). Meta-control (`arc_v3_meta`) achieves the lowest effrot among regulated agents.*
+*Figure 10: ControlEffort by controller architecture (lower is better). Meta-control (`arc_v3_meta`) achieves the lowest effort among regulated agents.*
 <!-- LABEL:fig:controller_effort -->
 
 #### 6.9.5 Multi-Metric Radar Analysis
@@ -758,7 +758,7 @@ Our deep analysis revealed four critical insights regarding the cost of stabilit
 
 **3. Complexity vs. Robustness:** Our most complex controller, `arc_ultimate` (MPC), underperformed the simpler `arc_robust` on average (PerfMean 0.886 vs 0.948) while requiring higher control effort (1.33 vs 1.03). In this benchmark, robust reactive control provides a better safetyâ€“performance balance than heavyweight predictive modeling.
 
-**4. The Adaptation Paradox and Persistence of Excitation:** We observed that `arc_adaptive` performs poorly in the "No Perturbation" baseline but excels in chaotic environments. This illustrates the classic **persistence of excitation** problem (Ã…strÃ¶m & Murray, 2008): in benign environments, lack of variation prevents the estimator from identifying correct parameters, leading to control drift. Noisy environments paradoxically stabilize the adaptive controller by providing necessary excitation.
+**4. The Adaptation Paradox and Persistence of Excitation:** We observed that `arc_adaptive` performs poorly in the "No Perturbation" baseline but excels in chaotic environments. This illustrates the classic **persistence of excitation** problem (Åström & Murray, 2008): in benign environments, lack of variation prevents the estimator from identifying correct parameters, leading to control drift. Noisy environments paradoxically stabilize the adaptive controller by providing necessary excitation.
 
 ### 7.4 Limitations and Threats to Validity
 
