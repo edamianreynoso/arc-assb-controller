@@ -65,6 +65,11 @@
 \newcommand{\clip}{\text{clip}}
 \providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
+% --- Pandoc Compatibility ---
+\usepackage{calc}
+\newcounter{none}   % For unnumbered tables
+\newcommand{\real}[1]{#1}  % Pandoc table column widths
+
 % --- Bibliography ---
 \usepackage{natbib}
 \bibliographystyle{unsrtnat}
@@ -198,20 +203,20 @@ are summarized here.
 \textbf{Symbol} & \textbf{Meaning} & \textbf{Range/Units} & \textbf{Defined} \\
 \midrule
 \endhead
-$\mathbf{x}(t)$ & Internal state vector & $\mathbb{R}^{10}$ & Section~\ref{sec:state-space} \\
-$\Phi$ & Integration proxy (IIT) & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$G$ & Global workspace access & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$P$ & Predictive precision & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$I$ & Introspective attention & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$S$ & Narrative Intensity (DMN) & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$V$ & Valence & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$A$ & Arousal & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$M_f, M_s$ & Fast/Slow memory trace & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$U$ & Uncertainty & $[0, 1]$ & Section~\ref{sec:state-space} \\
-$\mathbf{u}(t)$ & Control actions vector & $[0, 1]^5$ & Section~\ref{sec:control-actions} \\
-Perf & Performance proxy & $[0, 1]$ & Section~\ref{sec:perf-function} \\
-$a_{safe}$ & Arousal threshold & 0.60 & Section~\ref{sec:perf-function} \\
-$s_{safe}$ & Narrative threshold & 0.55 & Section~\ref{sec:perf-function} \\
+$\mathbf{x}(t)$ & Internal state vector & $\mathbb{R}^{10}$ & Section 3.1 \\
+$\Phi$ & Integration proxy (IIT) & $[0, 1]$ & Section 3.1 \\
+$G$ & Global workspace access & $[0, 1]$ & Section 3.1 \\
+$P$ & Predictive precision & $[0, 1]$ & Section 3.1 \\
+$I$ & Introspective attention & $[0, 1]$ & Section 3.1 \\
+$S$ & Narrative Intensity (DMN) & $[0, 1]$ & Section 3.1 \\
+$V$ & Valence & $[0, 1]$ & Section 3.1 \\
+$A$ & Arousal & $[0, 1]$ & Section 3.1 \\
+$M_f, M_s$ & Fast/Slow memory trace & $[0, 1]$ & Section 3.1 \\
+$U$ & Uncertainty & $[0, 1]$ & Section 3.1 \\
+$\mathbf{u}(t)$ & Control actions vector & $[0, 1]^5$ & Section 4.2 \\
+Perf & Performance proxy & $[0, 1]$ & Section 3.3 \\
+$a_{safe}$ & Arousal threshold & 0.60 & Section 3.3 \\
+$s_{safe}$ & Narrative threshold & 0.55 & Section 3.3 \\
 \bottomrule
 \end{longtable}
 
