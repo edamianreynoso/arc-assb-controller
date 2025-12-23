@@ -175,14 +175,14 @@ This captures that conscious processing requires \textit{all} components functio
 
 Where:
 \begin{itemize}
-    \item \textbf{bias}: baseline performance level (default: 0.3)
-    \item \textbf{gain}: scaling factor for capacity (default: 0.6)
-    \item $\omega_S$: narrative boost factor (default: 0.2)
-    \item $w_U$: uncertainty penalty (default: 0.1)
-    \item $w_A$: arousal penalty (default: 0.15)
-    \item $w_S$: narrative penalty (default: 0.15)
-    \item $[x]^+ = \max(0, x)$
-    \item $a_{safe}, s_{safe}$: safety thresholds (defaults: 0.60, 0.55)
+    \item \textbf{bias}: baseline performance level (value used in experiments: 0.25; see \texttt{configs/v2.yaml})
+    \item \textbf{gain}: scaling factor for cognitive capacity contribution (value used in experiments: 0.85; see \texttt{configs/v2.yaml})
+    \item \textbf{$\omega_S$}: narrative boost factor---moderate narrative intensity can enhance performance (value used in experiments: 0.35; see \texttt{configs/v2.yaml})
+    \item \textbf{$w_U$}: penalty weight for uncertainty (value used in experiments: 0.25; see \texttt{configs/v2.yaml})
+    \item \textbf{$w_A$}: penalty weight for arousal above safe threshold (value used in experiments: 0.30; see \texttt{configs/v2.yaml})
+    \item \textbf{$w_S$}: penalty weight for narrative intensity above safe threshold (value used in experiments: 0.20; see \texttt{configs/v2.yaml})
+    \item $[x]^+ = \max(0, x)$: rectified linear function
+    \item $a_{safe}, s_{safe}$: thresholds defining the safe operating region (defaults: 0.60, 0.55)
 \end{itemize}
 
 \section{Affective Regulation Core (ARC)}
@@ -212,11 +212,13 @@ We implement 15 controller variants stemming from basic feedback control to opti
 
 \textbf{ARC v1 (Proportional):} Basic proportional feedback on risk signal:
 \begin{equation}
-\text{risk} = w_U \cdot U + w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+
+\text{risk}(t) = \tilde{w}_U \cdot U(t) + \tilde{w}_A \cdot [A(t) - a_{safe}]^+ + \tilde{w}_S \cdot [S(t) - s_{safe}]^+
 \end{equation}
 \begin{equation}
-u_{dmg} = k_{dmg} \cdot \text{risk}
+u_{dmg}(t) = k_{dmg} \cdot \text{risk}(t)
 \end{equation}
+
+Here $\tilde{w}_U,\tilde{w}_A,\tilde{w}_S$ are ARC risk weights (distinct from the performance penalties $w_U,w_A,w_S$ in the performance function in Section 3.3); in our experiments $\tilde{w}_U=0.40$, $\tilde{w}_A=0.40$, and $\tilde{w}_S=0.35$ (see \texttt{configs/v2.yaml}).
 
 \begin{figure}[h]
     \centering
@@ -332,19 +334,31 @@ ARC enforces a \textit{safe operating region} defined by thresholds $(a_{safe}, 
 
 To formalize the regulation dynamics, we introduce three theoretical results characterizing the stability and trade-offs of the ARC framework.
 
-\textbf{Theorem 1 (Necessity of Integral Action for Zero Rumination).} 
-Consider the simplified narrative state dynamics $\dot{S} = -k S + u_{dmg} + d$, where $d$ is a persistent disturbance (rumination pressure). The steady-state rumination $S_{ss}$ satisfies $S_{ss} \to 0$ if and only if the control law $u_{dmg}$ includes an integral term $\int S(\tau) d\tau$.
-\\
-\textit{Proof sketch:} A proportional controller $u = -K_p S$ yields steady-state error $S_{ss} = d / (1 + K_p) \neq 0$. Only an integral controller ensures $\dot{u} \propto S$, forcing equilibrium at $S=0$.
+\paragraph{Theorem 1 (Integral Action Rejects Constant Rumination Pressure).}
+Consider the simplified (unclipped) discrete-time narrative deviation dynamics
+\[
+\tilde{S}_{t+1} = (1-\mu)\tilde{S}_t + d - k\,u_t .
+\]
+where $\tilde{S}_t = S_t - S_0$, $\mu\in(0,1)$ is a leak term, $k>0$ is a control gain, and $d$ is an unknown constant disturbance (persistent rumination pressure).
 
-\textbf{Theorem 2 (The Mental Health Pareto Frontier).} 
-Let $J_{perf}$ be the task performance objective and $J_{reg} = ||S||^2 + ||A||^2$ be the regulation cost. There exists a strictly convex Pareto frontier such that minimizing $J_{reg}$ (specifically driving rumination to zero) strictly constrains the maximum achievable $J_{perf}$ in high-uncertainty environments.
-\\
-\textit{Implication:} This formalizes the ``Mental Health Tax'' observed in our experiments, where integral controllers sacrifice $\sim$5\% peak performance to guarantee $RI=0$.
+(i) Under proportional control $u_t = K_p\tilde{S}_t$, the unique equilibrium is $\tilde{S}_\infty = \dfrac{d}{\mu + kK_p}$, which is nonzero whenever $d\neq 0$.
 
-\textbf{Proposition 1 (Paradox of Adaptation).} 
-Adaptive ARC controllers require \textit{persistence of excitation}. In benign environments (low variance in reward/PE), the parameter estimator $\hat{\theta}$ drifts or fails to converge, leading to suboptimal control laws upon sudden shock onset.
-\\
+(ii) Under PI control with integral state $z_{t+1}=z_t + \tilde{S}_t$ and control law $u_t = K_p\tilde{S}_t + K_i z_t$, any stable equilibrium necessarily satisfies $\tilde{S}_\infty = 0$ (exact rejection of constant $d$), provided the equilibrium is admissible (no saturation).
+
+\textit{Proof:} For (i), set $\tilde{S}_{t+1}=\tilde{S}_t=\tilde{S}_\infty$ and solve. For (ii), at equilibrium $z_{t+1}=z_t$ implies $\tilde{S}_\infty=0$; substituting into the state update equation yields $0=d-k\,u_\infty$, so the integral term supplies the constant offset needed to cancel $d$.
+
+\textit{Remark:} This is a discrete-time instance of the internal model principle: rejecting unknown constant disturbances requires an integrator (or a disturbance observer). Note that $RI$ can be zero even if $\tilde{S}_\infty\neq 0$ as long as $S_t \le s_{safe}$; integral action is mainly required when we demand strict setpoint regulation and is vulnerable to windup under saturation (Section 6.6).
+
+\paragraph{Theorem 2 (Convex Performance-Regulation Trade-off in Expectation).}
+Let $J_{perf}(\pi)=\mathbb{E}[\text{PerfMean}]$ and $J_{reg}(\pi)=\mathbb{E}\!\left[\sum_{t=0}^{H-1}\left(S_t^2 + A_t^2\right)\right]$ for an episode of length $H$ under controller $\pi$. If we allow randomized selection between controllers at episode start, then the set of achievable pairs $\{(J_{reg}(\pi),J_{perf}(\pi))\}$ is convex.
+
+\textit{Proof:} Take any two controllers $\pi_1,\pi_2$ with pairs $(r_1,p_1)$ and $(r_2,p_2)$. Choose $\pi_1$ with probability $\lambda\in[0,1]$ and $\pi_2$ otherwise. Linearity of expectation gives $(J_{reg},J_{perf})=(\lambda r_1+(1-\lambda)r_2,\;\lambda p_1+(1-\lambda)p_2)$, a convex combination.
+
+\textit{Implication:} Driving regulation cost toward zero (e.g., suppressing perseveration until $RI=0$) typically moves along this frontier and can reduce peak performance, consistent with the empirical performance-regulation trade-offs discussed in Section 7.3.
+
+\paragraph{Proposition 1 (Paradox of Adaptation).}
+Adaptive ARC controllers require \textit{persistence of excitation} for reliable parameter convergence \citep{astrom2008feedback}. In benign environments (low variance in reward/PE), the parameter estimator $\hat{\theta}$ drifts or fails to converge, leading to suboptimal control laws upon sudden shock onset.
+
 \textit{Implication:} This explains the underperformance of \texttt{arc\_adaptive} in baseline scenarios compared to robust variants.
 
 \section{ASSB Benchmark}

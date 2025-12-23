@@ -261,8 +261,13 @@ class ARCQLearningAgent(QLearningAgent):
         modulated_alpha = self._modulate_learning_rate(self.config.alpha, arc_signals)
         self.learning_rate_history.append(modulated_alpha)
         
-        # Block update if memory gate is too low (stressed)
-        if self.use_mem_gating and arc_signals["u_mem"] < 0.2:
+        # Shift-aware memory gating: bypass protection during active shift detection
+        # Rationale: When a goal change is detected, the agent NEEDS to update Q-values
+        # to learn the new optimal policy. Memory gating should not block this.
+        shift_active = self.use_shift_detection and self.shift_steps_remaining > 0
+        
+        # Block update only if memory gate is low AND we're NOT in shift mode
+        if self.use_mem_gating and arc_signals["u_mem"] < 0.2 and not shift_active:
             self.blocked_updates += 1
             return 0.0  # No update
         

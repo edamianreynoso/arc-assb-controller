@@ -47,10 +47,10 @@ This paper addresses a fundamental question: **If an agent has internal affectiv
 
 ### 1.3 Scope
 
-We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat the various internal variables (arousal, valence, narrative intensity) **strictly as functional signals** that modulate processing and prioritization. Any use of terms like "affect," "rumination," or "anxiety" refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable [EDITADO]. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains as future work [ACLARAR: Sugerencia - Mencionar que la estabilidad se valida empíricamente vía ASSB ante la complejidad no lineal del sistema]. Current validation is based on empirical benchmarking across a wide range of conditions.
+We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat the various internal variables (arousal, valence, narrative intensity) **strictly as functional signals** that modulate processing and prioritization. Any use of terms like "affect," "rumination," or "anxiety" refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity. Given the non-linear complexity of the integrated system, formal stability analysis (e.g., Lyapunov proofs) remains as future work; currently, stability is validated empirically through the rigorous ASSB protocol across diverse perturbation scenarios. Current validation is based on empirical benchmarking across a wide range of conditions.
 
 
-### 1.4 Glossary and Notation [EDITADO]
+### 1.4 Glossary and Notation
 
 To ensure clarity and LaTeX-friendly conversion, acronyms and symbols are summarized here.
 
@@ -731,7 +731,7 @@ Figure 11 summarizes a multi-objective comparison of the top-performing controll
 
 ## 7. Discussion
 
-### 7.1 Interpretation [EDITADO]
+### 7.1 Interpretation
 
 Our results support the hypothesis that **agents with internal affective states require explicit regulation**. Without regulation, perturbations cause cascading failures: arousal drives narrative gain toward saturation, degrading performance in a rumination-like loop.
 
@@ -843,7 +843,7 @@ This work addresses the safety and stability of AI systems incorporating interna
 
 **Potential Benefits:** safer AI systems that are less prone to unpredictable failure modes; improved robustness against adversarial manipulation; better understanding of "pathological" states in artificial agents.
 
-**Potential Risks:** if used for manipulation, regulated agents could be harder to disrupt; the "affective" terminology might invite anthropomorphism (which we explicitly caution against in Section 1.3) [ACLARAR: Sugerencia - Explorar el riesgo de que la regulación oculte inestabilidades profundas bajo una superficie de "calma" funcional].
+**Potential Risks:** if used for manipulation, regulated agents could be harder to disrupt; the "affective" terminology might invite anthropomorphism (which we explicitly caution against in Section 1.3). Additionally, there is a risk of "functional masking," where explicit regulation maintains a surface-level calm that hides deepening internal instabilities until a catastrophic failure threshold is reached.
 
 ---
 
