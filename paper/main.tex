@@ -7,9 +7,9 @@
 % --- Core Packages ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{mathpazo}  % Palatino font for elegance
+\usepackage{mathpazo} % Palatino font (stable on MiKTeX/arXiv)
 \usepackage{amsmath,amssymb,amsthm}
-\usepackage[expansion=false]{microtype}  % Better typography (expansion disabled for font compat)
+\usepackage[protrusion=true,expansion=false]{microtype} % expansion can break with some font setups
 
 % --- Layout ---
 \usepackage[margin=1in]{geometry}
@@ -70,9 +70,27 @@
 \newcounter{none}   % For unnumbered tables
 \newcommand{\real}[1]{#1}  % Pandoc table column widths
 
+% --- Pandoc Syntax Highlighting ---
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newenvironment{Highlighting}[1][]{}{}
+% Token commands for syntax highlighting
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+
 % --- Bibliography ---
-\usepackage{natbib}
-\bibliographystyle{unsrtnat}
+% For a strict 1:1 Markdown->LaTeX conversion we keep the manual References
+% section from the Markdown source (no BibTeX run required).
 
 % ============================================================================
 % Document Metadata
@@ -2801,7 +2819,6 @@ ChangingGoalGridWorld & 0.399 & 0.598 \\
 \end{longtable}
 }
 
-\bibliographystyle{unsrt}
-\bibliography{references}
+% (BibTeX disabled; References are listed explicitly above.)
 
 \end{document}
