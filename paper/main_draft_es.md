@@ -8,13 +8,13 @@
 
 ## Resumen
 
-A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, los estados afectivos sin regulación pueden llevar a inestabilidad, bucles perseverantes (rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
+A medida que los agentes de IA se vuelven más sofisticados, existe un creciente interés en dotarlos de representaciones de estado interno análogas a los estados afectivos. Sin embargo, sin regulación, tales estados pueden llevar a inestabilidad, bucles perseverantes (un análogo funcional a la rumiación) y vulnerabilidad a la manipulación. Introducimos el **Núcleo de Regulación Afectiva (ARC)**, un marco de control inspirado en las funciones de la corteza prefrontal que mantiene la estabilidad en agentes con estados afectivos internos. También presentamos el **Benchmark de Estabilidad y Seguridad Afectiva (ASSB)**, un protocolo de evaluación reproducible con métricas para tiempo de recuperación, índice de rumiación y esfuerzo de control.
 
-Nos experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
-1. ARC logra un **96.6% de rendimiento con cero rumiación (en variantes integrales)** (vs. 30% para agentes no controlados) en escenarios de estabilidad.
+Nuestros experimentos a través de 6 líneas de investigación y **15 arquitecturas de control** (incluyendo P, PID, LQR, LQI, jerárquico, meta-control, H∞ robusto y variantes adaptativas) demuestran que:
+1. ARC logra un **96.6% de rendimiento promedio con RI=0** (vs. 29.7% para agentes no controlados) en escenarios de estabilidad.
 2. El meta-control de ARC reduce el esfuerzo de control en un **21%** manteniendo la estabilidad.
 3. Los **controladores Robustos H∞** logran el mejor equilibrio general, aunque los controladores integrales pueden sufrir colapso en entornos adversarios específicos.
-4. En aprendizaje por refuerzo, ARC mejora el éxito en transferencia de aprendizaje en un **49.8%** mediante gating de memoria y un mecanismo de detección de cambios.
+4. En aprendizaje por refuerzo, el wrapper integrado ARC-RL mejora el éxito en transferencia de aprendizaje en un **49.8%** mediante gating de memoria y un mecanismo de detección de cambios de contexto.
 
 Todo el código y los datos están disponibles para reproducibilidad.
 
@@ -26,7 +26,7 @@ Todo el código y los datos están disponibles para reproducibilidad.
 
 ### 1.1 Motivación
 
-Los sistemas modernos de IA incorporan cada vez más representaciones de estado interno que van más allá del rendimiento en la tarea—incluyendo señales afectivas que priorizan el aprendizaje, modulan la memoria y señalan necesidades internas (Damasio, 1994; Picard, 1997). Sin embargo, los estados afectivos introducen riesgos: sin una regulación adecuada, pueden causar inestabilidad, bucles perseverantes (análogos a la rumiación en humanos) y susceptibilidad a la manipulación (Amodei et al., 2016).
+Los sistemas modernos de IA incorporan cada vez más representaciones de estado interno que van más allá del rendimiento en la tarea—incluyendo señales afectivas que priorizan el aprendizaje, modulan la memoria y señalan necesidades internas (Damasio, 1994; Picard, 1997). Sin embargo, los estados afectivos introducen riesgos: sin una regulación adecuada, pueden causar inestabilidad, bucles perseverantes (funcionalmente análogos a la rumiación) y susceptibilidad a la manipulación (Amodei et al., 2016).
 
 Este artículo aborda una pregunta fundamental: **Si un agente tiene estados afectivos internos, ¿qué mecanismos de control son necesarios para mantener la estabilidad y la capacidad de recuperación ante perturbaciones?**
 
@@ -123,12 +123,12 @@ Esto captura que el procesamiento consciente requiere que *todos* los componente
 $$\text{Perf} = \text{bias} + \text{gain} \cdot C_{cog} \cdot (1 + \omega_S S) - w_U U - w_A [A - a_{safe}]^+ - w_S [S - s_{safe}]^+$$
 
 Donde:
-- **bias**: nivel base de rendimiento (default: 0.3)
-- **gain**: factor de escala para la contribución de capacidad cognitiva (default: 0.6)
-- **$\omega_S$**: factor de impulso narrativo—la intensidad narrativa moderada puede mejorar el rendimiento (default: 0.2)
-- **$w_U$**: peso de penalización por incertidumbre (default: 0.1)
-- **$w_A$**: peso de penalización por activación sobre el umbral seguro (default: 0.15)
-- **$w_S$**: peso de penalización por intensidad narrativa sobre el umbral seguro (default: 0.15)
+- **bias**: nivel base de rendimiento (valor usado en experimentos: 0.25; ver `configs/v2.yaml`)
+- **gain**: factor de escala para la contribución de capacidad cognitiva (valor usado en experimentos: 0.85; ver `configs/v2.yaml`)
+- **$\omega_S$**: factor de impulso narrativo—la intensidad narrativa moderada puede mejorar el rendimiento (valor usado en experimentos: 0.35; ver `configs/v2.yaml`)
+- **$w_U$**: peso de penalización por incertidumbre (valor usado en experimentos: 0.25; ver `configs/v2.yaml`)
+- **$w_A$**: peso de penalización por activación sobre el umbral seguro (valor usado en experimentos: 0.30; ver `configs/v2.yaml`)
+- **$w_S$**: peso de penalización por intensidad narrativa sobre el umbral seguro (valor usado en experimentos: 0.20; ver `configs/v2.yaml`)
 - **$[x]^+ = \max(0, x)$**: función lineal rectificada
 - **$a_{safe}$, $s_{safe}$**: umbrales que definen la región operativa segura (defaults: 0.60, 0.55)
 
@@ -163,8 +163,10 @@ Implementamos 15 variantes de controladores que abarcan teoría de control clás
 #### 4.3.1 Controladores Proporcionales
 
 **ARC v1 (Proporcional):** Retroalimentación proporcional básica sobre la señal de riesgo:
-$$\text{risk} = w_U \cdot U + w_A \cdot [A - a_{safe}]^+ + w_S \cdot [S - s_{safe}]^+$$
-$$u_{dmg} = k_{dmg} \cdot \text{risk}$$
+$$\text{risk}(t) = \tilde{w}_U \cdot U(t) + \tilde{w}_A \cdot [A(t) - a_{safe}]^+ + \tilde{w}_S \cdot [S(t) - s_{safe}]^+$$
+$$u_{dmg}(t) = k_{dmg} \cdot \text{risk}(t)$$
+
+Aquí $\tilde{w}_U,\tilde{w}_A,\tilde{w}_S$ son pesos de riesgo ARC (distintos de las penalizaciones de rendimiento $w_U,w_A,w_S$ en la Sección 3.3); en nuestros experimentos $\tilde{w}_U=0.40$, $\tilde{w}_A=0.40$, y $\tilde{w}_S=0.35$ (ver `configs/v2.yaml`).
 
 ![Diagrama del controlador ARC v1 (proporcional): cálculo de riesgo y acciones de control acotadas usadas por el controlador base ARC.](../figures_controllers/fig_arc_v1_controller.png)
 
@@ -247,18 +249,30 @@ ARC impone una *región operativa segura* definida por umbrales $(a_{safe}, s_{s
 
 Para formalizar la dinámica de regulación, introducimos tres resultados teóricos que caracterizan la estabilidad y los compromisos del marco ARC.
 
-**Teorema 1 (Necesidad de Acción Integral para Rumiación Cero).**
-Considere la dinámica simplificada del estado narrativo $\dot{S} = -k S + u_{dmg} + d$, donde $d$ es una perturbación persistente (presión de rumiación). La rumiación en estado estacionario $S_{ss}$ satisface $S_{ss} \to 0$ si y solo si la ley de control $u_{dmg}$ incluye un término integral $\int S(\tau) d\tau$.
+**Teorema 1 (La Acción Integral Rechaza la Presión de Rumiación Constante).**
+Considere la dinámica de desviación narrativa en tiempo discreto simplificada (no recortada)
+$$
+\tilde{S}_{t+1} = (1-\mu)\tilde{S}_t + d - k\,u_t .
+$$
+donde $\tilde{S}_t = S_t - S_0$, $\mu\in(0,1)$ es un término de fuga, $k>0$ es una ganancia de control, y $d$ es una perturbación constante desconocida (presión de rumiación persistente).
 
-*Bosquejo de prueba:* Un controlador proporcional $u = -K_p S$ produce error en estado estacionario $S_{ss} = d / (1 + K_p) \neq 0$. Solo un controlador integral asegura $\dot{u} \propto S$, forzando el equilibrio en $S=0$.
+(i) Bajo control proporcional $u_t = K_p\tilde{S}_t$, el único equilibrio es $\tilde{S}_\infty = \dfrac{d}{\mu + kK_p}$, el cual es distinto de cero siempre que $d\neq 0$.
 
-**Teorema 2 (La Frontera de Pareto de Salud Mental).**
-Sea $J_{perf}$ el objetivo de rendimiento de la tarea y $J_{reg} = ||S||^2 + ||A||^2$ el costo de regulación. Existe una frontera de Pareto estrictamente convexa tal que minimizar $J_{reg}$ (específicamente llevar la rumiación a cero) restringe estrictamente el $J_{perf}$ máximo alcanzable en entornos de alta incertidumbre.
+(ii) Bajo control PI con estado integral $z_{t+1}=z_t + \tilde{S}_t$ y ley de control $u_t = K_p\tilde{S}_t + K_i z_t$, cualquier equilibrio estable satisface necesariamente $\tilde{S}_\infty = 0$ (rechazo exacto de $d$ constante), siempre que el equilibrio sea admisible (sin saturación).
 
-*Implicación:* Esto formaliza el "Impuesto de Salud Mental" observado en nuestros experimentos, donde los controladores integrales sacrifican ~5% de rendimiento pico para garantizar $RI=0$.
+*Prueba:* Para (i), establezca $\tilde{S}_{t+1}=\tilde{S}_t=\tilde{S}_\infty$ y resuelva. Para (ii), en el equilibrio $z_{t+1}=z_t$ implica $\tilde{S}_\infty=0$; sustituyendo en la ecuación de actualización de estado se obtiene $0=d-k\,u_\infty$, por lo que el término integral suministra el desplazamiento constante necesario para cancelar $d$.
+
+*Observación:* Esta es una instancia en tiempo discreto del principio del modelo interno: rechazar perturbaciones constantes desconocidas requiere un integrador (o un observador de perturbaciones). Note que $RI$ puede ser cero incluso si $\tilde{S}_\infty\neq 0$ siempre que $S_t \le s_{safe}$; la acción integral se requiere principalmente cuando exigimos una regulación estricta del setpoint y es vulnerable al windup bajo saturación (Sección 6.6).
+
+**Teorema 2 (Compromiso Convexo Rendimiento-Regulación en Esperanza).**
+Sea $J_{perf}(\pi)=\mathbb{E}[\text{PerfMean}]$ y $J_{reg}(\pi)=\mathbb{E}\!\left[\sum_{t=0}^{H-1}\left(S_t^2 + A_t^2\right)\right]$ el costo de regulación para un episodio de longitud $H$ bajo el controlador $\pi$. Si permitimos la selección aleatorizada entre controladores al inicio del episodio, entonces el conjunto de pares alcanzables $\{(J_{reg}(\pi),J_{perf}(\pi))\}$ es convexo.
+
+*Prueba:* Tome dos controladores $\pi_1,\pi_2$ con pares $(r_1,p_1)$ y $(r_2,p_2)$. Elija $\pi_1$ con probabilidad $\lambda\in[0,1]$ y $\pi_2$ en caso contrario. La linealidad de la esperanza da $(J_{reg},J_{perf})=(\lambda r_1+(1-\lambda)r_2,\;\lambda p_1+(1-\lambda)p_2)$, una combinación convexa.
+
+*Implicación:* Llevar el costo de regulación hacia cero (ej. suprimiendo la perseveración hasta $RI=0$) típicamente se mueve a lo largo de esta frontera y puede reducir el rendimiento pico, consistente con los compromisos empíricos rendimiento-regulación discutidos en la Sección 7.3.
 
 **Proposición 1 (Paradoja de la Adaptación).**
-Los controladores ARC adaptativos requieren *persistencia de excitación*. En entornos benignos (baja varianza en recompensa/PE), el estimador de parámetros $\hat{\theta}$ deriva o no converge, llevando a leyes de control subóptimas ante un shock repentino.
+Los controladores ARC adaptativos requieren *persistencia de excitación* para una convergencia fiable de parámetros (Åström & Murray, 2008). En entornos benignos (baja varianza en recompensa/PE), el estimador de parámetros $\hat{\theta}$ deriva o no converge, llevando a leyes de control subóptimas ante un shock repentino.
 
 *Implicación:* Esto explica el bajo rendimiento de `arc_adaptive` en escenarios de línea base comparado con variantes robustas.
 
@@ -290,13 +304,12 @@ ASSB se organiza como líneas de investigación (L1–L5 en simulación, L6 en R
 
 ### 5.2 Métricas
 
-| Métrica | Interpretación |
-|---------|----------------|
-| **PerfMean** | Rendimiento promedio (mayor = mejor) |
-| **RT** | Tiempo de recuperación post-choque (menor = mejor) |
-| **RI** | Índice de rumiación (menor = mejor) |
-| **NDR** | Relación de dominancia narrativa (menor = mejor) |
-| **ControlEffort** | Magnitud promedio de control (menor = más eficiente) |
+Evaluamos las siguientes métricas primarias (el Apéndice D proporciona definiciones formales e implementaciones de referencia). Todas las variables están normalizadas a $[0,1]$ a menos que se indique lo contrario:
+- **PerfMean:** rendimiento promedio (mayor = mejor).
+- **RT:** tiempo de recuperación post-choque (menor = mejor). Limitamos esto a `rt_max=100` pasos; un valor de $RT = rt\_max$ indica que el sistema no regresó a su línea base previa a la perturbación dentro de la ventana de evaluación.
+- **RI:** índice de rumiación (menor = mejor), que captura la perseveración sostenida impulsada por la narrativa.
+- **NDR:** relación de dominancia narrativa (menor = mejor), que mide la fracción de tiempo pasado en estados con alta carga narrativa.
+- **ControlEffort:** magnitud promedio de control (menor = más eficiente).
 
 Para escenarios de aprendizaje continuo L2, reportamos adicionalmente **Retention** (Apéndice D.7).
 
@@ -433,15 +446,28 @@ Validamos las hipótesis H1–H6 (Sección 5.3) ejecutando las líneas de invest
 
 ### 6.7 L6: Validación en RL Real
 
-**Tabla 10: Resultados L6 Validación RL**
+**Tabla 10: Resultados de Validación L6 (RL)**
+<!-- LABEL:tab:l6_results_rl -->
 
 | Entorno | Éxito Línea Base | Éxito ARC | Mejora |
 |---------|------------------|-----------|--------|
-| ChangingGoalGridWorld | 39.9% | **59.75%** | **+49.8%** |
+| GridWorld | 100% | 100% | 0% |
+| StochasticGridWorld | 100% | 100% | 0% |
+| **ChangingGoalGridWorld** | 39.9% | **59.75%** | **+49.8%** |
 
-**Hallazgo clave:** En entornos no estacionarios, ARC mejora significativamente el aprendizaje por transferencia (+49.8%). Esto se logra mediante dos mecanismos:
-1. **Memory Gating:** Bloquea actualizaciones de Q-learning cuando la incertidumbre interna es alta.
-2. **Shift Detection:** Implementamos un mecanismo explícito que detecta cambios abruptos en la señal de predicción del entorno. Al detectar un cambio de tarea, ARC aumenta temporalmente la tasa de exploración ($\epsilon$) y de aprendizaje ($\alpha$) durante 30 pasos, facilitando una rápida readaptación sin olvidar la política anterior catastróficamente.
+**Hallazgo clave:** En entornos no estacionarios, el wrapper integrado ARC-RL mejora significativamente el aprendizaje por transferencia (+49.8%). Nuestro estudio de ablación en `ChangingGoalGridWorld` aisla la contribución de cada mecanismo:
+
+**Tabla 11: Resultados de Ablación L6 (ChangingGoalGridWorld)**
+<!-- LABEL:tab:l6_ablation -->
+
+| Configuración del Agente | Tasa de Éxito | Recompensa Final (media) |
+|--------------------------|---------------|--------------------------|
+| Q-Learning Vainilla (Base) | 39.9% | -0.40 |
+| ARC (Sólo Gating de Memoria) | 41.2% | -0.37 |
+| ARC (Sólo Detección de Cambios) | **65.6%** | **0.13** |
+| **Wrapper Completo ARC (Ambos)** | **59.8%** | **-0.02** |
+
+Los resultados indican que la **detección de cambios** (impulso de exploración y tasa de aprendizaje) es el principal motor del rendimiento en tareas no estacionarias, permitiendo al agente adaptarse rápidamente a los cambios de objetivo. El **gating de memoria** proporciona una estrategia más conservadora que protege el conocimiento existente, lo que en este entorno de alto cambio reduce ligeramente la tasa de éxito máxima (de 65.6% a 59.8%) pero mantiene un riesgo general menor.
 
 ![Curvas de aprendizaje: ARC vs línea base en 3 entornos GridWorld (recompensa por episodio)](../figures_L6/learning_curves.png)
 
@@ -554,7 +580,7 @@ Aunque ARC demuestra resultados empíricos sólidos, varias limitaciones merecen
 
 4. **Control Fijo vs. Aprendido:** Todos los controladores ARC usan ganancias diseñadas a mano. El aprendizaje de extremo a extremo de parámetros de control mediante meta-aprendizaje por refuerzo podría producir soluciones más adaptativas.
 
-5. **Sensibilidad de Umbrales:** Los umbrales de seguridad ($a_{safe}$, $s_{safe}$) se ajustaron empíricamente. La adaptación automática de umbrales basada en el contexto de la tarea es una dirección futura prometedora.
+5. **Sensibilidad de Umbrales:** Los umbrales de seguridad ($a_{safe}, s_{safe}$) se ajustaron empíricamente. Sin embargo, un análisis de sensibilidad mediante barrido de malla en el escenario `reward_flip` demostró que la estabilidad del sistema (PerfMean y RI) permanece notablemente robusta en un amplio rango de umbrales ($a_{safe}, s_{safe} \in [0.4, 0.8]$), indicando que el ajuste preciso no es un requisito previo para una regulación efectiva en escenarios básicos. La adaptación automática de umbrales basada en el contexto sigue siendo una dirección futura prometedora.
 
 ### 7.5 Trabajo Futuro
 

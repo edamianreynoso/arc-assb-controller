@@ -85,8 +85,12 @@ class ARCQLearningAgent(QLearningAgent):
     name = "ql_arc"
     
     def __init__(self, config: Optional[QLearningConfig] = None, 
-                 arc_config: Optional[Dict[str, Any]] = None):
+                 arc_config: Optional[Dict[str, Any]] = None,
+                 use_shift_detection: bool = True,
+                 use_mem_gating: bool = True):
         super().__init__(config)
+        self.use_shift_detection = use_shift_detection
+        self.use_mem_gating = use_mem_gating
         
         # Load ARC configuration from v2.yaml if not provided
         if arc_config is None:
@@ -131,8 +135,10 @@ class ARCQLearningAgent(QLearningAgent):
             return
         self.last_episode = env_info.get("episode", self.last_episode)
         self.last_goal_phase = env_info.get("goal_phase", self.last_goal_phase)
-        if env_info.get("goal_changed", False):
+        
+        if self.use_shift_detection and env_info.get("goal_changed", False):
             self.shift_steps_remaining = self.shift_boost_steps
+            
         u_exog = float(env_info.get("u_exog", self.assb_state.u))
         self.assb_state.u = max(self.assb_state.u, u_exog)
 
@@ -175,9 +181,9 @@ class ARCQLearningAgent(QLearningAgent):
         - High arousal -> Lower alpha (protect existing knowledge)
         - High uncertainty -> Lower alpha (don't learn from noise)
         """
-        mem_gate = arc_signals["u_mem"]
+        mem_gate = arc_signals["u_mem"] if self.use_mem_gating else 1.0
         uncertainty = float(arc_signals.get("uncertainty", 0.0))
-        shift = 1.0 if self.shift_steps_remaining > 0 else 0.0
+        shift = 1.0 if (self.use_shift_detection and self.shift_steps_remaining > 0) else 0.0
         
         # Adaptation: uncertainty/shift can raise alpha, but arousal/DMN (via mem_gate) can still protect memory.
         alpha = base_alpha * (1.0 + self.uncertainty_alpha_gain * uncertainty + self.shift_alpha_boost * shift)
@@ -192,7 +198,7 @@ class ARCQLearningAgent(QLearningAgent):
         - Low risk -> Higher epsilon (can afford to explore)
         """
         uncertainty = float(arc_signals.get("uncertainty", 0.0))
-        shift = 1.0 if self.shift_steps_remaining > 0 else 0.0
+        shift = 1.0 if (self.use_shift_detection and self.shift_steps_remaining > 0) else 0.0
         
         # In RL, uncertainty / context shift should increase exploration (phasic "search mode").
         modulated_epsilon = base_epsilon * (1.0 + self.uncertainty_eps_gain * uncertainty + self.shift_eps_boost * shift)
@@ -255,8 +261,13 @@ class ARCQLearningAgent(QLearningAgent):
         modulated_alpha = self._modulate_learning_rate(self.config.alpha, arc_signals)
         self.learning_rate_history.append(modulated_alpha)
         
-        # Block update if memory gate is too low (stressed)
-        if arc_signals["u_mem"] < 0.2:
+        # Shift-aware memory gating: bypass protection during active shift detection
+        # Rationale: When a goal change is detected, the agent NEEDS to update Q-values
+        # to learn the new optimal policy. Memory gating should not block this.
+        shift_active = self.use_shift_detection and self.shift_steps_remaining > 0
+        
+        # Block update only if memory gate is low AND we're NOT in shift mode
+        if self.use_mem_gating and arc_signals["u_mem"] < 0.2 and not shift_active:
             self.blocked_updates += 1
             return 0.0  # No update
         
