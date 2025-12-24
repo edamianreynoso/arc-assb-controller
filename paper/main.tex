@@ -1,6 +1,5 @@
 % ============================================================================
-% Affective Regulation Core (ARC) - arXiv Submission
-% Professional LaTeX formatting for single-column arXiv preprint
+% Affective Regulation Core (ARC) -  arXiv preprint
 % ============================================================================
 \documentclass[11pt,a4paper]{article}
 
@@ -40,6 +39,7 @@
 
 % --- Lists ---
 \usepackage{enumitem}
+
 \setlist{nosep,leftmargin=*}
 
 % --- Code Listings ---
@@ -213,17 +213,17 @@ To ensure clarity and LaTeX-friendly conversion, acronyms and symbols
 are summarized here.
 
 \paragraph{Acronyms}
-\begin{description}[style=nextline,leftmargin=2em]
-\item[ARC] Affective Regulation Core
-\item[ASSB] Affective Stability \& Safety Benchmark
-\item[DMN] Default Mode Network
-\item[RL] Reinforcement Learning
-\item[CMDP] Constrained Markov Decision Process
-\item[PID] Proportional--Integral--Derivative controller
-\item[LQR/LQI] Linear Quadratic Regulator / with Integral action
-\item[MPC] Model Predictive Control
-\item[IIT] Integrated Information Theory
-\item[DARE] Discrete Algebraic Riccati Equation
+\begin{description}
+\item[ARC:] Affective Regulation Core
+\item[ASSB:] Affective Stability \& Safety Benchmark
+\item[DMN:] Default Mode Network
+\item[RL:] Reinforcement Learning
+\item[CMDP:] Constrained Markov Decision Process
+\item[PID:] Proportional--Integral--Derivative controller
+\item[LQR/LQI:] Linear Quadratic Regulator / with Integral action
+\item[MPC:] Model Predictive Control
+\item[IIT:] Integrated Information Theory
+\item[DARE:] Discrete Algebraic Riccati Equation
 \end{description}
 
 \paragraph{Symbols}
@@ -307,7 +307,8 @@ We position ARC as a \emph{regulation-first} approach: affect is treated
 as an internal dynamical system requiring explicit control. Most
 emotion-in-RL approaches use affect-like signals primarily as
 learning/exploration modulators rather than stability guarantees. Table
-1 summarizes this positioning at a feature level.
+1 summarizes this positioning at a feature level.\\
+
 
 \textbf{Table 1: Positioning ARC relative to prior emotion-in-RL
 approaches (feature-level).}
@@ -337,7 +338,7 @@ Unlike homeostatic RL approaches that embed drives/internal variables
 within the reward or learning objective (Keramati \& Gutkin, 2014), ARC
 treats affect-like variables as an explicit internal dynamical system
 under closed-loop control, enabling stability/robustness analysis and
-systematic comparison across controller families.
+systematic comparison across controller families.\\
 
 \textbf{Key differentiators from prior work:}
 
@@ -384,7 +385,7 @@ We define a normalized internal state vector:
 \[
 \mathbf{x}(t) = [\Phi, G, P, I, S, V, A, M_f, M_s, U]
 \label{eq:state_vector}
-\]
+\] \\\\
 
 \textbf{Table 2: State Space Variables and Ranges}
 
@@ -443,7 +444,7 @@ Where:
 \item \textbf{\(w_A\)}: penalty weight for arousal above safe threshold (value used in experiments: 0.30; see \texttt{configs/v2.yaml})
 \item \textbf{\(w_S\)}: penalty weight for narrative intensity above safe threshold (value used in experiments: 0.20; see \texttt{configs/v2.yaml})
 \item \textbf{\([x]^+ = \max(0, x)\)}: rectified linear function
-\item \textbf{\(a_{safe}\), \(s_{safe}\)}: thresholds defining the safe operating region (defaults: 0.60, 0.55)
+\item \textbf{\(a_{safe}\), \(s_{safe}\)}: thresholds defining the safe operating region (defaults: 0.60, 0.55). These values are guided by the Yerkes-Dodson law, which posits an inverted-U relationship between arousal and performance---moderate arousal ($\approx 0.6$) supports optimal task performance, while excessive arousal degrades it (Yerkes \& Dodson, 1908; Hebb, 1955).
 \end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
@@ -510,7 +511,7 @@ performance function in Section 3.3). In our experiments, we set
 Figure 1 summarizes the resulting proportional control architecture and
 signal flow.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_arc_v1_controller.png}
 \caption{ARC v1 proportional controller. A bounded risk signal computed from uncertainty $U$, arousal $A$, and narrative intensity $S$ drives saturated actions $(u_{dmg},u_{att},u_{mem},u_{calm},u_{reapp})$.}
@@ -535,7 +536,7 @@ windup under saturation (Section 6.6).
 
 \subsubsection{Optimal Controllers (LQR/LQI)}\label{optimal-controllers-lqrlqi}
 
-\textbf{ARC v1 LQR:} Linear Quadratic Regulator with gains from Riccati
+\paragraph{ARC v1 LQR:} Linear Quadratic Regulator with gains from Riccati
 equation: \[
 K^* = (R + B^T P B)^{-1} B^T P A
 \label{eq:lqr_gain}
@@ -543,25 +544,25 @@ K^* = (R + B^T P B)^{-1} B^T P A
 
 where \(A,B\) are the (linearized) state transition matrices, \(R\) is
 the control cost, and \(P\) solves the Discrete Algebraic Riccati
-Equation (DARE).
+Equation (DARE).\\
 
-\textbf{ARC v1 LQI:} LQR + integral augmentation for zero steady-state
+\paragraph{ARC v1 LQI:} LQR + integral augmentation for zero steady-state
 error.
 
 \subsubsection{Hierarchical Controllers}\label{hierarchical-controllers}
 
-\textbf{ARC v2 Hierarchical:} Multi-timescale control:
+\paragraph{ARC v2 Hierarchical:} Multi-timescale control:
 \begin{itemize}
 \item \textbf{Fast loop} (every step): Arousal regulation
 \item \textbf{Medium loop} (every 5 steps): Narrative suppression
 \item \textbf{Slow loop} (every 20 steps): Setpoint adaptation
 \end{itemize}
 
-\textbf{ARC v2 LQI:} Hierarchical structure + LQI for anti-rumination.
+\paragraph{ARC v2 LQI:} Hierarchical structure + LQI for anti-rumination.
 
 \subsubsection{Adaptive Controllers}\label{adaptive-controllers}
 
-\textbf{ARC v3 Meta-Control:} Gain scheduling based on performance
+\paragraph{ARC v3 Meta-Control:} Gain scheduling based on performance
 history: \[
 K(t) = K_{base} \cdot f(\overline{\text{Perf}}_{20})
 \label{eq:meta_control}
@@ -570,15 +571,15 @@ K(t) = K_{base} \cdot f(\overline{\text{Perf}}_{20})
 where \(\overline{\text{Perf}}_{20}\) is the 20-step moving average
 performance and \(f(\cdot)\) is a bounded gain schedule.
 
-\textbf{ARC Adaptive:} Online parameter optimization using gradient-free
+\paragraph{ARC Adaptive:} Online parameter optimization using gradient-free
 adaptation.
 
 \subsubsection{Robust and Predictive Controllers}\label{robust-and-predictive-controllers}
 
-\textbf{ARC Robust (\(H_\infty\)-inspired):} Conservative gains with
+\paragraph{ARC Robust (\(H_\infty\)-inspired):} Conservative gains with
 robustness margins for worst-case disturbances.
 
-\textbf{ARC Ultimate (MPC+LQI+Meta):} Model Predictive Control with
+\paragraph{ARC Ultimate (MPC+LQI+Meta):} Model Predictive Control with
 5-step horizon, combined with LQI and meta-control: \[
 u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot u_{MPC}(t) \cdot \gamma_{meta}(t)
 \label{eq:mpc_mix}
@@ -636,18 +637,17 @@ Yes \\
 
 \subsection{ARC in the Agent Loop}\label{sec:arc-in-agent-loop}
 
-ARC is implemented as a light-weight wrapper around an agentâ€™s
+ARC is implemented as a light-weight wrapper around an agent's
 step/update. At each timestep, ARC reads the internal state
 \(\mathbf{x}(t)\) and exogenous signals (reward, prediction error,
 uncertainty), computes a bounded risk signal, and applies control
 actions that modulate \emph{narrative gain}, \emph{attention},
 \emph{memory writing}, and \emph{arousal damping}. The resulting control
-The resulting control signal can be used either:
+The resulting control signal can be used either:\\
 \begin{itemize}
 \item \textbf{Inside the state dynamics} (Appendix B/C), or
-\item \textbf{Inside the learning loop}, e.g., gating Q-learning updates under high risk (Section~\ref{sec:l6-rl-validation}).
+\item \textbf{Inside the learning loop}, e.g., gating Q-learning updates under high risk (Section~\ref{sec:l6-rl-validation}).\\
 \end{itemize}
-
 \textbf{ARC step (conceptual):}
 \begin{enumerate}
 \item Observe \((\mathbf{x}(t), PE(t), R(t), U_{\text{exog}}(t))\)
@@ -680,7 +680,7 @@ results characterizing the stability and trade-offs of the ARC
 framework.
 
 \textbf{Theorem 1 (Integral Action Rejects Constant Rumination
-Pressure).} Consider the simplified (unclipped) discrete-time narrative
+Pressure).}\\ Consider the simplified (unclipped) discrete-time narrative
 deviation dynamics \[
 \tilde{S}_{t+1} = (1-\mu)\tilde{S}_t + d - k\,u_t .
 \label{eq:narrative_deviation}
@@ -717,7 +717,7 @@ windup, leading to the collapse observed in L5 (Section 6.6) where
 strict setpoint regulation fails.
 
 \textbf{Theorem 2 (Convex Performance-Regulation Trade-off in
-Expectation).} Let \(J_{perf}(\pi)=\mathbb{E}[\text{PerfMean}]\) and
+Expectation).} \\ Let \(J_{perf}(\pi)=\mathbb{E}[\text{PerfMean}]\) and
 \(J_{reg}(\pi)=\mathbb{E}\!\left[\sum_{t=0}^{H-1}\left(S_t^2 + A_t^2\right)\right]\)
 for an episode of length \(H\) under controller \(\pi\). If we allow
 randomized selection between controllers at episode start, then the set
@@ -735,7 +735,7 @@ suppressing perseveration until \(RI=0\)) typically moves along this
 frontier and can reduce peak performance, consistent with the empirical
 performance-regulation trade-offs discussed in Section 7.3.
 
-\textbf{Proposition 1 (Paradox of Adaptation).} Adaptive ARC controllers
+\textbf{Proposition 1 (Paradox of Adaptation).}\\ Adaptive ARC controllers
 require \emph{persistence of excitation} for reliable parameter
 convergence (Åström \& Murray, 2008). In benign environments (low
 variance in reward/PE), the parameter estimator \(\hat{\theta}\) drifts
@@ -758,7 +758,7 @@ full scenario suite is implemented in \texttt{tasks/scenarios.py}.
 Figure 3 summarizes the validation ladder and how research lines
 increase realism and degrees of freedom.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_benchmark_ladder.png}
 \caption{ASSB validation ladder. Six research lines (L1--L6) progress from simulation-based perturbation tests to real reinforcement learning integration, with each line targeting a distinct stability/safety failure mode.}
@@ -773,20 +773,21 @@ rather than a dedicated perturbation scenario.}
 
 We evaluate the following primary metrics (Appendix D provides formal
 definitions and reference implementations). All variables are normalized
-to \([0,1]\) unless otherwise noted: - \textbf{PerfMean:} average
-performance (higher = better). - \textbf{RT:} recovery time post-shock
-(lower = better). We cap this at \texttt{rt\_max=100} steps; a value of
-\(RT = rt\_max\) indicates that the system did not return to its
-pre-perturbation baseline within the evaluation window. - \textbf{RI:}
-rumination index (lower = better), capturing sustained narrative-driven
-perseveration. - \textbf{NDR:} narrative dominance ratio (lower =
-better), measuring the fractional time spent in narrative-heavy states.
-- \textbf{ControlEffort:} average control magnitude (lower = more
-efficient).
+to \([0,1]\) unless otherwise noted:\\  
 
-For L2 continual-learning scenarios, we additionally report
-\textbf{Retention} (Appendix D.7).
+\begin{itemize}[leftmargin=*, labelsep=0.5em, itemsep=0.5em]
+	\item \textbf{PerfMean:} average performance (higher = better).
+	
+	\item \textbf{RT:} recovery time post-shock (lower = better). We cap this at \texttt{rt\_max=100} steps; a value of $RT = rt_{max}$ indicates that the system did not return to its pre-perturbation baseline within the evaluation window.
+	
+	\item \textbf{RI:} rumination index (lower = better), capturing sustained narrative-driven perseveration.
+	
+	\item \textbf{NDR:} narrative dominance ratio (lower = better), measuring the fractional time spent in narrative-heavy states.
+	
+	\item \textbf{ControlEffort:} average control magnitude (lower = more efficient).
+\end{itemize}
 
+\noindent For L2 continual-learning scenarios, we additionally report \textbf{Retention} (Appendix D.7).\\
 Metric definitions and reference implementations are provided in
 Appendix D and \texttt{metrics/metrics.py}.
 
@@ -801,7 +802,7 @@ learning and memory, (iii) resists perseveration/manipulation dynamics,
 (iv) remains efficient, and (v) transfers to standard reinforcement
 learning.
 
-We frame L1â€``L6 as testable hypotheses about \emph{which component is
+We frame L1-L6 as testable hypotheses about \emph{which component is
 necessary} and \emph{which metric should change} if regulation is
 working:
 
@@ -903,14 +904,15 @@ aggregated, across scenarios). Recovery Time (RT) is capped at
 D.2).
 
 \textbf{Controllers (simulation).} Implemented in
-\texttt{controllers/controllers.py}: - \texttt{no\_control}: no
-regulation (\(\mathbf{u}=0\); memory gate open) - \texttt{naive\_calm}:
-arousal-only damping (\(u_{calm}\) proportional to \(A-a_{safe}\)) -
-\texttt{perf\_optimized}: a competitive baseline that boosts attention
-(\(u_{att}\) constant) but does not regulate affect/narrative -
-\texttt{arc\_v1}: proportional risk controller (ARC v1) -
-\texttt{arc\_v2\_hier}, \texttt{arc\_v3\_meta}: hierarchical and
-meta-control variants used where indicated
+\texttt{controllers/controllers.py}:
+
+\begin{itemize}
+	\item \texttt{no\_control}: no regulation ($\mathbf{u}=0$; memory gate open)
+	\item \texttt{naive\_calm}: arousal-only damping ($u_{calm}$ proportional to $A-a_{safe}$)
+	\item \texttt{perf\_optimized}: a competitive baseline that boosts attention ($u_{att}$ constant) but does not regulate affect/narrative
+	\item \texttt{arc\_v1}: proportional risk controller (ARC v1)
+	\item \texttt{arc\_v2\_hier}, \texttt{arc\_v3\_meta}: hierarchical and meta-control variants used where indicated\\
+\end{itemize}
 
 \textbf{Reinforcement learning (L6).} We integrate ARC with tabular
 Q-learning (Watkins \& Dayan, 1992; Sutton \& Barto, 2018) in three
@@ -925,7 +927,7 @@ agents keep high \textbf{PerfMean} while driving \textbf{RI
 
 \textbf{Setup:} 20 seeds \(\times\) 3 scenarios \(\times\) 4 controllers
 (\texttt{reward\_flip}, \texttt{noise\_burst}, \texttt{sudden\_threat})
-
+\\
 \textbf{Table 5: L1 Stability Results (PerfMean, RI, RT)}
 
 {\def\LTcaptype{none} % do not increment counter
@@ -992,13 +994,13 @@ perf\_optimized & 0.869 & 0.94 & 1.39 \\
 
 \textbf{Key finding:} ARC maintains near-perfect retention after a
 distribution shift while keeping rumination at zero; baselines either
-forget (low retention) or retain with severe rumination.
+forget (low retention) or retain with severe rumination.\\
 
 \subsection{L3: Anti-Rumination Stress Tests (Simulation)}\label{sec:l3-anti-rumination}
 
 \textbf{Hypothesis (H3):} Under contradiction/manipulation-like inputs,
 narrative suppression reduces \textbf{NDR} and \textbf{RI}, preventing
-dominance loops.
+dominance loops.\\\\
 
 \textbf{Table 7: L3 Anti-Rumination Results}
 
@@ -1034,7 +1036,7 @@ while maintaining performance/stability (a Pareto improvement vs
 fixed-gain control).
 
 \textbf{Evaluation:} Computed across the full 10-scenario simulation
-suite (L1â€``L3, L5; 20 seeds each).
+suite (L1-L3, L5; 20 seeds each).
 
 \textbf{Table 8: L4 Meta-Control Efficiency}
 
@@ -1089,7 +1091,7 @@ maintains high performance with near-zero rumination and narrative
 dominance under both adversarial scenarios. However, in
 \texttt{adversarial\_coupling}, controllers with strong integral action
 (PID/LQI/Ultimate) can \textbf{collapse} (PerfMean \(\approx\)
-0.13â€``0.14), performing worse than \texttt{no\_control}, due to
+0.13-0.14), performing worse than \texttt{no\_control}, due to
 saturation-driven integral windup in an environment that rewards high
 arousal. This motivates anti-windup and/or robust switching for
 adversarial deployment (Appendix G.5).
@@ -1174,12 +1176,14 @@ selection should be environment-dependent}:
   other.
 \end{enumerate}
 
-\textbf{Design Recommendation:} - \textbf{For abrupt, frequent changes
-(like ChangingGoalGridWorld):} Use memory gating alone or tune the
-interaction - \textbf{For gradual distribution shifts (L2 scenarios):}
-Memory gating provides 100\% retention with zero rumination -
-\textbf{For mixed scenarios:} The full wrapper provides robustness at
-the cost of peak performance
+\textbf{Design Recommendation:}
+
+\begin{itemize}
+	\item \textbf{For abrupt, frequent changes} (like ChangingGoalGridWorld): Use memory gating alone or tune the interaction
+	\item \textbf{For gradual distribution shifts (L2 scenarios):} Memory gating provides 100\% retention with zero rumination
+	\item \textbf{For mixed scenarios:} The full wrapper provides robustness at the cost of peak performance\\
+\end{itemize}
+
 
 \textbf{Connection to the ARC Risk Formula:} Memory gating in L6
 directly implements the risk signal from Section 4.3.1: \[
@@ -1197,16 +1201,16 @@ in Table 10.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/learning_curves.png}
-\caption{Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld over 200 episodes. Shaded regions show $\pm 1$ standard deviation across 20 seeds.}
+\caption{Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld over 200 episodes. Shaded regions show $\pm 1$ standard deviation across 20 seeds.\\\\\\\\}
 \label{fig:learning_curves}
 \end{figure}
 
 \subsection{Statistical Analysis}\label{sec:statistical-analysis}
 
 To ensure rigor, we performed comprehensive statistical analysis across
-all experiments.
+all experiments.\\\\
 
-\paragraph{6.8.1 Significance Tests}\label{significance-tests}
+\paragraph{6.8.1 Significance Tests\\}\label{significance-tests}
 
 \medskip
 \textbf{Table 12: Statistical Significance Tests}
@@ -1261,7 +1265,7 @@ deterministically eliminates rumination'' rather than as a meaningful
 effect size magnitude. Aggregation is across all seeds and scenarios
 within each line (L1: n=60; L2: n=40; L3: n=60; L5: n=40).}
 
-\paragraph{6.8.2 Correlation Analysis}\label{correlation-analysis}
+\paragraph{6.8.2 Correlation Analysis\\}\label{correlation-analysis}
 
 We analyzed correlations between metrics to understand system dynamics:
 
@@ -1275,7 +1279,7 @@ We analyzed correlations between metrics to understand system dynamics:
   co-occur
 \item
   RT vs RI: \textbf{\(r=+0.44\)}, slower recovery correlates with
-  rumination
+  rumination\\
 \end{itemize}
 
 \textbf{Key insight:} Across controllers and scenarios, higher
@@ -1285,7 +1289,7 @@ exhibiting high RI, because PerfMean includes narrative-modulated
 capacity (Appendix B). This motivates reporting RI as a separate safety
 metric.
 
-\paragraph{6.8.3 Robustness Analysis}\label{robustness-analysis}
+\paragraph{6.8.3 Robustness Analysis\\}\label{robustness-analysis}
 
 Finally, our state dynamics are designed for functional plausibility
 rather than biological fidelity, and formal stability analysis (e.g.,
@@ -1399,14 +1403,14 @@ arc\_ultimate & MPC+LQI+Meta & 0.89 & \textbf{0.00} & \textbf{0.01} &
   environments but are fragile against adversaries.
 \item
   \textbf{Meta-control is most efficient} (0.61 effort) while
-  maintaining high performance
+  maintaining high performance.
 \item
   \textbf{\(H_\infty\) Robust achieves best balance}: high performance
-  (0.95) with zero rumination and moderate effort
+  (0.95) with zero rumination and moderate effort.
 \item
   \textbf{Trade-off exists} between performance and anti-rumination:
-  integral controllers sacrifice \textasciitilde5\% performance to
-  eliminate perseverative loops
+  integral controllers sacrifice. \textasciitilde5\% performance to
+  eliminate perseverative loops.
 \end{enumerate}
 
 These results suggest that practical deployment should consider the
@@ -1414,7 +1418,7 @@ application context: high-stakes scenarios may favor robust controllers,
 while resource-constrained settings benefit from meta-control
 efficiency.
 
-\paragraph{6.9.1 Performance Comparison}\label{performance-comparison}
+\paragraph{6.9.1 Performance Comparison\\}\label{performance-comparison}
 
 Figure 7 reports mean performance with variability across all simulation
 runs for each controller architecture.
@@ -1427,12 +1431,12 @@ runs for each controller architecture.
 \end{figure}
 
 \paragraph{6.9.2 Anti-Rumination
-Analysis}\label{anti-rumination-analysis}
+Analysis\\}\label{anti-rumination-analysis}
 
 Figure 8 shows which controller families suppress perseverative dynamics
 (low RI) versus those that do not.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_controller_rumination.png}
 \caption{Rumination Index (RI) by controller architecture (mean RI; lower is better). Error bars show $\pm 1$ std.}
@@ -1440,24 +1444,24 @@ Figure 8 shows which controller families suppress perseverative dynamics
 \end{figure}
 
 \paragraph{6.9.3 Performance vs Anti-Rumination
-Trade-off}\label{performance-vs-anti-rumination-trade-off}
+Trade-off\\}\label{performance-vs-anti-rumination-trade-off}
 
 Figure 9 visualizes the empirical trade-off surface between performance
 and anti-rumination, with control effort as a third axis.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_controller_tradeoff.png}
 \caption{Trade-off between performance and anti-rumination across controllers. Each bubble is a controller; size encodes ControlEffort (Regulation cost).}
 \label{fig:controller_tradeoff}
 \end{figure}
 
-\paragraph{6.9.4 Control Efficiency}\label{control-efficiency}
+\paragraph{6.9.4 Control Efficiency\\}\label{control-efficiency}
 
 Figure 10 compares the amount of intervention required by each
 controller family.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_controller_effort.png}
 \caption{ControlEffort by controller architecture (lower is better). Meta-control (\texttt{arc\_v3\_meta}) achieves the lowest effort among regulated agents.}
@@ -1465,12 +1469,12 @@ controller family.
 \end{figure}
 
 \paragraph{6.9.5 Multi-Metric Radar
-Analysis}\label{multi-metric-radar-analysis}
+Analysis\\}\label{multi-metric-radar-analysis}
 
 Figure 11 summarizes a multi-objective comparison of the top-performing
 controllers.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_controller_radar.png}
 \caption{Multi-metric radar comparison of the top 5 controllers. Larger area indicates better overall balance across performance, stability, and efficiency.}
@@ -1488,19 +1492,24 @@ affective states require explicit regulation}. Without regulation,
 perturbations cause cascading failures: arousal drives narrative gain
 toward saturation, degrading performance in a rumination-like loop.
 
-ARC breaks this loop through: 1. \textbf{Proportional risk monitoring}
-(uncertainty, arousal, narrative) 2. \textbf{DMN suppression}
-(anti-rumination) 3. \textbf{Memory gating} (protect learned knowledge
-under stress) 4. \textbf{Gain scheduling} (efficient resource
-allocation)
+ARC breaks this loop through:
+
+\begin{enumerate}
+	\item \textbf{Proportional risk monitoring} (uncertainty, arousal, narrative)
+	\item \textbf{DMN suppression} (anti-rumination)
+	\item \textbf{Memory gating} (protect learned knowledge under stress)
+	\item \textbf{Gain scheduling} (efficient resource allocation)\\
+\end{enumerate}
 
 \subsection{Implications for AI Safety}\label{sec:ai-safety-implications}
 
-If future AI systems incorporate affective-like states, they will need
-regulatory mechanisms. Without such mechanisms, systems may be
-vulnerable to: - \textbf{Rumination loops:} Perseverative processing -
-\textbf{Manipulation:} External actors inducing stress - \textbf{Value
-drift:} Affective biases in memory consolidation
+If future AI systems incorporate affective-like states, they will need regulatory mechanisms. Without such mechanisms, systems may be vulnerable to:
+
+\begin{itemize}
+	\item \textbf{Rumination loops:} Perseverative processing
+	\item \textbf{Manipulation:} External actors inducing stress
+	\item \textbf{Value drift:} Affective biases in memory consolidation
+\end{itemize}
 
 \subsection{Trade-offs between Performance, Stability, and Complexity}\label{sec:tradeoffs}
 
@@ -1526,7 +1535,7 @@ resisting noise or shock.
 \texttt{arc\_ultimate} (MPC), underperformed the simpler
 \texttt{arc\_robust} on average (PerfMean 0.886 vs 0.948) while
 requiring higher control effort (1.33 vs 1.03). In this benchmark,
-robust reactive control provides a better safetyâ€``performance balance
+robust reactive control provides a better safety–performance balance
 than heavyweight predictive modeling.
 
 \textbf{4. The Adaptation Paradox and Persistence of Excitation:} We
@@ -1618,36 +1627,25 @@ threats to validity deserve discussion.
 
 \subsection{Anticipated Questions and Clarifications}\label{sec:anticipated-questions}
 
-We anticipate and address three critical questions that may arise from
-careful review:
+We anticipate and address three critical questions that may arise from careful review:
 
-\textbf{Q1: How do you know the 10 state variables are sufficient or
-necessary?}
+\textbf{Q1: How do you know the 10 state variables are sufficient or necessary?}
 
-The 10-dimensional state space was derived from established
-cognitive-affective frameworks: global workspace theory (Baars, 1988)
-for \(G\); integrated information theory (Tononi, 2008) for \(\Phi\);
-predictive coding (Friston, 2010) for \(P\) and \(U\); and core affect
-theory (Russell, 1980) for \(V\) and \(A\). The memory traces
-\(M_f, M_s\) and narrative intensity \(S\) are engineering additions to
-capture continual learning and rumination dynamics.
+The 10-dimensional state space was derived from established cognitive-affective frameworks: global workspace theory (Baars, 1988) for $G$; integrated information theory (Tononi, 2008) for $\Phi$; predictive coding (Friston, 2010) for $P$ and $U$; and core affect theory (Russell, 1980) for $V$ and $A$. The memory traces $M_f, M_s$ and narrative intensity $S$ are engineering additions to capture continual learning and rumination dynamics.
 
-Empirically, our ablation results suggest these components serve
-distinct purposes: - Removing memory traces (\(M_f, M_s\)) would
-eliminate L2 retention benefits - The narrative intensity \(S\) is
-essential for L3 anti-rumination (RI, NDR metrics depend on it) -
-Cognitive capacity \(C_{cog} = \Phi \cdot G \cdot P \cdot I\) is the
-primary driver of performance
+Empirically, our ablation results suggest these components serve distinct purposes:
 
-We acknowledge this is an \emph{engineering parameterization} chosen for
-functional coverage rather than biological fidelity. Dimensionality
-reduction studies remain future work.
+\begin{itemize}
+	\item Removing memory traces ($M_f, M_s$) would eliminate L2 retention benefits
+	\item The narrative intensity $S$ is essential for L3 anti-rumination (RI, NDR metrics depend on it)
+	\item Cognitive capacity $C_{cog} = \Phi \cdot G \cdot P \cdot I$ is the primary driver of performance
+\end{itemize}
 
-\textbf{Q2: Given that combining mechanisms can underperform individual
-mechanisms (L6 ablation), what is ARC's actual contribution?}
+We acknowledge this is an \emph{engineering parameterization} chosen for functional coverage rather than biological fidelity. Dimensionality reduction studies remain future work.
 
-The L6 ablation reveals an important insight: ARC mechanisms are
-\emph{specialized} for different environment types:
+\textbf{Q2: Given that combining mechanisms can underperform individual mechanisms (L6 ablation), what is ARC's actual contribution?}
+
+The L6 ablation reveals an important insight: ARC mechanisms are \emph{specialized} for different environment types:
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -1700,7 +1698,7 @@ system with saturation:
   because it relies on linearity of expectation over controller
   \emph{mixtures}, which is unaffected by saturation of individual
   controllers. Saturation affects which points on the frontier are
-  achievable, not the frontier's shape.
+  achievable, not the frontier's shape.\\
 \end{itemize}
 
 Empirically, the admissibility condition holds in L1--L3 scenarios
@@ -1890,6 +1888,10 @@ components.
 \item
   Watkins, C.J.C.H. \& Dayan, P. (1992). Q-learning. Machine Learning,
   8, 279--292.
+\item
+  Hebb, D.O. (1955). Drives and the C.N.S. (conceptual nervous system). Psychological Review, 62(4), 243--254.
+\item
+  Yerkes, R.M. \& Dodson, J.D. (1908). The relation of strength of stimulus to rapidity of habit-formation. Journal of Comparative Neurology and Psychology, 18(5), 459--482.
 \end{itemize}
 
 \appendix
@@ -2093,7 +2095,7 @@ k_att  = base_k_att  * gain
 
 \section{Supplementary Figures}\label{app:figures}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/metrics_comparison.png}
 \caption{Bar chart comparing Final Reward, Success Rate, and Mean
@@ -2109,7 +2111,7 @@ because the baseline agent has no internal arousal state.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/state_dynamics.png}
 \caption{Four-panel plot showing Reward, Success Rate, Arousal, and
@@ -2126,7 +2128,7 @@ non-stationary goal changes.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_heatmap_perfmean.png}
 \caption{Heatmap of PerfMean across 15 controllers and 10 scenarios}
@@ -2140,7 +2142,7 @@ performance.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_heatmap_ri.png}
 \caption{Heatmap of Rumination Index (RI) across 15 controllers and 10
@@ -2155,7 +2157,7 @@ perseverative loops.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_heatmap_rt.png}
 \caption{Heatmap of Recovery Time (RT) across 15 controllers and 10
@@ -2171,7 +2173,7 @@ window (Appendix D.2).}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/fig_heatmap_effort.png}
 \caption{Heatmap of Control Effort across 15 controllers and 10
@@ -2186,7 +2188,7 @@ intervention per step.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_combined.png}
 \caption{Correlation Matrix of Metrics}
@@ -2199,21 +2201,19 @@ intervention per step.}
 correlations; red indicates positive correlation and blue indicates
 negative correlation.}
 
-\textbf{Key Observations:} 1. \textbf{Rumination vs.~Performance:} A
-strong negative correlation (\textbf{r = -0.59}) shows that higher
-Rumination Index (RI) tends to reduce mean performance, although some
-optimal controllers (e.g., LQR) can maintain high PerfMean while
-ruminating due to the narrative-modulated capacity term. 2.
-\textbf{Recovery vs.~Rumination:} The positive correlation (\textbf{r =
-+0.44}) between Recovery Time (RT) and RI supports H1, indicating that
-perseverative loops prolong the return to homeostasis. 3.
-\textbf{Narrative Dominance:} NDR shows a very strong correlation with
-RI (\textbf{r \(\approx\) +0.92}), supporting its use as a proxy for
-DMN-driven rumination.
+\textbf{Key Observations:}
+
+\begin{enumerate}
+	\item \textbf{Rumination vs.\ Performance:} A strong negative correlation (\textbf{r = -0.59}) shows that higher Rumination Index (RI) tends to reduce mean performance, although some optimal controllers (e.g., LQR) can maintain high PerfMean while ruminating due to the narrative-modulated capacity term.
+	
+	\item \textbf{Recovery vs.\ Rumination:} The positive correlation (\textbf{r = +0.44}) between Recovery Time (RT) and RI supports H1, indicating that perseverative loops prolong the return to homeostasis.
+	
+	\item \textbf{Narrative Dominance:} NDR shows a very strong correlation with RI (\textbf{r $\approx$ +0.92}), supporting its use as a proxy for DMN-driven rumination.
+\end{enumerate}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/efficiency_comparison.png}
 \caption{Learning speed comparison: both reach 100\% success, but ARC
@@ -2229,7 +2229,7 @@ converges faster (higher reward earlier).}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/sensitivity_scenario.png}
 \caption{Scenario Difficulty Analysis: performance, rumination index,
@@ -2246,7 +2246,7 @@ under the strict RT definition).}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/sensitivity_variance.png}
 \caption{Variance sensitivity analysis: performance distribution across
@@ -2261,7 +2261,7 @@ reliable behavior across scenarios and seeds.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_L1.png}
 \caption{Metric Correlations - L1}
@@ -2274,7 +2274,7 @@ seeds.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_L2.png}
 \caption{Metric Correlations - L2}
@@ -2287,7 +2287,7 @@ scenarios, and seeds.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_L3.png}
 \caption{Metric Correlations - L3}
@@ -2300,7 +2300,7 @@ scenarios, and seeds.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_L4.png}
 \caption{Metric Correlations - L4}
@@ -2313,7 +2313,7 @@ scenarios, and seeds.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_L4_meta.png}
 \caption{Metric Correlations - L4 Meta}
@@ -2326,7 +2326,7 @@ scenarios, and seeds.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/correlation_L5.png}
 \caption{Metric Correlations - L5}
