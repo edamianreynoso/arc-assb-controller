@@ -853,7 +853,7 @@ We presented ARC, a homeostatic control framework for agents with internal affec
 
 1. **Affective states without regulation lead to collapse** (96.6% vs 29.7% performance)
 2. **Meta-control reduces effort while improving stability** (-21% ControlEffort)
-3. **ARC improves RL transfer learning** (+49.8% success in non-stationary envs)
+3. **ARC improves RL transfer learning** (+49.8% success; 71.8% for memory gating alone) in non-stationary envs
 
 This work opens directions for learned control, integration with modern RL algorithms, and application to real-world AI systems with affective components.
 
