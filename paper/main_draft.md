@@ -17,7 +17,7 @@ Our experiments across 6 research lines and **15 controller architectures** (inc
 1. ARC achieves **96.6% average performance with RI=0** (vs. 29.7% for uncontrolled agents) in stability scenarios.
 2. ARC meta-control reduces control effort by **21%** while maintaining stability.
 3. **$H_\infty$ Robust controllers** achieve the best overall balance, although integral controllers can suffer collapse in specific adversarial environments.
-4. In reinforcement learning, ARC improves transfer learning success by **49.8%** via memory gating and a shift detection mechanism.
+4. In reinforcement learning, ARC improves transfer learning success by **49.8%** (with memory gating alone achieving **71.8%** success) via shift detection and selective knowledge protection.
 
 All code and data are available for reproducibility.
 

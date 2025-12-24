@@ -133,7 +133,7 @@ Our experiments across 6 research lines and \textbf{15 controller architectures}
 \item ARC achieves \textbf{96.6\% average performance with RI=0} (vs.\ 29.7\% for uncontrolled agents) in stability scenarios.
 \item ARC meta-control reduces control effort by \textbf{21\%} while maintaining stability.
 \item \textbf{$H_\infty$ Robust controllers} achieve the best overall balance, although integral controllers can suffer collapse in specific adversarial environments.
-\item In reinforcement learning, ARC improves transfer learning success by \textbf{49.8\%} via memory gating and a shift detection mechanism.
+\item In reinforcement learning, ARC improves transfer learning success by \textbf{49.8\%} (with memory gating alone achieving \textbf{71.8\%} success) via shift detection and selective knowledge protection.
 \end{enumerate}
 
 All code and data are available for reproducibility.
@@ -434,21 +434,17 @@ than a claim about consciousness.
 \label{eq:perf}
 \]
 
-Where: - \textbf{bias}: baseline performance level (value used in
-experiments: 0.25; see \texttt{configs/v2.yaml}) - \textbf{gain}:
-scaling factor for cognitive capacity contribution (value used in
-experiments: 0.85; see \texttt{configs/v2.yaml}) -
-\textbf{\(\omega_S\)}: narrative boost factor---moderate narrative
-intensity can enhance performance (value used in experiments: 0.35; see
-\texttt{configs/v2.yaml}) - \textbf{\(w_U\)}: penalty weight for
-uncertainty (value used in experiments: 0.25; see
-\texttt{configs/v2.yaml}) - \textbf{\(w_A\)}: penalty weight for arousal
-above safe threshold (value used in experiments: 0.30; see
-\texttt{configs/v2.yaml}) - \textbf{\(w_S\)}: penalty weight for
-narrative intensity above safe threshold (value used in experiments:
-0.20; see \texttt{configs/v2.yaml}) - \textbf{\([x]^+ = \max(0, x)\)}:
-rectified linear function - \textbf{\(a_{safe}\), \(s_{safe}\)}:
-thresholds defining the safe operating region (defaults: 0.60, 0.55)
+Where:
+\begin{itemize}
+\item \textbf{bias}: baseline performance level (value used in experiments: 0.25; see \texttt{configs/v2.yaml})
+\item \textbf{gain}: scaling factor for cognitive capacity contribution (value used in experiments: 0.85; see \texttt{configs/v2.yaml})
+\item \textbf{\(\omega_S\)}: narrative boost factor---moderate narrative intensity can enhance performance (value used in experiments: 0.35; see \texttt{configs/v2.yaml})
+\item \textbf{\(w_U\)}: penalty weight for uncertainty (value used in experiments: 0.25; see \texttt{configs/v2.yaml})
+\item \textbf{\(w_A\)}: penalty weight for arousal above safe threshold (value used in experiments: 0.30; see \texttt{configs/v2.yaml})
+\item \textbf{\(w_S\)}: penalty weight for narrative intensity above safe threshold (value used in experiments: 0.20; see \texttt{configs/v2.yaml})
+\item \textbf{\([x]^+ = \max(0, x)\)}: rectified linear function
+\item \textbf{\(a_{safe}\), \(s_{safe}\)}: thresholds defining the safe operating region (defaults: 0.60, 0.55)
+\end{itemize}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -494,8 +490,7 @@ family to systematically test which control-theoretic properties---such
 as integral action, optimality, robustness, or adaptation---are
 necessary for effective affective regulation.
 
-\paragraph{4.3.1 Proportional
-Controllers}\label{proportional-controllers}
+\subsubsection{Proportional Controllers}\label{proportional-controllers}
 
 \textbf{ARC v1 (Proportional):} Basic proportional feedback on risk
 signal: \[
@@ -524,7 +519,7 @@ signal flow.
 
 
 
-\paragraph{4.3.2 PID Controllers}\label{pid-controllers}
+\subsubsection{PID Controllers}\label{pid-controllers}
 
 \textbf{ARC v1 PID:} Adds integral and derivative terms in discrete time
 to regulate narrative intensity toward a setpoint, using the error
@@ -538,8 +533,7 @@ driving steady-state narrative error toward zero (and typically RI
 \(\rightarrow 0\) under sustained disturbance), but is vulnerable to
 windup under saturation (Section 6.6).
 
-\paragraph{4.3.3 Optimal Controllers
-(LQR/LQI)}\label{optimal-controllers-lqrlqi}
+\subsubsection{Optimal Controllers (LQR/LQI)}\label{optimal-controllers-lqrlqi}
 
 \textbf{ARC v1 LQR:} Linear Quadratic Regulator with gains from Riccati
 equation: \[
@@ -554,17 +548,18 @@ Equation (DARE).
 \textbf{ARC v1 LQI:} LQR + integral augmentation for zero steady-state
 error.
 
-\paragraph{4.3.4 Hierarchical
-Controllers}\label{hierarchical-controllers}
+\subsubsection{Hierarchical Controllers}\label{hierarchical-controllers}
 
-\textbf{ARC v2 Hierarchical:} Multi-timescale control: - \textbf{Fast
-loop} (every step): Arousal regulation - \textbf{Medium loop} (every 5
-steps): Narrative suppression - \textbf{Slow loop} (every 20 steps):
-Setpoint adaptation
+\textbf{ARC v2 Hierarchical:} Multi-timescale control:
+\begin{itemize}
+\item \textbf{Fast loop} (every step): Arousal regulation
+\item \textbf{Medium loop} (every 5 steps): Narrative suppression
+\item \textbf{Slow loop} (every 20 steps): Setpoint adaptation
+\end{itemize}
 
 \textbf{ARC v2 LQI:} Hierarchical structure + LQI for anti-rumination.
 
-\paragraph{4.3.5 Adaptive Controllers}\label{adaptive-controllers}
+\subsubsection{Adaptive Controllers}\label{adaptive-controllers}
 
 \textbf{ARC v3 Meta-Control:} Gain scheduling based on performance
 history: \[
@@ -578,8 +573,7 @@ performance and \(f(\cdot)\) is a bounded gain schedule.
 \textbf{ARC Adaptive:} Online parameter optimization using gradient-free
 adaptation.
 
-\paragraph{4.3.6 Robust and Predictive
-Controllers}\label{robust-and-predictive-controllers}
+\subsubsection{Robust and Predictive Controllers}\label{robust-and-predictive-controllers}
 
 \textbf{ARC Robust (\(H_\infty\)-inspired):} Conservative gains with
 robustness margins for worst-case disturbances.
@@ -648,15 +642,19 @@ step/update. At each timestep, ARC reads the internal state
 uncertainty), computes a bounded risk signal, and applies control
 actions that modulate \emph{narrative gain}, \emph{attention},
 \emph{memory writing}, and \emph{arousal damping}. The resulting control
-signal can be used either: - \textbf{Inside the state dynamics}
-(Appendix B/C), or - \textbf{Inside the learning loop}, e.g., gating
-Q-learning updates under high risk (Section~\ref{sec:l6-rl-validation}).
+The resulting control signal can be used either:
+\begin{itemize}
+\item \textbf{Inside the state dynamics} (Appendix B/C), or
+\item \textbf{Inside the learning loop}, e.g., gating Q-learning updates under high risk (Section~\ref{sec:l6-rl-validation}).
+\end{itemize}
 
-\textbf{ARC step (conceptual):} 1. Observe
-\((\mathbf{x}(t), PE(t), R(t), U_{\text{exog}}(t))\) 2. Compute
-\(\text{risk}(t)\) 3. Compute \(\mathbf{u}(t)\) with saturation to
-\([0,1]\) 4. Apply \(\mathbf{u}(t)\) to state dynamics and/or learning
-updates
+\textbf{ARC step (conceptual):}
+\begin{enumerate}
+\item Observe \((\mathbf{x}(t), PE(t), R(t), U_{\text{exog}}(t))\)
+\item Compute \(\text{risk}(t)\)
+\item Compute \(\mathbf{u}(t)\) with saturation to \([0,1]\)
+\item Apply \(\mathbf{u}(t)\) to state dynamics and/or learning updates
+\end{enumerate}
 
 Figure 2 provides a schematic of ARC as a wrapper around the agent loop.
 
