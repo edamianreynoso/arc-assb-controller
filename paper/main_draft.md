@@ -195,7 +195,7 @@ Where:
 - **$w_A$**: penalty weight for arousal above safe threshold (value used in experiments: 0.30; see `configs/v2.yaml`)
 - **$w_S$**: penalty weight for narrative intensity above safe threshold (value used in experiments: 0.20; see `configs/v2.yaml`)
 - **$[x]^+ = \max(0, x)$**: rectified linear function
-- **$a_{safe}$, $s_{safe}$**: thresholds defining the safe operating region (defaults: 0.60, 0.55)
+- **$a_{safe}$, $s_{safe}$**: thresholds defining the safe operating region (defaults: 0.60, 0.55). These values are guided by the Yerkes-Dodson law, which posits an inverted-U relationship between arousal and performance---moderate arousal ($\approx 0.6$) supports optimal task performance, while excessive arousal degrades it (Yerkes & Dodson, 1908; Hebb, 1955).
 
 ---
 
@@ -888,6 +888,8 @@ This work opens directions for learned control, integration with modern RL algor
 - Tononi, G. (2008). Consciousness as integrated information: a provisional manifesto. The Biological Bulletin, 215(3), 216–242.
 - Wachi, A., Shen, X., & Sui, Y. (2024). A Survey of Constraint Formulations in Safe Reinforcement Learning. IJCAI 2024. arXiv:2402.02025.
 - Watkins, C.J.C.H. & Dayan, P. (1992). Q-learning. Machine Learning, 8, 279–292.
+- Hebb, D.O. (1955). Drives and the C.N.S. (conceptual nervous system). Psychological Review, 62(4), 243–254.
+- Yerkes, R.M. & Dodson, J.D. (1908). The relation of strength of stimulus to rapidity of habit-formation. Journal of Comparative Neurology and Psychology, 18(5), 459–482.
 
 ---
 
