@@ -1,10 +1,8 @@
 # Paper (LaTeX)
 
-Main file: `main.tex` (figures: `figures/`).
+Main file: `main.tex` (figures in `figures/`).
 
-Note on bibliography:
-- `main.tex` currently uses an inline `thebibliography` section (no BibTeX step).
-- `main_es.tex` uses `references.bib` with `natbib`.
+Bibliography is inline via `\begin{thebibliography}` (no BibTeX step required).
 
 ## Build locally
 
@@ -13,25 +11,14 @@ You need a LaTeX distribution (TeX Live or MiKTeX).
 ```bash
 cd paper_latex
 pdflatex main.tex
-pdflatex main.tex
-```
-
-If compiling the Spanish manuscript (`main_es.tex`), run:
-
-```bash
-cd paper_latex
-pdflatex main_es.tex
-bibtex main_es
-pdflatex main_es.tex
-pdflatex main_es.tex
+pdflatex main.tex   # second pass resolves cross-references
 ```
 
 ## arXiv upload
 
-Create the arXiv source ZIP:
+Upload the following files to arXiv:
+- `main.tex`
+- `arxiv.sty`
+- `figures/` (all 27 PNG files)
 
-```powershell
-.\make_arxiv_zip.ps1
-```
-
-Then upload `release_assets/arxiv_upload.zip` to arXiv and select `main.tex` as the main TeX file.
+Select `main.tex` as the main TeX file.

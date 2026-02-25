@@ -1,16 +1,18 @@
 cff-version: 1.2.0
 message: If you use this software, please cite it using the metadata below.
-title: ARC-ASSB
+title: "Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"
 type: software
 authors:
-  - family-names: Reynoso
-    given-names: J. Eduardo Damián
+  - family-names: "Damian Reynoso"
+    given-names: "J. Eduardo"
+    email: edamianreynoso@gmail.com
 license: Apache-2.0
 repository-code: https://github.com/edamianreynoso/arc-assb-controller
 preferred-citation:
   type: article
   title: "Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"
   authors:
-    - family-names: Reynoso
-      given-names: J. Eduardo Damián
-  year: 2025
+    - family-names: "Damian Reynoso"
+      given-names: "J. Eduardo"
+  year: 2026
+  url: https://github.com/edamianreynoso/arc-assb-controller
