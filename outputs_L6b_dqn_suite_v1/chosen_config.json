@@ -1,0 +1,28 @@
+{
+  "nonstationary": {
+    "arc": {
+      "arc_k_mem_block": 3.0,
+      "shift_mem_gate_floor": 0.2,
+      "mem_gate_include_uncertainty": true,
+      "shift_boost_steps": 200
+    },
+    "replay": {
+      "u_mem_threshold": 0.5,
+      "shift_recent_window": 5000,
+      "shift_recent_fraction": 1.0
+    }
+  },
+  "forgetting": {
+    "arc": {
+      "arc_k_mem_block": 1.0,
+      "shift_mem_gate_floor": 0.2,
+      "mem_gate_include_uncertainty": true,
+      "shift_boost_steps": 200
+    },
+    "replay": {
+      "u_mem_threshold": 0.5,
+      "shift_recent_window": 5000,
+      "shift_recent_fraction": 1.0
+    }
+  }
+}

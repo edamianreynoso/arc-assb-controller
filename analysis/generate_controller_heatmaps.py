@@ -95,11 +95,11 @@ def plot_heatmap(
     vmin: float | None = None,
     vmax: float | None = None,
 ) -> None:
-    fig, ax = plt.subplots(figsize=(18, 7))
+    fig, ax = plt.subplots(figsize=(19, 7.5))
     fig.patch.set_facecolor("white")
     ax.set_facecolor("white")
 
-    sns.heatmap(
+    hm = sns.heatmap(
         data,
         ax=ax,
         cmap=cmap,
@@ -107,18 +107,27 @@ def plot_heatmap(
         vmax=vmax,
         annot=True,
         fmt=".2f",
-        annot=True,
-        fmt=".2f",
-        annot_kws={"size": 10, "weight": "normal", "color": "black"},
+        annot_kws={"size": 9, "weight": "normal"},
         linewidths=0.5,
         linecolor="#e6e6e6",
         cbar_kws={"label": cbar_label},
     )
 
+    # Improve value readability by switching text color by cell intensity.
+    if vmin is None:
+        vmin = float(data.min().min())
+    if vmax is None:
+        vmax = float(data.max().max())
+    mid = vmin + (vmax - vmin) * 0.55
+    flat_vals = data.to_numpy().ravel(order="C")
+    for text, val in zip(hm.texts, flat_vals):
+        text.set_color("white" if float(val) >= mid else "black")
+
     ax.set_title(title, fontsize=16, pad=12)
     ax.set_xlabel("Controller")
     ax.set_ylabel("Scenario")
-    ax.tick_params(axis="x", rotation=45)
+    ax.tick_params(axis="x", rotation=40, labelsize=9)
+    ax.tick_params(axis="y", labelsize=10)
 
     outpath.parent.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
@@ -137,8 +146,6 @@ def main() -> None:
     missing = sorted(required - set(df.columns))
     if missing:
         raise ValueError(f"Missing required columns in metrics file: {missing}")
-
-    outdir = args.outdir
 
     outdir = args.outdir
 

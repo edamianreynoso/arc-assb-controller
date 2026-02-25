@@ -41,6 +41,14 @@ CONTROLLERS = [
 ]
 
 ARC_CONTROLLERS = {"arc_v1", "arc_v2_hier", "arc_v3_meta"}
+DISPLAY = {
+    "arc_v1": "ARC v1",
+    "arc_v2_hier": "ARC Hier",
+    "arc_v3_meta": "ARC Meta",
+    "naive_calm": "Naive Calm",
+    "no_control": "No Control",
+    "perf_optimized": "Perf Opt",
+}
 
 COLORS = {
     "perf": "#1f7a4f",
@@ -75,7 +83,7 @@ def plot_controller_comparison(df: pd.DataFrame, outdir: Path) -> None:
     fig.patch.set_facecolor("white")
 
     x = np.arange(len(CONTROLLERS))
-    labels = CONTROLLERS
+    labels = [DISPLAY[c] for c in CONTROLLERS]
 
     # Performance
     ax = axes[0]
@@ -91,7 +99,7 @@ def plot_controller_comparison(df: pd.DataFrame, outdir: Path) -> None:
     ax.set_title("Performance by Controller")
     ax.set_ylabel("Performance")
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=45, ha="right")
+    ax.set_xticklabels(labels, rotation=35, ha="right")
     ax.set_ylim(0.0, 1.05)
 
     # Rumination Index
@@ -108,7 +116,7 @@ def plot_controller_comparison(df: pd.DataFrame, outdir: Path) -> None:
     ax.set_title("Rumination Index by Controller")
     ax.set_ylabel("Rumination Index")
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=45, ha="right")
+    ax.set_xticklabels(labels, rotation=35, ha="right")
     ax.set_ylim(-0.05, max(0.1, float(agg["RI_mean"].max()) * 1.15))
 
     # Recovery Time
@@ -125,10 +133,10 @@ def plot_controller_comparison(df: pd.DataFrame, outdir: Path) -> None:
     ax.set_title("Recovery Time by Controller")
     ax.set_ylabel("Recovery Time")
     ax.set_xticks(x)
-    ax.set_xticklabels(labels, rotation=45, ha="right")
+    ax.set_xticklabels(labels, rotation=35, ha="right")
 
     fig.suptitle("Controller Performance Comparison", fontsize=16)
-    fig.tight_layout()
+    fig.tight_layout(rect=[0, 0.04, 1, 0.95])
     _savefig(outdir / "sensitivity_controller.png")
 
 
@@ -215,7 +223,7 @@ def plot_variance(df: pd.DataFrame, outdir: Path) -> None:
 
     bp = ax.boxplot(
         data,
-        labels=CONTROLLERS,
+        tick_labels=[DISPLAY[c] for c in CONTROLLERS],
         patch_artist=True,
         showfliers=False,
     )

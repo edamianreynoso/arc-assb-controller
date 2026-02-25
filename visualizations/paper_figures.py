@@ -68,10 +68,11 @@ def plot_learning_curves(data: dict, output_dir: str):
     df = data['summary']
     envs = df['env'].unique()
     
-    fig, axes = plt.subplots(1, len(envs), figsize=(5*len(envs), 5))
+    fig, axes = plt.subplots(1, len(envs), figsize=(5.5 * len(envs), 5.2))
     if len(envs) == 1:
         axes = [axes]
     
+    legend_handles = {}
     for ax, env in zip(axes, envs):
         env_data = df[df['env'] == env]
         
@@ -79,29 +80,39 @@ def plot_learning_curves(data: dict, output_dir: str):
             agent_data = env_data[env_data['agent'] == agent]
             color = COLORS['arc'] if 'arc' in agent else COLORS['baseline']
             label = 'ARC' if 'arc' in agent else 'Baseline'
+            line_style = '-' if 'arc' in agent else '--'
+            line_width = 2.5 if 'arc' in agent else 2.0
             
             ax.plot(agent_data['episode'], agent_data['reward_mean'], 
-                   color=color, linewidth=2, label=label)
+                   color=color, linewidth=line_width, linestyle=line_style, label=label)
             ax.fill_between(agent_data['episode'], 
                            agent_data['reward_mean'] - agent_data['reward_std'],
                            agent_data['reward_mean'] + agent_data['reward_std'],
-                           color=color, alpha=0.2)
+                           color=color, alpha=0.15)
+            legend_handles[label] = ax.lines[-1]
         
         ax.set_xlabel('Episode')
         ax.set_ylabel('Average Reward')
         ax.set_title(env.replace('GridWorld', ' GridWorld'))
-        # Legend outside to prevent blocking data
-        ax.legend(loc='upper left', bbox_to_anchor=(0, 1.15), framealpha=0.9, fontsize=9, ncol=2)
         
-        # Add vertical lines for context if ChangingGoal
+        # Add vertical lines for context shifts if ChangingGoal
         if 'Changing' in env:
             for x in [50, 100, 150]:
                 ax.axvline(x=x, color='gray', linestyle=':', alpha=0.5)
         
-        ax.axhline(y=0.93, color='gray', linestyle='--', alpha=0.5, label='Goal Reward')
+        ax.axhline(y=0.93, color='gray', linestyle='-.', alpha=0.5)
     
-    plt.suptitle('Learning Curves: ARC vs Baseline', fontsize=16, y=1.02)
-    plt.tight_layout()
+    fig.legend(
+        handles=[legend_handles[k] for k in ['ARC', 'Baseline'] if k in legend_handles],
+        labels=[k for k in ['ARC', 'Baseline'] if k in legend_handles],
+        loc='upper center',
+        ncol=2,
+        bbox_to_anchor=(0.5, 1.03),
+        framealpha=0.95,
+    )
+    
+    plt.suptitle('Learning Curves: ARC vs Baseline', fontsize=16, y=1.08)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
     plt.savefig(os.path.join(output_dir, 'learning_curves.png'))
     print(f"Saved: {output_dir}/learning_curves.png")
     plt.close()
@@ -114,7 +125,7 @@ def plot_metrics_comparison(data: dict, output_dir: str):
     
     df = data['final']
     
-    fig, axes = plt.subplots(1, 3, figsize=(14, 5), constrained_layout=True)
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5.2), constrained_layout=True)
     
     metrics = [
         ('final_reward_mean', 'Final Reward', True),
@@ -129,6 +140,8 @@ def plot_metrics_comparison(data: dict, output_dir: str):
         
         arc_vals = []
         base_vals = []
+        arc_err = []
+        base_err = []
         
         for env in envs:
             arc_row = df[(df['env'] == env) & (df['agent'] == 'ql_arc')]
@@ -140,18 +153,31 @@ def plot_metrics_comparison(data: dict, output_dir: str):
             if 'success' in metric.lower():
                 arc_val *= 100
                 base_val *= 100
+
+            if metric == 'mean_arousal':
+                base_val = np.nan
             
             arc_vals.append(arc_val)
             base_vals.append(base_val)
+            if metric == 'final_reward_mean':
+                arc_err.append(float(arc_row['final_reward_std'].values[0]) if 'final_reward_std' in arc_row.columns and len(arc_row) > 0 else 0.0)
+                base_err.append(float(base_row['final_reward_std'].values[0]) if 'final_reward_std' in base_row.columns and len(base_row) > 0 else 0.0)
+            else:
+                arc_err.append(0.0)
+                base_err.append(0.0)
         
         bars1 = ax.bar(x - width/2, base_vals, width, label='Baseline', 
-                       color=COLORS['baseline'], edgecolor=COLORS['baseline_dark'])
+                       color=COLORS['baseline'], edgecolor=COLORS['baseline_dark'],
+                       yerr=base_err, capsize=3, error_kw={'elinewidth': 1.2})
         bars2 = ax.bar(x + width/2, arc_vals, width, label='ARC', 
-                       color=COLORS['arc'], edgecolor=COLORS['arc_dark'])
+                       color=COLORS['arc'], edgecolor=COLORS['arc_dark'],
+                       yerr=arc_err, capsize=3, error_kw={'elinewidth': 1.2})
         
-        # Note about baseline arousal
+        # Baseline has no internal arousal state in this setup.
         if metric == 'mean_arousal':
-             ax.text(0.5, -0.15, "*Baseline has no arousal state (0.0)", 
+             for xi in x:
+                 ax.text(xi - width/2, 0.02, 'N/A', ha='center', va='bottom', fontsize=9, color='#444')
+             ax.text(0.5, -0.17, "*Baseline arousal is not tracked (N/A)", 
                      transform=ax.transAxes, ha='center', fontsize=8, style='italic')
 
         ax.set_ylabel(title, fontsize=11)
@@ -182,12 +208,12 @@ def plot_state_dynamics(data: dict, output_dir: str):
         print("No ASSB state data in raw results")
         return
     
-    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
-    plt.subplots_adjust(hspace=0.4, wspace=0.3)
+    fig, axes = plt.subplots(2, 2, figsize=(14.5, 12), constrained_layout=True)
     
     # Filter for ChangingGoalGridWorld (most interesting)
     env_filter = 'ChangingGoalGridWorld' if 'ChangingGoalGridWorld' in df['env'].values else df['env'].values[0]
     df_env = df[df['env'] == env_filter]
+    change_points = [50, 100, 150] if 'ChangingGoal' in env_filter else []
     
     # Plot 1: Reward over episodes
     ax = axes[0, 0]
@@ -195,8 +221,11 @@ def plot_state_dynamics(data: dict, output_dir: str):
         agent_data = df_env[df_env['agent'] == agent]
         color = COLORS['arc'] if 'arc' in agent else COLORS['baseline']
         label = 'ARC' if 'arc' in agent else 'Baseline'
-        ax.plot(agent_data['episode'], agent_data['total_reward'], 
-               color=color, linewidth=1.5, label=label, alpha=0.8)
+        roll = agent_data['total_reward'].rolling(10, min_periods=1).mean()
+        ax.plot(agent_data['episode'], roll, 
+               color=color, linewidth=2.0, label=label, alpha=0.9)
+    for cp in change_points:
+        ax.axvline(cp, color='gray', linestyle=':', alpha=0.4)
     ax.set_xlabel('Episode')
     ax.set_ylabel('Total Reward')
     ax.set_title('Reward per Episode')
@@ -212,6 +241,8 @@ def plot_state_dynamics(data: dict, output_dir: str):
         label = 'ARC' if 'arc' in agent else 'Baseline'
         ax.plot(agent_data['episode'], agent_data['success_rolling'] * 100, 
                color=color, linewidth=2, label=label)
+    for cp in change_points:
+        ax.axvline(cp, color='gray', linestyle=':', alpha=0.4)
     ax.set_xlabel('Episode')
     ax.set_ylabel('Success Rate (%)')
     ax.set_title('Success Rate (10-episode rolling average)')
@@ -227,7 +258,7 @@ def plot_state_dynamics(data: dict, output_dir: str):
                color=COLORS['arc'], linewidth=2, label='ARC Arousal')
         ax.axhline(y=0.6, color=COLORS['danger'], linestyle='--', alpha=0.7, label='Safe Threshold')
         ax.fill_between(arc_data['episode'], 0, arc_data['mean_arousal'], 
-                       where=arc_data['mean_arousal'] > 0.6, color=COLORS['danger'], alpha=0.15)
+                       where=arc_data['mean_arousal'] > 0.6, color=COLORS['danger'], alpha=0.08)
     else:
         ax.text(0.5, 0.5, 'No ARC arousal data available', 
                 ha='center', va='center', transform=ax.transAxes, fontsize=12, color='gray')
@@ -236,22 +267,28 @@ def plot_state_dynamics(data: dict, output_dir: str):
     ax.set_title('ARC Internal State: Arousal')
     ax.legend()
     ax.set_ylim(0, 1)
+    for cp in change_points:
+        ax.axvline(cp, color='gray', linestyle=':', alpha=0.4)
     
     # Plot 4: Episode length over time
     ax = axes[1, 1]
     for agent in df_env['agent'].unique():
-        agent_data = df_env[df_env['agent'] == agent]
+        agent_data = df_env[df_env['agent'] == agent].copy()
         color = COLORS['arc'] if 'arc' in agent else COLORS['baseline']
         label = 'ARC' if 'arc' in agent else 'Baseline'
         ax.plot(agent_data['episode'], agent_data['steps'], 
-               color=color, linewidth=1.5, label=label, alpha=0.7)
+               color=color, linewidth=0.8, label=f'{label} (raw)', alpha=0.20)
+        agent_data['steps_roll'] = agent_data['steps'].rolling(10, min_periods=1).mean()
+        ax.plot(agent_data['episode'], agent_data['steps_roll'], 
+               color=color, linewidth=2.0, label=f'{label} (rolling)', alpha=0.95)
+    for cp in change_points:
+        ax.axvline(cp, color='gray', linestyle=':', alpha=0.4)
     ax.set_xlabel('Episode')
     ax.set_ylabel('Steps per Episode')
     ax.set_title('Episode Length (Lower = Faster to Goal)')
     ax.legend()
     
     plt.suptitle(f'State Dynamics: {env_filter}', fontsize=16, y=1.02)
-    plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'state_dynamics.png'))
     print(f"Saved: {output_dir}/state_dynamics.png")
     plt.close()
@@ -263,19 +300,30 @@ def plot_ablation_summary(output_dir: str, data_dir: str):
     if not ablation_path.exists():
         print(f"Warning: Ablation data not found at {ablation_path}")
         return
+    raw = pd.read_csv(ablation_path)
+    name_map = {
+        'arc_v1': 'ARC v1\n(Full)',
+        'arc_no_dmg': 'No DMN\nSuppression',
+        'arc_no_calm': 'No Arousal\nDamping',
+        'arc_no_mem': 'No Memory\nGating',
+    }
 
-    # Fallback to verify data from paper tables (robustness)
-    data = [
-        {'Label': 'ARC v1\n(Full)', 'perf': 0.994, 'rumination_index': 0.0, 'recovery_time': 3.3},
-        {'Label': 'No DMN\nSuppression', 'perf': 0.928, 'rumination_index': 1.41, 'recovery_time': 100.0},
-        {'Label': 'No Arousal\nDamping', 'perf': 0.932, 'rumination_index': 0.0, 'recovery_time': 100.0},
-        {'Label': 'No Memory\nGating', 'perf': 0.994, 'rumination_index': 0.0, 'recovery_time': 3.3}
-    ]
-    metrics = pd.DataFrame(data)
-    
-    metrics = pd.DataFrame(data)
-    
-    # Order: Full -> No DMN -> No Calm -> No Mem
+    # Prefer reward_flip for comparability with the paper figure.
+    scenario = 'reward_flip' if 'reward_flip' in set(raw['scenario']) else raw['scenario'].iloc[0]
+    sub = raw[(raw['scenario'] == scenario) & (raw['controller'].isin(name_map.keys()))].copy()
+    if sub.empty:
+        print(f"Warning: No ablation rows for scenario={scenario!r} in {ablation_path}")
+        return
+
+    metrics = (
+        sub.groupby('controller', as_index=False)
+        .agg(
+            perf=('PerfMean', 'mean'),
+            rumination_index=('RI', 'mean'),
+            recovery_time=('RT', 'mean'),
+        )
+    )
+    metrics['Label'] = metrics['controller'].map(name_map)
     order = ['ARC v1\n(Full)', 'No DMN\nSuppression', 'No Arousal\nDamping', 'No Memory\nGating']
     metrics['Label'] = pd.Categorical(metrics['Label'], categories=order, ordered=True)
     metrics = metrics.sort_values('Label')
@@ -309,7 +357,7 @@ def plot_ablation_summary(output_dir: str, data_dir: str):
     ax.tick_params(axis='x', rotation=0, labelsize=10)
     ax.grid(axis='y', linestyle='--', alpha=0.3)
     
-    fig.suptitle('Ablation Study: ARC Component Contributions', fontsize=13)
+    fig.suptitle(f'Ablation Study: ARC Component Contributions ({scenario})', fontsize=13)
     plt.savefig(os.path.join(output_dir, 'ablation_summary.png'), dpi=300, facecolor='white')
     print(f"Saved: {output_dir}/ablation_summary.png")
     plt.close()
@@ -345,7 +393,7 @@ def main():
     plot_state_dynamics(data, output_dir)
     plot_ablation_summary(output_dir, str(data_dir))
     
-    print(f"\n✅ All figures saved to: {output_dir}")
+    print(f"\nAll figures saved to: {output_dir}")
 
 if __name__ == "__main__":
     main()

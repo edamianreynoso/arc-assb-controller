@@ -102,10 +102,7 @@ agg = df_filt.groupby('controller').agg({
 
 def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
     """Create a professional bar chart with unified style."""
-def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
-    """Create a professional bar chart with unified style."""
-    fig, ax = plt.subplots(figsize=(14, 7), constrained_layout=True)
-    plt.subplots_adjust(bottom=0.2)
+    fig, ax = plt.subplots(figsize=(15, 7.5))
     
     x = np.arange(len(CONTROLLERS))
     width = 0.65
@@ -126,9 +123,10 @@ def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
     ax.set_xlabel('Controller Architecture', fontsize=12)
     ax.set_title(title, pad=15, fontsize=14)
     ax.set_xticks(x)
-    ax.set_xticklabels([LABELS[c] for c in CONTROLLERS], rotation=45, ha='right', fontsize=11)
+    ax.set_xticklabels([LABELS[c] for c in CONTROLLERS], rotation=35, ha='right', fontsize=10)
     ax.set_ylim(ylim)
     ax.tick_params(axis='y', labelsize=11)
+    ax.margins(x=0.01)
     
     if ref_lines:
         ax.legend(loc='upper right', framealpha=0.95, fontsize=10)
@@ -136,9 +134,10 @@ def styled_bar_chart(metric_col, ylabel, title, filename, ylim, ref_lines=None):
     # Add subtle background gradient effect
     ax.set_facecolor('#FAFAFA')
     
-    plt.savefig(f'figures_controllers/{filename}', dpi=300, facecolor='white', edgecolor='none')
-    plt.close()
-    print(f"✓ Saved: {filename}")
+    fig.subplots_adjust(bottom=0.26, left=0.07, right=0.98, top=0.90)
+    fig.savefig(f'figures_controllers/{filename}', dpi=300, facecolor='white', edgecolor='none')
+    plt.close(fig)
+    print(f"Saved: {filename}")
 
 
 def styled_scatter_tradeoff():
@@ -190,7 +189,7 @@ def styled_scatter_tradeoff():
     ax.set_facecolor('#FAFAFA')
     plt.savefig('figures_controllers/fig_controller_tradeoff.png', dpi=300, facecolor='white')
     plt.close()
-    print("✓ Saved: fig_controller_tradeoff.png")
+    print("Saved: fig_controller_tradeoff.png")
 
 
 def styled_radar_chart():
@@ -215,35 +214,58 @@ def styled_radar_chart():
         eff = 1 - min(1, agg.loc[ctrl, ('ControlEffort', 'mean')] / 2.5)
         return [perf, ri, os, eff]
     
-    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(polar=True))
+    fig, ax = plt.subplots(figsize=(10.5, 10.5), subplot_kw=dict(polar=True))
     angles = np.linspace(0, 2*np.pi, N, endpoint=False).tolist()
     angles += angles[:1]
     
-    for ctrl in top5:
+    linestyles = ['-', '--', '-.', ':', (0, (3, 1, 1, 1))]
+    markers = ['o', 's', '^', 'D', 'P']
+
+    for idx, ctrl in enumerate(top5):
         values = get_values(ctrl)
         values += values[:1]
-        ax.plot(angles, values, 'o-', linewidth=2.5, label=LABELS[ctrl], 
-                color=CONTROLLER_COLORS[ctrl], markersize=8)
-        ax.fill(angles, values, alpha=0.15, color=CONTROLLER_COLORS[ctrl])
+        ax.plot(
+            angles,
+            values,
+            linewidth=2.6,
+            linestyle=linestyles[idx % len(linestyles)],
+            marker=markers[idx % len(markers)],
+            label=LABELS[ctrl],
+            color=CONTROLLER_COLORS[ctrl],
+            markersize=8,
+            markerfacecolor='white',
+            markeredgewidth=1.8,
+            zorder=3 + idx,
+        )
     
     ax.set_xticks(angles[:-1])
-    # Add padding to labels to prevent overlap with data or other elements
-    ax.set_xticklabels(categories, fontsize=12, fontweight='bold')
-    ax.tick_params(axis='x', pad=30)
+    ax.set_xticklabels([])
+    for angle, label in zip(angles[:-1], categories):
+        ax.text(
+            angle,
+            1.12,
+            label,
+            fontsize=11,
+            fontweight='bold',
+            ha='center',
+            va='center',
+            clip_on=False,
+        )
     
-    ax.set_ylim(0, 1)
-    ax.set_title('Top 5 Controllers: Multi-Metric Comparison', fontsize=14, fontweight='bold', pad=35)
-    ax.legend(loc='upper right', bbox_to_anchor=(1.35, 1.05), framealpha=0.95)
+    ax.set_ylim(0, 1.05)
+    ax.set_yticks([0.2, 0.4, 0.6, 0.8, 1.0])
+    ax.set_title('Top 5 Controllers: Multi-Metric Comparison', fontsize=14, fontweight='bold', pad=30)
+    ax.legend(loc='upper right', bbox_to_anchor=(1.42, 1.08), framealpha=0.95)
     
-    plt.tight_layout()
-    plt.savefig('figures_controllers/fig_controller_radar.png', dpi=300, facecolor='white')
-    plt.close()
-    print("✓ Saved: fig_controller_radar.png")
+    fig.subplots_adjust(top=0.92, right=0.80, left=0.04, bottom=0.04)
+    fig.savefig('figures_controllers/fig_controller_radar.png', dpi=300, facecolor='white')
+    plt.close(fig)
+    print("Saved: fig_controller_radar.png")
 
 
 # ============ GENERATE ALL FIGURES ============
 if __name__ == "__main__":
-    print("\n🎨 Generating unified-style figures...\n")
+    print("\nGenerating unified-style figures...\n")
     
     # Figure 1: Performance
     styled_bar_chart(
@@ -270,7 +292,7 @@ if __name__ == "__main__":
     # Could be split, but for quick win, we keep structure but cleaner
     styled_bar_chart(
         'ControlEffort', 'Control Effort',
-        'Control Effort by Architecture (Meta-Control is Efficient)',
+        'Control Effort by Architecture (Lower is Better)',
         'fig_controller_effort.png', (0, 2.8)
     )
     
@@ -280,4 +302,4 @@ if __name__ == "__main__":
     # Figure 5: Radar chart
     styled_radar_chart()
     
-    print("\n✅ All unified-style figures saved to figures_controllers/\n")
+    print("\nAll unified-style figures saved to figures_controllers/\n")

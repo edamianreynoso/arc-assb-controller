@@ -1,12 +1,12 @@
-﻿# ARC-ASSB
+# ARC-ASSB
 
-Code and data for the paper **"Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"** (Damián Reynoso, 2025).
+Code and data for the paper **"Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"** (Damian Reynoso, 2026).
 
-## What's this?
+## Overview
 
-AI agents with internal "emotional" states tend to get stuck in loops (like rumination in humans) and are easy to manipulate. This repo implements **ARC**, a control system that keeps those internal states stable—inspired by how the prefrontal cortex regulates emotions.
+AI agents with internal "emotional" states tend to get stuck in loops (like rumination in humans) and are easy to manipulate. This repo implements **ARC**, a control system that keeps those internal states stable---inspired by how the prefrontal cortex regulates emotions.
 
-**TL;DR:** We tested 15 different controllers across 10 stress scenarios. The best ones achieve 97% task performance with zero rumination.
+We tested **15 controller architectures** (P, PID, LQR, LQI, hierarchical, meta-control, H-infinity robust, adaptive, MPC) across **10 stress scenarios** with 20 seeds each. The best controllers achieve **96.6% task performance with zero rumination**.
 
 ## Setup
 
@@ -17,32 +17,78 @@ pip install -r requirements.txt
 ## Reproduce the paper
 
 ```bash
-# Run the benchmark (takes ~2 hours)
+# L1-L5: Run the benchmark simulation (15 controllers x 10 scenarios x 20 seeds)
 python experiments/run.py --config configs/v2.yaml --outdir outputs_final
+
+# L6: Tabular Q-learning validation (20 seeds x 200 episodes)
+python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
+
+# L6 ablation: Memory gating vs shift detection
+python experiments/run_l6_ablation.py
+
+# L6b: Deep RL (DQN) exploratory suite
+python experiments/run_l6b_dqn_suite.py
 
 # Generate figures
 python analysis/generate_controller_figures.py
+python analysis/generate_controller_heatmaps.py
+python analysis/generate_sensitivity_figures.py
+python visualizations/paper_figures.py
 
-# RL experiments
-python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
+# Verify all paper claims against data
+python verify_paper_claims.py
 ```
 
-Or just use the pre-computed metrics in `outputs_final/metrics.csv` to generate figures directly. Full raw traces (~3000 CSV, ~84MB) are provided as a `traces.zip` release asset.
+Pre-computed results are included in `outputs_final/`, `outputs_L6_robust/`, `outputs_L6_ablation_final/`, and `outputs_L6b_dqn_suite_v1/` for direct figure generation and claim verification.
 
-## What's inside
+## Repository structure
 
-- `controllers/` — 15 controller variants (PID, LQR, H∞, adaptive, etc.)
-- `tasks/` — 10 benchmark scenarios (gaslighting, reward hacking, etc.)
-- `outputs_final/` - Precomputed metrics (`metrics.csv`); full raw traces via Releases (`traces.zip`)
-- `paper/` — Paper source
+```
+assb/                    Core ASSB framework (state dynamics, agent interface)
+controllers/             15 controller architectures (PID, LQR, H-inf, etc.)
+metrics/                 Evaluation metrics (PerfMean, RI, NDR, RT, ControlEffort)
+sim/                     Simulation engine (dynamics, state management)
+tasks/                   10 benchmark scenarios (reward_flip, gaslighting, etc.)
+agents/                  RL agent implementations (Q-learning, DQN wrapper)
+envs/                    RL environments (GridWorld, CartPole non-stationary)
+configs/                 Experiment configurations (v2.yaml)
+experiments/             Experiment runners (L1-L6, ablation, sensitivity)
+  deep_rl/               DQN and PPO implementations
+analysis/                Figure and statistical analysis generation
+visualizations/          Paper figure generation scripts
+paper_latex/             LaTeX source for the paper
+  main.tex               Paper source
+  arxiv.sty              arXiv style file
+  figures/               All 27 paper figures
+outputs_final/           L1-L5 simulation results (metrics.csv)
+outputs_L6_robust/       L6 tabular Q-learning results
+outputs_L6_ablation_final/  L6 ablation study results
+outputs_L6b_dqn_suite_v1/   L6b DQN exploratory results
+figures_controllers/     Generated controller comparison figures
+docs/                    Supporting documentation
+verify_paper_claims.py   Automated claim verification script
+```
+
+## Key results
+
+| Research Line | Key Finding |
+|---|---|
+| L1 (Stability) | ARC achieves 96.6% PerfMean vs 29.7% baseline |
+| L2 (Memory) | Memory gating preserves retention under distribution shift |
+| L3 (Anti-rumination) | Integral controllers achieve RI=0 (zero rumination) |
+| L4 (Meta-control) | 20.9% control effort reduction via meta-switching |
+| L5 (Safety) | Integral controllers collapse under adversarial coupling |
+| L6 (RL) | +49.8% transfer learning in ChangingGoalGridWorld |
+| L6 (Ablation) | Memory gating alone: 71.8% success (best individual component) |
+| L6b (DQN) | Negative results: ARC-plasticity underperforms baseline DQN |
 
 ## Citation
 
 ```bibtex
-@article{damianreynoso2025arc,
+@article{damianreynoso2026arc,
   title={Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents},
-  author={Reynoso, J. Eduardo Damián},
-  year={2025}
+  author={Dami{\'a}n Reynoso, J. Eduardo},
+  year={2026}
 }
 ```
 
