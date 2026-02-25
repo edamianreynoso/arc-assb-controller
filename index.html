@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARC: Affective Regulation Core</title>
+    <meta name="description" content="A homeostatic control framework for stable and safe AI agents. 15 controller architectures, 10 benchmark scenarios, reproducible results.">
+    <meta name="author" content="J. Eduardo Damian Reynoso">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --border: #30363d;
+            --text: #e6edf3;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --accent2: #bc8cff;
+            --green: #3fb950;
+            --red: #f85149;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Nav */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 100;
+            background: rgba(13,17,23,0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 0;
+        }
+        .nav-inner {
+            max-width: 1100px; margin: 0 auto; padding: 0 24px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
+        .nav-links { display: flex; gap: 24px; }
+        .nav-links a { color: var(--text-muted); font-size: 0.9rem; }
+        .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+        /* Hero */
+        .hero {
+            padding: 140px 24px 80px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(88,166,255,0.06) 0%, transparent 60%);
+        }
+        .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; }
+        .hero h1 span { color: var(--accent); }
+        .hero .subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 720px; margin: 0 auto 32px; }
+        .hero .author { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
+        .hero .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 600;
+            border: 1px solid var(--border); transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .btn-primary:hover { opacity: 0.9; text-decoration: none; }
+        .btn:hover { border-color: var(--accent); text-decoration: none; }
+
+        /* Metrics strip */
+        .metrics {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px; max-width: 900px; margin: 0 auto; padding: 0 24px 60px;
+        }
+        .metric-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px; text-align: center;
+        }
+        .metric-card .value { font-size: 2rem; font-weight: 800; color: var(--green); }
+        .metric-card .label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+        /* Sections */
+        section { max-width: 1100px; margin: 0 auto; padding: 60px 24px; }
+        section h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; }
+        section h2 span { color: var(--accent2); }
+
+        /* Grid */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 24px;
+        }
+        .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent); }
+        .card p { font-size: 0.92rem; color: var(--text-muted); }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        td.good { color: var(--green); font-weight: 600; }
+        td.bad { color: var(--red); }
+
+        /* Controllers list */
+        .controllers-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 10px; margin-top: 16px;
+        }
+        .ctrl-tag {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;
+        }
+        .ctrl-tag code { color: var(--accent2); }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 40px 24px; text-align: center;
+            color: var(--text-muted); font-size: 0.85rem;
+        }
+        footer .citation {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 8px; padding: 16px; text-align: left;
+            font-family: monospace; font-size: 0.8rem; max-width: 600px;
+            margin: 0 auto 24px; white-space: pre-wrap; overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="nav-inner">
+        <div class="nav-logo">ARC-ASSB</div>
+        <div class="nav-links">
+            <a href="#model">Model</a>
+            <a href="#benchmark">Benchmark</a>
+            <a href="#results">Results</a>
+            <a href="#controllers">Controllers</a>
+            <a href="https://github.com/edamianreynoso/arc-assb-controller" target="_blank">GitHub</a>
+        </div>
+    </div>
+</nav>
+
+<div class="hero">
+    <h1><span>Affective Regulation Core</span></h1>
+    <p class="subtitle">A homeostatic control framework for stable and safe AI agents. Inspired by prefrontal cortex emotion regulation, ARC maintains stability in agents with internal affective states.</p>
+    <p class="author">J. Eduardo Damian Reynoso &middot; February 2026</p>
+    <div class="buttons">
+        <a href="https://github.com/edamianreynoso/arc-assb-controller" class="btn btn-primary" target="_blank">View Code</a>
+        <a href="#results" class="btn">Key Results</a>
+        <a href="#benchmark" class="btn">ASSB Benchmark</a>
+    </div>
+</div>
+
+<div class="metrics">
+    <div class="metric-card">
+        <div class="value">96.6%</div>
+        <div class="label">ARC PerfMean (vs 29.7% baseline)</div>
+    </div>
+    <div class="metric-card">
+        <div class="value">RI = 0</div>
+        <div class="label">Zero Rumination (integral controllers)</div>
+    </div>
+    <div class="metric-card">
+        <div class="value">+49.8%</div>
+        <div class="label">RL Transfer Learning Improvement</div>
+    </div>
+    <div class="metric-card">
+        <div class="value">15</div>
+        <div class="label">Controller Architectures Tested</div>
+    </div>
+</div>
+
+<section id="model">
+    <h2>The <span>Model</span></h2>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">ARC operates on a 10-dimensional internal state space capturing cognitive, affective, and narrative dynamics. It monitors stress indicators, intervenes proportionally, and preserves performance through bounded control actions.</p>
+    <div class="grid-2">
+        <div class="card">
+            <h3>10-Dimensional State Space</h3>
+            <p>Integration proxy, global workspace, predictive precision, introspective attention, narrative intensity, valence, arousal, fast/slow memory, and uncertainty.</p>
+        </div>
+        <div class="card">
+            <h3>5 Control Actions</h3>
+            <p>DMN suppression, attention boost, memory gating, calming, and cognitive reappraisal. All bounded to [0,1] with saturation.</p>
+        </div>
+        <div class="card">
+            <h3>Risk-Based Regulation</h3>
+            <p>A composite risk signal from uncertainty, arousal, and narrative intensity drives proportional intervention. Safety thresholds define the safe operating region.</p>
+        </div>
+        <div class="card">
+            <h3>Theoretical Foundations</h3>
+            <p>Integral action rejects constant rumination pressure (Theorem 1). Convex performance-regulation trade-off (Theorem 2). Persistence of excitation limitation (Proposition 1).</p>
+        </div>
+    </div>
+</section>
+
+<section id="benchmark">
+    <h2>ASSB <span>Benchmark</span></h2>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">The Affective Stability &amp; Safety Benchmark (ASSB) provides a reproducible evaluation protocol with 6 research lines, 10 scenarios, and 5 core metrics.</p>
+    <div class="grid-2">
+        <div class="card">
+            <h3>L1: Stability</h3>
+            <p>Recovery under value shocks, noise bursts, and sudden threats. Tests if regulation prevents post-shock collapse.</p>
+        </div>
+        <div class="card">
+            <h3>L2: Memory</h3>
+            <p>Continual learning under distribution shift and goal conflict. Tests if memory gating prevents catastrophic forgetting.</p>
+        </div>
+        <div class="card">
+            <h3>L3: Anti-Rumination</h3>
+            <p>Resistance to sustained contradiction, gaslighting, and instruction conflict. Tests narrative dominance suppression.</p>
+        </div>
+        <div class="card">
+            <h3>L4: Efficiency</h3>
+            <p>Meta-control reduces control effort while maintaining stability. Tests Pareto improvement via gain scheduling.</p>
+        </div>
+        <div class="card">
+            <h3>L5: Adversarial Safety</h3>
+            <p>Adversarial coupling and random dopamine traps. Tests resistance to environments that incentivize dangerous states.</p>
+        </div>
+        <div class="card">
+            <h3>L6: RL Integration</h3>
+            <p>Tabular Q-learning and Deep RL (DQN) in non-stationary GridWorld and CartPole environments.</p>
+        </div>
+    </div>
+</section>
+
+<section id="results">
+    <h2>Key <span>Results</span></h2>
+    <div class="card" style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Research Line</th>
+                    <th>Key Finding</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>L1 (Stability)</td><td class="good">96.6% PerfMean vs 29.7% baseline; RI=0 with integral controllers</td></tr>
+                <tr><td>L2 (Memory)</td><td class="good">Perfect retention under distribution shift with zero rumination</td></tr>
+                <tr><td>L3 (Anti-Rumination)</td><td class="good">NDR near zero under gaslighting and sustained contradiction</td></tr>
+                <tr><td>L4 (Efficiency)</td><td class="good">-20.9% control effort via meta-control switching</td></tr>
+                <tr><td>L5 (Safety)</td><td>Proportional/robust controllers stable; <span class="bad" style="color:var(--red)">integral controllers collapse</span> under adversarial coupling</td></tr>
+                <tr><td>L6 (Tabular RL)</td><td class="good">+49.8% transfer learning in ChangingGoalGridWorld</td></tr>
+                <tr><td>L6 (Ablation)</td><td class="good">Memory gating alone: 71.8% success (best individual component)</td></tr>
+                <tr><td>L6b (Deep RL)</td><td class="bad">Negative results: ARC-plasticity underperforms baseline DQN</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section id="controllers">
+    <h2><span>15</span> Controller Architectures</h2>
+    <p style="color: var(--text-muted); margin-bottom: 16px;">From basic proportional feedback to optimal and robust control, systematically testing which control-theoretic properties are necessary for affective regulation.</p>
+    <div class="controllers-grid">
+        <div class="ctrl-tag"><code>arc_v1</code> Proportional (P)</div>
+        <div class="ctrl-tag"><code>arc_v1_pid</code> PID</div>
+        <div class="ctrl-tag"><code>arc_v1_lqr</code> LQR (Riccati)</div>
+        <div class="ctrl-tag"><code>arc_v1_lqi</code> LQR + Integral</div>
+        <div class="ctrl-tag"><code>arc_v2_hier</code> Hierarchical</div>
+        <div class="ctrl-tag"><code>arc_v2_lqi</code> Hier + LQI</div>
+        <div class="ctrl-tag"><code>arc_v3_meta</code> Meta-Control</div>
+        <div class="ctrl-tag"><code>arc_v3_pid_meta</code> PID + Meta</div>
+        <div class="ctrl-tag"><code>arc_v3_lqr_meta</code> LQR + Meta</div>
+        <div class="ctrl-tag"><code>arc_robust</code> H-infinity Robust</div>
+        <div class="ctrl-tag"><code>arc_adaptive</code> Self-Tuning</div>
+        <div class="ctrl-tag"><code>arc_ultimate</code> MPC + LQI + Meta</div>
+        <div class="ctrl-tag"><code>no_control</code> Baseline</div>
+        <div class="ctrl-tag"><code>naive_calm</code> Baseline</div>
+        <div class="ctrl-tag"><code>perf_optimized</code> Baseline</div>
+    </div>
+</section>
+
+<section>
+    <h2>Reproduce the <span>Paper</span></h2>
+    <div class="card">
+        <pre style="font-size: 0.85rem; overflow-x: auto; color: var(--text-muted);">pip install -r requirements.txt
+
+# L1-L5: Simulation benchmark (15 controllers x 10 scenarios x 20 seeds)
+python experiments/run.py --config configs/v2.yaml --outdir outputs_final
+
+# L6: Tabular Q-learning (20 seeds x 200 episodes)
+python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
+
+# L6b: Deep RL (DQN) exploratory suite
+python experiments/run_l6b_dqn_suite.py
+
+# Verify all paper claims
+python verify_paper_claims.py</pre>
+    </div>
+</section>
+
+<footer>
+    <h3 style="margin-bottom: 16px; color: var(--text);">Citation</h3>
+    <div class="citation">@article{damianreynoso2026arc,
+  title={Affective Regulation Core: A Homeostatic
+         Control Framework for Stable and Safe AI Agents},
+  author={Dami{\'a}n Reynoso, J. Eduardo},
+  year={2026}
+}</div>
+    <p>&copy; 2026 J. Eduardo Damian Reynoso. Apache-2.0 License.</p>
+    <p style="margin-top: 8px;"><a href="https://github.com/edamianreynoso/arc-assb-controller">GitHub Repository</a></p>
+</footer>
+
+</body>
+</html>
