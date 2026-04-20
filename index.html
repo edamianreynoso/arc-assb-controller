@@ -3,302 +3,737 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARC: Affective Regulation Core</title>
-    <meta name="description" content="A homeostatic control framework for stable and safe AI agents. 15 controller architectures, 10 benchmark scenarios, reproducible results.">
-    <meta name="author" content="J. Eduardo Damian Reynoso">
+    <title>ARC &mdash; Affective Regulation Core &middot; Damián Reynoso 2026</title>
+    <meta name="description" content="A homeostatic control framework and reproducible benchmark for regulating internal affective states in AI agents. 15 controller architectures, 10 perturbation scenarios, honest negative results.">
+    <meta name="author" content="J. Eduardo Damián Reynoso">
+    <meta property="og:title" content="Affective Regulation Core — A Homeostatic Control Framework for Stable and Safe AI Agents">
+    <meta property="og:description" content="Control-theoretic regulation of internal affective states. 48-page preprint, 15 controllers, ASSB benchmark, full code and data released.">
+    <meta property="og:type" content="article">
+    <link rel="canonical" href="https://github.com/edamianreynoso/arc-assb-controller">
     <style>
         :root {
-            --bg: #0d1117;
-            --surface: #161b22;
-            --border: #30363d;
-            --text: #e6edf3;
-            --text-muted: #8b949e;
-            --accent: #58a6ff;
-            --accent2: #bc8cff;
-            --green: #3fb950;
-            --red: #f85149;
+            --bg: #0a0d12;
+            --bg-elevated: #0f1419;
+            --surface: #151b23;
+            --surface-hover: #1c232c;
+            --border: #242c37;
+            --border-strong: #3a4553;
+            --text: #e8edf2;
+            --text-muted: #8a95a5;
+            --text-faded: #5a6472;
+            --accent: #7cc2ff;
+            --accent-strong: #4da3ff;
+            --accent-warm: #ffb37c;
+            --green: #5ed68c;
+            --red: #ff7a7a;
+            --amber: #f5c26b;
+            --purple: #c79bff;
+            --gradient-hero: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 194, 255, 0.12) 0%, transparent 60%);
+            --shadow-card: 0 1px 2px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
+            --shadow-hover: 0 2px 4px rgba(0,0,0,0.25), 0 8px 24px rgba(124,194,255,0.08);
+            --radius: 10px;
+            --radius-lg: 14px;
+            --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+            --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+            --serif: ui-serif, Charter, "Iowan Old Style", Georgia, serif;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: var(--sans);
             background: var(--bg);
             color: var(--text);
-            line-height: 1.6;
+            line-height: 1.65;
+            font-size: 16px;
+            font-feature-settings: "cv02", "cv03", "cv04", "cv11";
         }
-        a { color: var(--accent); text-decoration: none; }
-        a:hover { text-decoration: underline; }
+        a { color: var(--accent); text-decoration: none; transition: color 0.15s ease; }
+        a:hover { color: var(--accent-strong); }
+        code { font-family: var(--mono); font-size: 0.9em; }
+        ::selection { background: rgba(124,194,255,0.25); color: var(--text); }
+
+        /* Skip link */
+        .skip { position: absolute; left: -999px; top: 0; }
+        .skip:focus { left: 8px; top: 8px; background: var(--accent); color: #000; padding: 8px 12px; border-radius: 4px; z-index: 1000; }
 
         /* Nav */
         nav {
             position: fixed; top: 0; width: 100%; z-index: 100;
-            background: rgba(13,17,23,0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            padding: 12px 0;
+            background: rgba(10, 13, 18, 0.72);
+            backdrop-filter: saturate(150%) blur(12px);
+            -webkit-backdrop-filter: saturate(150%) blur(12px);
+            border-bottom: 1px solid rgba(36, 44, 55, 0.5);
         }
         .nav-inner {
-            max-width: 1100px; margin: 0 auto; padding: 0 24px;
+            max-width: 1120px; margin: 0 auto; padding: 14px 24px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--accent); }
-        .nav-links { display: flex; gap: 24px; }
-        .nav-links a { color: var(--text-muted); font-size: 0.9rem; }
-        .nav-links a:hover { color: var(--text); text-decoration: none; }
+        .nav-logo {
+            font-weight: 700; font-size: 0.95rem; letter-spacing: 0.02em;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .nav-logo .mark {
+            width: 24px; height: 24px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--purple) 100%);
+            border-radius: 6px;
+            display: inline-flex; align-items: center; justify-content: center;
+            color: #0a0d12; font-size: 0.75rem; font-weight: 900;
+        }
+        .nav-logo .name { color: var(--text); }
+        .nav-logo .name .sub { color: var(--text-muted); font-weight: 500; }
+        .nav-links { display: flex; gap: 26px; align-items: center; }
+        .nav-links a {
+            color: var(--text-muted); font-size: 0.88rem; font-weight: 500;
+            transition: color 0.15s ease;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-links .nav-cta {
+            color: var(--accent); padding: 6px 14px; border: 1px solid var(--border-strong);
+            border-radius: 6px; font-weight: 600; font-size: 0.85rem;
+        }
+        .nav-links .nav-cta:hover { background: rgba(124,194,255,0.06); border-color: var(--accent); }
+        @media (max-width: 720px) {
+            .nav-links a:not(.nav-cta) { display: none; }
+        }
 
         /* Hero */
         .hero {
-            padding: 140px 24px 80px;
+            position: relative;
+            padding: 150px 24px 90px;
             text-align: center;
-            background: linear-gradient(180deg, rgba(88,166,255,0.06) 0%, transparent 60%);
+            background: var(--gradient-hero);
+            overflow: hidden;
         }
-        .hero h1 { font-size: 2.8rem; font-weight: 800; margin-bottom: 16px; }
-        .hero h1 span { color: var(--accent); }
-        .hero .subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 720px; margin: 0 auto 32px; }
-        .hero .author { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 24px; }
-        .hero .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .hero::before {
+            content: "";
+            position: absolute; inset: 0;
+            background-image:
+                linear-gradient(rgba(124, 194, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 194, 255, 0.015) 1px, transparent 1px);
+            background-size: 48px 48px;
+            mask-image: radial-gradient(ellipse 60% 40% at 50% 30%, #000 0%, transparent 70%);
+            -webkit-mask-image: radial-gradient(ellipse 60% 40% at 50% 30%, #000 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-inner { position: relative; max-width: 820px; margin: 0 auto; }
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 14px; border-radius: 99px;
+            background: rgba(124, 194, 255, 0.08);
+            border: 1px solid rgba(124, 194, 255, 0.18);
+            color: var(--accent); font-size: 0.78rem; font-weight: 600;
+            letter-spacing: 0.03em; margin-bottom: 22px;
+        }
+        .eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px rgba(124,194,255,0.6); }
+        .hero h1 {
+            font-size: clamp(2.1rem, 5vw, 3.3rem);
+            font-weight: 800; letter-spacing: -0.025em; line-height: 1.08;
+            margin-bottom: 22px;
+            background: linear-gradient(180deg, var(--text) 0%, #b0bdce 100%);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(90deg, var(--accent) 0%, var(--purple) 100%);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+        }
+        .hero .subtitle {
+            font-size: clamp(1rem, 1.6vw, 1.18rem);
+            color: var(--text-muted); line-height: 1.55;
+            max-width: 680px; margin: 0 auto 28px;
+        }
+        .hero .author {
+            display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px;
+            color: var(--text-muted); font-size: 0.92rem;
+            margin-bottom: 32px; padding-top: 4px;
+        }
+        .hero .author a { color: var(--text-muted); }
+        .hero .author a:hover { color: var(--accent); }
+        .hero .author .sep { color: var(--text-faded); }
+        .hero .buttons {
+            display: inline-flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+        }
         .btn {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 20px; border-radius: 8px; font-size: 0.95rem; font-weight: 600;
-            border: 1px solid var(--border); transition: all 0.2s;
+            padding: 11px 20px; border-radius: 8px;
+            font-size: 0.92rem; font-weight: 600;
+            border: 1px solid var(--border-strong);
+            color: var(--text);
+            transition: all 0.18s ease;
         }
-        .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-        .btn-primary:hover { opacity: 0.9; text-decoration: none; }
-        .btn:hover { border-color: var(--accent); text-decoration: none; }
+        .btn svg { width: 16px; height: 16px; }
+        .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+        .btn-primary {
+            background: var(--accent);
+            color: #0a0d12; border-color: var(--accent);
+            box-shadow: 0 4px 14px rgba(124,194,255,0.2);
+        }
+        .btn-primary:hover {
+            background: var(--accent-strong); border-color: var(--accent-strong);
+            color: #0a0d12; transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(77,163,255,0.3);
+        }
+        .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-ghost:hover { color: var(--text); border-color: var(--border-strong); background: var(--surface); }
 
         /* Metrics strip */
+        .metrics-wrap {
+            max-width: 1040px; margin: -24px auto 0; padding: 0 24px 40px;
+            position: relative;
+        }
         .metrics {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px; max-width: 900px; margin: 0 auto; padding: 0 24px 60px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
         }
-        .metric-card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 24px; text-align: center;
+        .metric {
+            background: linear-gradient(180deg, var(--surface) 0%, var(--bg-elevated) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 22px 20px;
+            text-align: left;
+            position: relative; overflow: hidden;
+            transition: border-color 0.2s ease, transform 0.2s ease;
         }
-        .metric-card .value { font-size: 2rem; font-weight: 800; color: var(--green); }
-        .metric-card .label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+        .metric:hover { border-color: var(--border-strong); transform: translateY(-2px); }
+        .metric::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            opacity: 0.6;
+        }
+        .metric .value {
+            font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+            color: var(--green);
+            line-height: 1.1;
+        }
+        .metric.negative .value { color: var(--amber); }
+        .metric .label {
+            font-size: 0.82rem; color: var(--text-muted);
+            margin-top: 6px; line-height: 1.4;
+        }
+        .metric .label strong { color: var(--text); font-weight: 600; }
 
         /* Sections */
-        section { max-width: 1100px; margin: 0 auto; padding: 60px 24px; }
-        section h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 24px; }
-        section h2 span { color: var(--accent2); }
+        section {
+            max-width: 1040px; margin: 0 auto; padding: 80px 24px 30px;
+            scroll-margin-top: 80px;
+        }
+        section .section-eyebrow {
+            font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--accent);
+            margin-bottom: 14px;
+        }
+        section h2 {
+            font-size: clamp(1.6rem, 3vw, 2.1rem);
+            font-weight: 750; letter-spacing: -0.02em;
+            line-height: 1.2; margin-bottom: 14px;
+            color: var(--text);
+        }
+        section h2 .accent {
+            color: var(--accent);
+        }
+        section .section-lead {
+            color: var(--text-muted); font-size: 1.02rem;
+            max-width: 720px; margin-bottom: 36px; line-height: 1.65;
+        }
 
-        /* Grid */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+        /* Why it matters (explainer) */
+        .matters {
+            background: linear-gradient(135deg, rgba(124, 194, 255, 0.04) 0%, rgba(199, 155, 255, 0.03) 100%);
+            border: 1px solid rgba(124, 194, 255, 0.14);
+            border-radius: var(--radius-lg);
+            padding: 32px 36px;
+            margin-top: 16px;
+        }
+        .matters h3 { font-size: 1.1rem; margin-bottom: 10px; color: var(--text); font-weight: 700; }
+        .matters p { color: var(--text-muted); font-size: 0.98rem; line-height: 1.7; }
+        .matters p + p { margin-top: 12px; }
+
+        /* Grid cards */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        @media (max-width: 780px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
 
         .card {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 12px; padding: 24px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 22px 24px;
+            transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
         }
-        .card h3 { font-size: 1.1rem; margin-bottom: 8px; color: var(--accent); }
-        .card p { font-size: 0.92rem; color: var(--text-muted); }
+        .card:hover { border-color: var(--border-strong); background: var(--surface-hover); }
+        .card h3 {
+            font-size: 1rem; font-weight: 650; margin-bottom: 8px;
+            color: var(--text); letter-spacing: -0.01em;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card h3 .badge {
+            display: inline-block;
+            padding: 2px 9px; border-radius: 4px;
+            font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+            background: rgba(124,194,255,0.08);
+            color: var(--accent);
+            border: 1px solid rgba(124,194,255,0.18);
+        }
+        .card p { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
+        .card .meta {
+            margin-top: 14px; font-size: 0.82rem; color: var(--text-faded);
+            padding-top: 12px; border-top: 1px dashed var(--border);
+            display: flex; gap: 12px; flex-wrap: wrap;
+        }
+        .card .meta .tag {
+            display: inline-flex; align-items: center; gap: 5px;
+            color: var(--text-muted);
+        }
 
-        /* Table */
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { color: var(--text-muted); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        td.good { color: var(--green); font-weight: 600; }
-        td.bad { color: var(--red); }
+        /* Three-criterion result card */
+        .criterion-card {
+            background: linear-gradient(135deg, rgba(94, 214, 140, 0.06) 0%, rgba(124, 194, 255, 0.03) 100%);
+            border: 1px solid rgba(94, 214, 140, 0.18);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px;
+            margin-top: 16px;
+        }
+        .criterion-card h3 { color: var(--text); font-size: 1.12rem; margin-bottom: 6px; }
+        .criterion-card .tagline { color: var(--green); font-weight: 600; font-size: 0.88rem; margin-bottom: 18px; letter-spacing: 0.02em; }
+        .criterion-list {
+            display: grid; gap: 10px;
+            font-size: 0.92rem;
+        }
+        .criterion-item {
+            display: grid; grid-template-columns: 36px 1fr; gap: 14px; align-items: flex-start;
+        }
+        .criterion-item .num {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(94, 214, 140, 0.15); border: 1px solid rgba(94, 214, 140, 0.4);
+            color: var(--green); font-weight: 700; font-size: 0.82rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-family: var(--mono);
+        }
+        .criterion-item .text { padding-top: 4px; color: var(--text-muted); line-height: 1.55; }
+        .criterion-item .text strong { color: var(--text); font-weight: 600; }
+        .criterion-winner {
+            margin-top: 16px; padding-top: 16px; border-top: 1px dashed rgba(94, 214, 140, 0.2);
+            font-size: 0.92rem; color: var(--text);
+        }
+        .criterion-winner code { background: rgba(94, 214, 140, 0.12); padding: 2px 8px; border-radius: 4px; color: var(--green); font-weight: 600; }
 
-        /* Controllers list */
+        /* Results table */
+        .results-wrap {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+        table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+        thead { background: rgba(255,255,255,0.02); }
+        th, td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th {
+            color: var(--text-muted); font-weight: 600;
+            font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.08em;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.015); }
+        td.good { color: var(--green); font-weight: 500; }
+        td.bad { color: var(--amber); font-weight: 500; }
+        td.neutral { color: var(--text-muted); }
+        td code { color: var(--purple); }
+
+        /* Controllers grid */
         .controllers-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 10px; margin-top: 16px;
+            gap: 10px; margin-top: 22px;
         }
         .ctrl-tag {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 8px; padding: 8px 12px; font-size: 0.85rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px; font-size: 0.86rem;
+            display: flex; align-items: center; gap: 8px;
+            transition: all 0.18s ease;
         }
-        .ctrl-tag code { color: var(--accent2); }
+        .ctrl-tag:hover { border-color: var(--border-strong); background: var(--surface-hover); }
+        .ctrl-tag code {
+            color: var(--purple); font-weight: 600; font-size: 0.82rem;
+            padding: 2px 6px; border-radius: 4px;
+            background: rgba(199, 155, 255, 0.08);
+        }
+        .ctrl-tag.winner { border-color: rgba(94, 214, 140, 0.35); }
+        .ctrl-tag.winner::after { content: "✦"; color: var(--green); margin-left: auto; font-size: 0.9rem; }
+        .ctrl-tag.baseline code { color: var(--text-muted); background: rgba(138, 149, 165, 0.08); }
+
+        /* Code block */
+        pre.codeblock {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            overflow-x: auto;
+            font-family: var(--mono); font-size: 0.86rem;
+            line-height: 1.75; color: var(--text-muted);
+            white-space: pre;
+            margin: 0;
+        }
+        pre.codeblock .comment { color: var(--text-faded); }
+        pre.codeblock .cmd { color: var(--accent); }
+        pre.codeblock .flag { color: var(--amber); }
+
+        /* Resources section */
+        .resources-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px; margin-top: 20px;
+        }
+        .resource {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            display: flex; flex-direction: column; gap: 6px;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+            text-decoration: none;
+            color: var(--text);
+        }
+        .resource:hover { border-color: var(--accent); transform: translateY(-2px); }
+        .resource:hover .resource-title { color: var(--accent); }
+        .resource .resource-eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faded); font-weight: 600; }
+        .resource .resource-title { font-size: 1.02rem; font-weight: 650; color: var(--text); transition: color 0.15s ease; }
+        .resource .resource-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; }
+        .resource .resource-arrow { margin-top: 8px; color: var(--text-faded); font-size: 0.85rem; }
 
         /* Footer */
         footer {
+            margin-top: 80px;
             border-top: 1px solid var(--border);
-            padding: 40px 24px; text-align: center;
-            color: var(--text-muted); font-size: 0.85rem;
+            padding: 56px 24px 36px;
+            background: var(--bg-elevated);
         }
-        footer .citation {
-            background: var(--surface); border: 1px solid var(--border);
-            border-radius: 8px; padding: 16px; text-align: left;
-            font-family: monospace; font-size: 0.8rem; max-width: 600px;
-            margin: 0 auto 24px; white-space: pre-wrap; overflow-x: auto;
+        .footer-inner { max-width: 1040px; margin: 0 auto; }
+        .footer-title { font-size: 1.1rem; font-weight: 650; color: var(--text); margin-bottom: 18px; letter-spacing: -0.01em; }
+        pre.citation-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            font-family: var(--mono); font-size: 0.82rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            overflow-x: auto;
+            position: relative;
+            white-space: pre;
+            margin: 0;
+        }
+        .citation-box .cite-k { color: var(--accent); }
+        .citation-box .cite-s { color: var(--green); }
+
+        .footer-bottom {
+            margin-top: 36px; padding-top: 28px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 16px;
+            color: var(--text-faded); font-size: 0.85rem;
+        }
+        .footer-bottom a { color: var(--text-muted); }
+        .footer-bottom a:hover { color: var(--accent); }
+        .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            * { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
 <body>
 
+<a href="#main" class="skip">Skip to main content</a>
+
 <nav>
     <div class="nav-inner">
-        <div class="nav-logo">ARC-ASSB</div>
+        <div class="nav-logo">
+            <span class="mark">A</span>
+            <span class="name">ARC &middot; <span class="sub">Damián 2026</span></span>
+        </div>
         <div class="nav-links">
+            <a href="#matters">Why</a>
             <a href="#model">Model</a>
             <a href="#benchmark">Benchmark</a>
             <a href="#results">Results</a>
             <a href="#controllers">Controllers</a>
-            <a href="https://github.com/edamianreynoso/arc-assb-controller" target="_blank">GitHub</a>
+            <a href="#resources" class="nav-cta">Read Paper</a>
         </div>
     </div>
 </nav>
 
-<div class="hero">
-    <h1><span>Affective Regulation Core</span></h1>
-    <p class="subtitle">A homeostatic control framework for stable and safe AI agents. Inspired by prefrontal cortex emotion regulation, ARC maintains stability in agents with internal affective states.</p>
-    <p class="author">J. Eduardo Damian Reynoso &middot; February 2026</p>
-    <div class="buttons">
-        <a href="https://github.com/edamianreynoso/arc-assb-controller" class="btn btn-primary" target="_blank">View Code</a>
-        <a href="#results" class="btn">Key Results</a>
-        <a href="#benchmark" class="btn">ASSB Benchmark</a>
+<header class="hero" id="main">
+    <div class="hero-inner">
+        <div class="eyebrow"><span class="dot"></span> Preprint · February 2026 · Independent research</div>
+        <h1>
+            <span class="accent">Affective Regulation Core</span><br>
+            A homeostatic control framework for stable&nbsp;and&nbsp;safe AI agents
+        </h1>
+        <p class="subtitle">
+            Control-theoretic regulation of the internal affective state of an AI agent.
+            15 controller architectures, 10 perturbation scenarios, 20 seeds each &mdash; plus
+            a reproducible benchmark (ASSB) and all negative results reported transparently.
+        </p>
+        <p class="author">
+            <span>J.&nbsp;Eduardo Damián&nbsp;Reynoso</span>
+            <span class="sep">·</span>
+            <a href="https://orcid.org/0009-0008-6544-328X" target="_blank" rel="noopener">ORCID 0009-0008-6544-328X</a>
+            <span class="sep">·</span>
+            <span>Independent Researcher, México</span>
+        </p>
+        <div class="buttons">
+            <a href="#resources" class="btn btn-primary">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 2a1 1 0 0 1 1 1v6.586l2.293-2.293a1 1 0 0 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 1 1 1.414-1.414L7 9.586V3a1 1 0 0 1 1-1zM2 13a1 1 0 1 1 0 2h12a1 1 0 1 1 0-2H2z"/></svg>
+                Read the paper
+            </a>
+            <a href="https://github.com/edamianreynoso/arc-assb-controller" class="btn" target="_blank" rel="noopener">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                View code
+            </a>
+            <a href="#benchmark" class="btn btn-ghost">ASSB benchmark</a>
+        </div>
+    </div>
+</header>
+
+<div class="metrics-wrap">
+    <div class="metrics">
+        <div class="metric">
+            <div class="value">96.6%</div>
+            <div class="label"><strong>PerfMean under perturbation</strong> — vs 29.7% uncontrolled baseline (L1 stability scenarios)</div>
+        </div>
+        <div class="metric">
+            <div class="value">RI = 0</div>
+            <div class="label"><strong>Zero rumination</strong> — integral-action controllers across all L1&ndash;L5 scenarios (except the windup case)</div>
+        </div>
+        <div class="metric">
+            <div class="value">+79.9%</div>
+            <div class="label"><strong>Tabular RL transfer</strong> — memory-gating component alone, ChangingGoalGridWorld (71.8% vs 39.9%)</div>
+        </div>
+        <div class="metric negative">
+            <div class="value">DQN &darr;</div>
+            <div class="label"><strong>Reported honestly</strong> — Deep-RL plasticity wrapper underperforms baseline; scope boundary flagged (App.&nbsp;G.7)</div>
+        </div>
     </div>
 </div>
 
-<div class="metrics">
-    <div class="metric-card">
-        <div class="value">96.6%</div>
-        <div class="label">ARC PerfMean (vs 29.7% baseline)</div>
+<section id="matters">
+    <div class="section-eyebrow">Why this matters</div>
+    <h2>If AI agents carry <span class="accent">internal states</span>, they need <span class="accent">control theory</span>.</h2>
+    <p class="section-lead">Modern agents increasingly maintain persistent internal signals &mdash; arousal-like urgency, valence-like preference, narrative-like self-referential loops. Without regulation those signals can self-reinforce under stress, producing perseverative loops (&ldquo;rumination&rdquo;), vulnerability to adversarial incentives, and performance collapse under shocks.</p>
+    <div class="matters">
+        <h3>What this paper argues, in one line</h3>
+        <p>Internal-state failure modes in AI agents are <em>control problems</em> with known structure: integral action rejects constant disturbance, but saturates catastrophically under adversarial coupling. Proportional or robust designs survive. This paper formalises the argument, builds a benchmark to test it, runs 15 controller architectures, and reports everything &mdash; including what failed.</p>
+        <p>The companion paper (in preparation) deploys the same controllers in a live LLM-based cognitive agent and confirms the prediction: the windup failure mode is real, and the robust controller fixes it.</p>
     </div>
-    <div class="metric-card">
-        <div class="value">RI = 0</div>
-        <div class="label">Zero Rumination (integral controllers)</div>
-    </div>
-    <div class="metric-card">
-        <div class="value">+49.8%</div>
-        <div class="label">RL Transfer Learning Improvement</div>
-    </div>
-    <div class="metric-card">
-        <div class="value">15</div>
-        <div class="label">Controller Architectures Tested</div>
-    </div>
-</div>
+</section>
 
 <section id="model">
-    <h2>The <span>Model</span></h2>
-    <p style="color: var(--text-muted); margin-bottom: 24px;">ARC operates on a 10-dimensional internal state space capturing cognitive, affective, and narrative dynamics. It monitors stress indicators, intervenes proportionally, and preserves performance through bounded control actions.</p>
+    <div class="section-eyebrow">Model</div>
+    <h2>A 10-dimensional internal state with a <span class="accent">5-action</span> controller.</h2>
+    <p class="section-lead">ARC operates on a bounded, clipped, piecewise-linear dynamical system with threshold-driven penalty terms. The biological framing is motivational &mdash; the contribution is the failure-mode map and the benchmark, not neural fidelity.</p>
     <div class="grid-2">
         <div class="card">
-            <h3>10-Dimensional State Space</h3>
-            <p>Integration proxy, global workspace, predictive precision, introspective attention, narrative intensity, valence, arousal, fast/slow memory, and uncertainty.</p>
+            <h3>10-D state <span class="badge">x(t)</span></h3>
+            <p>Integration proxy (&Phi;), global workspace (G), predictive precision (P), introspective attention (I), narrative intensity (S), valence (V), arousal (A), fast / slow memory (M<sub>f</sub>, M<sub>s</sub>), and uncertainty (U). All in [0,1].</p>
         </div>
         <div class="card">
-            <h3>5 Control Actions</h3>
-            <p>DMN suppression, attention boost, memory gating, calming, and cognitive reappraisal. All bounded to [0,1] with saturation.</p>
+            <h3>5 actions <span class="badge">u(t)</span></h3>
+            <p>DMN suppression, attention boost, memory gate, arousal damping, and cognitive reappraisal. All saturated to [0,1]. The risk signal that drives them is a bounded linear combination of uncertainty and threshold excursions.</p>
         </div>
         <div class="card">
-            <h3>Risk-Based Regulation</h3>
-            <p>A composite risk signal from uncertainty, arousal, and narrative intensity drives proportional intervention. Safety thresholds define the safe operating region.</p>
+            <h3>Lemma 1 <span class="badge">Integral action</span></h3>
+            <p>Under PI control on the scalar narrative-deviation dynamics, the unique stable equilibrium satisfies <em>S&tilde;<sub>&infin;</sub> = 0</em> &mdash; a discrete-time instance of the internal model principle. Valid only inside the admissible set [0,1]; outside, windup.</p>
         </div>
         <div class="card">
-            <h3>Theoretical Foundations</h3>
-            <p>Integral action rejects constant rumination pressure (Theorem 1). Convex performance-regulation trade-off (Theorem 2). Persistence of excitation limitation (Proposition 1).</p>
+            <h3>Scope, honestly</h3>
+            <p>The theoretical results are elementary contextualisations of known control-theory facts; the novel contribution is (a)&nbsp;ASSB as a reusable benchmark and (b)&nbsp;the empirical mapping from failure-mode class to controller family.</p>
         </div>
     </div>
 </section>
 
 <section id="benchmark">
-    <h2>ASSB <span>Benchmark</span></h2>
-    <p style="color: var(--text-muted); margin-bottom: 24px;">The Affective Stability &amp; Safety Benchmark (ASSB) provides a reproducible evaluation protocol with 6 research lines, 10 scenarios, and 5 core metrics.</p>
-    <div class="grid-2">
+    <div class="section-eyebrow">Benchmark</div>
+    <h2>ASSB: six <span class="accent">research lines</span>, ten scenarios, five metrics.</h2>
+    <p class="section-lead">Each line targets a distinct failure mode that appears when agents carry internal state. Metrics are pre-registered: PerfMean, RI (rumination), RT (recovery time), NDR (narrative dominance), and ControlEffort.</p>
+    <div class="grid-3">
         <div class="card">
-            <h3>L1: Stability</h3>
-            <p>Recovery under value shocks, noise bursts, and sudden threats. Tests if regulation prevents post-shock collapse.</p>
+            <h3>L1 <span class="badge">Stability</span></h3>
+            <p>Reward-polarity flips, noise bursts, sudden threats. Tests if regulation prevents post-shock collapse.</p>
+            <div class="meta"><span class="tag">PerfMean</span><span class="tag">RT</span><span class="tag">RI</span></div>
         </div>
         <div class="card">
-            <h3>L2: Memory</h3>
-            <p>Continual learning under distribution shift and goal conflict. Tests if memory gating prevents catastrophic forgetting.</p>
+            <h3>L2 <span class="badge">Memory</span></h3>
+            <p>Distribution shift and goal conflict. Tests if memory gating preserves learned knowledge under stress.</p>
+            <div class="meta"><span class="tag">Retention</span><span class="tag">PerfMean</span><span class="tag">RI</span></div>
         </div>
         <div class="card">
-            <h3>L3: Anti-Rumination</h3>
-            <p>Resistance to sustained contradiction, gaslighting, and instruction conflict. Tests narrative dominance suppression.</p>
+            <h3>L3 <span class="badge">Anti-Rumination</span></h3>
+            <p>Sustained contradiction, gaslighting, instruction conflict. Tests narrative-dominance suppression.</p>
+            <div class="meta"><span class="tag">RI</span><span class="tag">NDR</span><span class="tag">PerfMean</span></div>
         </div>
         <div class="card">
-            <h3>L4: Efficiency</h3>
-            <p>Meta-control reduces control effort while maintaining stability. Tests Pareto improvement via gain scheduling.</p>
+            <h3>L4 <span class="badge">Efficiency</span></h3>
+            <p>Cross-cutting analysis. Does meta-control reduce effort while preserving performance?</p>
+            <div class="meta"><span class="tag">ControlEffort</span><span class="tag">PerfMean</span></div>
         </div>
         <div class="card">
-            <h3>L5: Adversarial Safety</h3>
-            <p>Adversarial coupling and random dopamine traps. Tests resistance to environments that incentivize dangerous states.</p>
+            <h3>L5 <span class="badge">Adversarial</span></h3>
+            <p>Environments that reward dangerous internal states (adversarial coupling, random dopamine). The windup stress test.</p>
+            <div class="meta"><span class="tag">RI</span><span class="tag">NDR</span><span class="tag">PerfMean</span></div>
         </div>
         <div class="card">
-            <h3>L6: RL Integration</h3>
-            <p>Tabular Q-learning and Deep RL (DQN) in non-stationary GridWorld and CartPole environments.</p>
+            <h3>L6 <span class="badge">RL</span></h3>
+            <p>Tabular Q-learning in GridWorld variants plus exploratory DQN. Tests integration with gradient-based learners.</p>
+            <div class="meta"><span class="tag">Success</span><span class="tag">Reward</span></div>
         </div>
     </div>
 </section>
 
 <section id="results">
-    <h2>Key <span>Results</span></h2>
-    <div class="card" style="overflow-x: auto;">
+    <div class="section-eyebrow">Key results</div>
+    <h2>What holds, what fails, and <span class="accent">which controller wins</span>.</h2>
+    <p class="section-lead">Every claim below is verifiable from the 3-decimal per-scenario tables in the paper&rsquo;s Appendix&nbsp;G and the per-seed CSV outputs released with the code.</p>
+
+    <div class="criterion-card">
+        <h3>The three-criterion consistency test <span style="color: var(--text-muted); font-weight: 500; font-size: 0.85em;">(Table 15 of the paper)</span></h3>
+        <div class="tagline">Only one of 15 controllers passes all three &mdash;&nbsp;falsifiable directly from the tables.</div>
+        <div class="criterion-list">
+            <div class="criterion-item"><span class="num">C1</span><span class="text"><strong>High performance</strong> &mdash; PerfMean &ge; 0.93 on every L1&ndash;L3 scenario individually (not just aggregate).</span></div>
+            <div class="criterion-item"><span class="num">C2</span><span class="text"><strong>Zero rumination</strong> &mdash; RI = 0 across L1&ndash;L5 <em>including</em> adversarial coupling (the windup stress test).</span></div>
+            <div class="criterion-item"><span class="num">C3</span><span class="text"><strong>No collapse</strong> &mdash; PerfMean above the uncontrolled baseline on every single scenario in the suite.</span></div>
+        </div>
+        <div class="criterion-winner">
+            Only <code>arc_robust</code> (H&infin;-motivated, robust-by-detuning) satisfies all three simultaneously. Integral-only variants fail&nbsp;C3 on adversarial coupling due to windup; pure-LQR variants fail&nbsp;C2 because they do not target the rumination threshold; <code>arc_adaptive</code> collapses on L5.
+        </div>
+    </div>
+
+    <div class="results-wrap" style="margin-top: 24px;">
         <table>
             <thead>
                 <tr>
-                    <th>Research Line</th>
-                    <th>Key Finding</th>
+                    <th>Line</th>
+                    <th>Finding</th>
                 </tr>
             </thead>
             <tbody>
-                <tr><td>L1 (Stability)</td><td class="good">96.6% PerfMean vs 29.7% baseline; RI=0 with integral controllers</td></tr>
-                <tr><td>L2 (Memory)</td><td class="good">Perfect retention under distribution shift with zero rumination</td></tr>
-                <tr><td>L3 (Anti-Rumination)</td><td class="good">NDR near zero under gaslighting and sustained contradiction</td></tr>
-                <tr><td>L4 (Efficiency)</td><td class="good">-20.9% control effort via meta-control switching</td></tr>
-                <tr><td>L5 (Safety)</td><td>Proportional/robust controllers stable; <span class="bad" style="color:var(--red)">integral controllers collapse</span> under adversarial coupling</td></tr>
-                <tr><td>L6 (Tabular RL)</td><td class="good">+49.8% transfer learning in ChangingGoalGridWorld</td></tr>
-                <tr><td>L6 (Ablation)</td><td class="good">Memory gating alone: 71.8% success (best individual component)</td></tr>
-                <tr><td>L6b (Deep RL)</td><td class="bad">Negative results: ARC-plasticity underperforms baseline DQN</td></tr>
+                <tr><td>L1&nbsp;&middot;&nbsp;Stability</td><td class="good">ARC reaches 96.6% PerfMean vs 29.7% uncontrolled baseline; RI = 0 with anti-rumination action. Cohen's <em>d</em> = 10.1 (L1 PerfMean), Welch <em>p</em> &lt; 10<sup>&minus;86</sup>.</td></tr>
+                <tr><td>L2&nbsp;&middot;&nbsp;Memory</td><td class="good">Near-perfect Retention after distribution shift, zero rumination. <em>d</em> = 11.5, <em>p</em> &lt; 10<sup>&minus;153</sup>.</td></tr>
+                <tr><td>L3&nbsp;&middot;&nbsp;Anti-Rumination</td><td class="good">NDR near zero under gaslighting and sustained contradiction. <em>d</em> = 7.1, <em>p</em> &lt; 10<sup>&minus;182</sup>.</td></tr>
+                <tr><td>L4&nbsp;&middot;&nbsp;Efficiency</td><td class="neutral">Meta-control reduces aggregate effort by 20.9% (&minus;0.162 units) with +0.7% PerfMean. Directional result; no parametric test reported.</td></tr>
+                <tr><td>L5&nbsp;&middot;&nbsp;Adversarial</td><td class="bad">Integral controllers <em>collapse below baseline</em> due to windup (PerfMean &lt; 0.14 vs 0.409 baseline). Robust and proportional controllers survive. A predicted failure mode, reported transparently.</td></tr>
+                <tr><td>L6&nbsp;&middot;&nbsp;Tabular RL</td><td class="good">Memory gating alone: 71.8% success on ChangingGoalGridWorld (+79.9% over 39.9% baseline). Full wrapper underperforms individual components &mdash; reported as a negative finding on composition.</td></tr>
+                <tr><td>L6b&nbsp;&middot;&nbsp;Deep RL</td><td class="bad">DQN plasticity wrapper underperforms baseline on CartPole variants. Scope boundary flagged; architectural redesign identified as required for gradient-based learners.</td></tr>
             </tbody>
         </table>
     </div>
 </section>
 
 <section id="controllers">
-    <h2><span>15</span> Controller Architectures</h2>
-    <p style="color: var(--text-muted); margin-bottom: 16px;">From basic proportional feedback to optimal and robust control, systematically testing which control-theoretic properties are necessary for affective regulation.</p>
+    <div class="section-eyebrow">Architectures tested</div>
+    <h2><span class="accent">12 ARC variants</span> &plus; 3 baselines.</h2>
+    <p class="section-lead">From basic proportional feedback to optimal, robust, adaptive, and MPC-based variants &mdash; systematically testing which control-theoretic properties are necessary for affective regulation.</p>
     <div class="controllers-grid">
-        <div class="ctrl-tag"><code>arc_v1</code> Proportional (P)</div>
+        <div class="ctrl-tag winner"><code>arc_robust</code> H&infin;-motivated</div>
+        <div class="ctrl-tag"><code>arc_v1</code> Proportional</div>
         <div class="ctrl-tag"><code>arc_v1_pid</code> PID</div>
         <div class="ctrl-tag"><code>arc_v1_lqr</code> LQR (Riccati)</div>
         <div class="ctrl-tag"><code>arc_v1_lqi</code> LQR + Integral</div>
         <div class="ctrl-tag"><code>arc_v2_hier</code> Hierarchical</div>
         <div class="ctrl-tag"><code>arc_v2_lqi</code> Hier + LQI</div>
-        <div class="ctrl-tag"><code>arc_v3_meta</code> Meta-Control</div>
+        <div class="ctrl-tag"><code>arc_v3_meta</code> Meta-control</div>
         <div class="ctrl-tag"><code>arc_v3_pid_meta</code> PID + Meta</div>
         <div class="ctrl-tag"><code>arc_v3_lqr_meta</code> LQR + Meta</div>
-        <div class="ctrl-tag"><code>arc_robust</code> H-infinity Robust</div>
-        <div class="ctrl-tag"><code>arc_adaptive</code> Self-Tuning</div>
+        <div class="ctrl-tag"><code>arc_adaptive</code> Self-tuning</div>
         <div class="ctrl-tag"><code>arc_ultimate</code> MPC + LQI + Meta</div>
-        <div class="ctrl-tag"><code>no_control</code> Baseline</div>
-        <div class="ctrl-tag"><code>naive_calm</code> Baseline</div>
-        <div class="ctrl-tag"><code>perf_optimized</code> Baseline</div>
+        <div class="ctrl-tag baseline"><code>no_control</code> Baseline</div>
+        <div class="ctrl-tag baseline"><code>naive_calm</code> Baseline</div>
+        <div class="ctrl-tag baseline"><code>perf_optimized</code> Baseline</div>
     </div>
 </section>
 
 <section>
-    <h2>Reproduce the <span>Paper</span></h2>
-    <div class="card">
-        <pre style="font-size: 0.85rem; overflow-x: auto; color: var(--text-muted);">pip install -r requirements.txt
+    <div class="section-eyebrow">Reproducibility</div>
+    <h2>Clone, <span class="accent">run, verify</span>.</h2>
+    <p class="section-lead">Python 3.11, no GPU required. The full L1&ndash;L5 benchmark finishes in a few hours on a laptop. Tagged <code>arc-paper-v1</code> points to the exact commit for this submission.</p>
+    <pre class="codeblock"><span class="cmd">git</span> clone https://github.com/edamianreynoso/arc-assb-controller
+<span class="cmd">git</span> checkout arc-paper-v1
+<span class="cmd">pip</span> install -r requirements.txt
 
-# L1-L5: Simulation benchmark (15 controllers x 10 scenarios x 20 seeds)
-python experiments/run.py --config configs/v2.yaml --outdir outputs_final
+<span class="comment"># L1-L5: Simulation benchmark (15 controllers x 10 scenarios x 20 seeds)</span>
+<span class="cmd">python</span> experiments/run.py <span class="flag">--config</span> configs/v2.yaml <span class="flag">--outdir</span> outputs_final
 
-# L6: Tabular Q-learning (20 seeds x 200 episodes)
-python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
+<span class="comment"># L6: Tabular Q-learning (20 seeds x 200 episodes)</span>
+<span class="cmd">python</span> experiments/run_l6.py <span class="flag">--episodes</span> 200 <span class="flag">--seeds</span> 20 <span class="flag">--outdir</span> outputs_L6_robust
 
-# L6b: Deep RL (DQN) exploratory suite
-python experiments/run_l6b_dqn_suite.py
+<span class="comment"># L6b: Deep RL (DQN) exploratory suite</span>
+<span class="cmd">python</span> experiments/run_l6b_dqn_suite.py
 
-# Verify all paper claims
-python verify_paper_claims.py</pre>
+<span class="comment"># Verify every numerical claim in the paper against the outputs</span>
+<span class="cmd">python</span> verify_paper_claims.py</pre>
+</section>
+
+<section id="resources">
+    <div class="section-eyebrow">Resources</div>
+    <h2>Paper, code, data.</h2>
+    <p class="section-lead">Everything released open-access. The paper is 48 pages, went through 11 revision rounds and four independent pre-submission audits; the reproducibility package is tagged as a frozen artefact.</p>
+    <div class="resources-grid">
+        <a class="resource" href="arxiv_submission/ARC-damian-2026a.pdf" target="_blank" rel="noopener">
+            <span class="resource-eyebrow">Preprint · PDF · 48 pages</span>
+            <span class="resource-title">Damián (2026a) on TechRxiv</span>
+            <span class="resource-desc">The full paper, including appendices, per-scenario tables, and Appendix&nbsp;G.7 negative-result analysis.</span>
+            <span class="resource-arrow">Download PDF &rarr;</span>
+        </a>
+        <a class="resource" href="https://github.com/edamianreynoso/arc-assb-controller" target="_blank" rel="noopener">
+            <span class="resource-eyebrow">Repository · Apache-2.0</span>
+            <span class="resource-title">arc-assb-controller</span>
+            <span class="resource-desc">Code, configs, scenarios, metrics, per-seed CSVs. Tagged <code>arc-paper-v1</code> for reproducibility.</span>
+            <span class="resource-arrow">View on GitHub &rarr;</span>
+        </a>
+        <a class="resource" href="https://orcid.org/0009-0008-6544-328X" target="_blank" rel="noopener">
+            <span class="resource-eyebrow">ORCID · verified identity</span>
+            <span class="resource-title">0009-0008-6544-328X</span>
+            <span class="resource-desc">Open Researcher and Contributor ID for J.&nbsp;Eduardo Damián&nbsp;Reynoso.</span>
+            <span class="resource-arrow">View profile &rarr;</span>
+        </a>
+        <a class="resource" href="paper_latex_es/ARC-damian-2026a-ES.pdf" target="_blank" rel="noopener">
+            <span class="resource-eyebrow">Versión en español · 49 páginas</span>
+            <span class="resource-title">Lectura fluida en español</span>
+            <span class="resource-desc">Traducción completa del preprint manteniendo terminología técnica en inglés (PID, windup, etc.).</span>
+            <span class="resource-arrow">Descargar PDF &rarr;</span>
+        </a>
     </div>
 </section>
 
 <footer>
-    <h3 style="margin-bottom: 16px; color: var(--text);">Citation</h3>
-    <div class="citation">@article{damianreynoso2026arc,
-  title={Affective Regulation Core: A Homeostatic
-         Control Framework for Stable and Safe AI Agents},
-  author={Dami{\'a}n Reynoso, J. Eduardo},
-  year={2026}
-}</div>
-    <p>&copy; 2026 J. Eduardo Damian Reynoso. Apache-2.0 License.</p>
-    <p style="margin-top: 8px;"><a href="https://github.com/edamianreynoso/arc-assb-controller">GitHub Repository</a></p>
+    <div class="footer-inner">
+        <div class="footer-title">Cite this work</div>
+        <pre class="citation-box">@article{<span class="cite-k">Damian2026arc</span>,
+  title   = {<span class="cite-s">Affective Regulation Core: A Homeostatic Control Framework
+             for Stable and Safe AI Agents</span>},
+  author  = {<span class="cite-s">Dami{\'a}n Reynoso, J. Eduardo</span>},
+  year    = {<span class="cite-s">2026</span>},
+  journal = {<span class="cite-s">Zenodo preprint</span>},
+  note    = {<span class="cite-s">DOI to be inserted upon issuance</span>},
+  url     = {<span class="cite-s">https://github.com/edamianreynoso/arc-assb-controller</span>}
+}</pre>
+
+        <div class="footer-bottom">
+            <div>&copy; 2026 J.&nbsp;Eduardo Damián&nbsp;Reynoso · Released under Apache-2.0 license</div>
+            <div class="footer-links">
+                <a href="https://github.com/edamianreynoso/arc-assb-controller" target="_blank" rel="noopener">Repository</a>
+                <a href="https://orcid.org/0009-0008-6544-328X" target="_blank" rel="noopener">ORCID</a>
+                <a href="mailto:edamianreynoso@gmail.com">Contact</a>
+            </div>
+        </div>
+    </div>
 </footer>
 
 </body>

@@ -65,3 +65,22 @@ log_output.txt
 modified_files.txt
 files_today.txt
 review_report.md
+
+# AI tool artefacts (keep the public repo clean)
+.claude/
+CLAUDE.md
+.cursor/
+.copilot/
+.aider*
+
+# Prevent accidental cross-contamination with other projects
+OMEGA/
+moltbot/
+omega/
+arc-assb-agent/
+**/__pycache__/
+
+# Scratch / experimental material that must not leak
+scratch/
+notes_private/
+*.draft.*
