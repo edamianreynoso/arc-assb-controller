@@ -9,6 +9,7 @@ authors:
     orcid: "https://orcid.org/0009-0008-6544-328X"
 license: Apache-2.0
 repository-code: https://github.com/edamianreynoso/arc-assb-controller
+doi: 10.5281/zenodo.19667778
 preferred-citation:
   type: article
   title: "Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"
@@ -17,4 +18,5 @@ preferred-citation:
       given-names: "J. Eduardo"
       orcid: "https://orcid.org/0009-0008-6544-328X"
   year: 2026
-  url: https://github.com/edamianreynoso/arc-assb-controller
+  doi: 10.5281/zenodo.19667778
+  url: https://doi.org/10.5281/zenodo.19667778

@@ -1,6 +1,9 @@
 # ARC-ASSB
 
-Code and data for the paper **"Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"** (Damián Reynoso, 2026).
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19667778.svg)](https://doi.org/10.5281/zenodo.19667778)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+Code and data for the paper **"Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"** (Damián Reynoso, 2026). Preprint: <https://doi.org/10.5281/zenodo.19667778>
 
 ## Overview
 
@@ -86,9 +89,12 @@ verify_paper_claims.py   Automated claim verification script
 
 ```bibtex
 @article{damianreynoso2026arc,
-  title={Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents},
-  author={Dami{\'a}n Reynoso, J. Eduardo},
-  year={2026}
+  title     = {Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents},
+  author    = {Dami{\'a}n Reynoso, J. Eduardo},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.19667778},
+  url       = {https://doi.org/10.5281/zenodo.19667778}
 }
 ```
 
