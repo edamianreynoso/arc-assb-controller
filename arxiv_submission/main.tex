@@ -1,0 +1,1735 @@
+\documentclass{article}
+
+% Packages
+\usepackage{arxiv}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{doi}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{float}  % For [H] figure placement
+\usepackage{placeins}
+\usepackage{needspace}
+\usepackage{etoolbox}  % For \pretocmd (explicit dependency)
+
+% Setup
+\hypersetup{
+    pdftitle={Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents},
+    pdfauthor={J. Eduardo Damián Reynoso},
+    pdfkeywords={Affective Computing, AI Safety, Homeostatic Control, Reinforcement Learning},
+    hypertexnames=false,
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\title{Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents}
+
+% Short title for running header (prevents overlap with "A Preprint")
+\renewcommand{\shorttitle}{\textsc{Affective Regulation Core (ARC)}}
+\renewcommand{\headeright}{\textsc{Preprint}}
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.8}
+\raggedbottom
+\linespread{1.09}\selectfont
+\setlength{\textfloatsep}{18pt plus 4pt minus 3pt}
+\setlength{\floatsep}{14pt plus 3pt minus 3pt}
+\setlength{\intextsep}{16pt plus 4pt minus 3pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{11pt}
+\setlength{\parskip}{7pt plus 1pt minus 1pt}
+\setlength{\parindent}{0pt}
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\makeatletter
+\setlength{\@fptop}{8pt}
+\setlength{\@fpsep}{12pt}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+\newcommand{\scenarioheader}[1]{\Needspace{20\baselineskip}\textbf{Scenario: #1}}
+\makeatletter
+\pretocmd{\section}{\Needspace{14\baselineskip}}{}{}
+\pretocmd{\subsection}{\Needspace{10\baselineskip}}{}{}
+\pretocmd{\subsubsection}{\Needspace{7\baselineskip}}{}{}
+\pretocmd{\paragraph}{\Needspace{6\baselineskip}}{}{}
+\makeatother
+
+% Author: primary surname is "Damián" (paternal), "Reynoso" is the secondary
+% (maternal) surname per Spanish convention. The braces tell LaTeX/BibTeX that
+% "Damián Reynoso" is a compound surname — so short citations render as
+% "Damián Reynoso 2026" and abbreviated forms pick "Damián".
+% arXiv / TechRxiv submission categories:
+%   Primary:   cs.AI  (Artificial Intelligence)
+%   Secondary: cs.LG  (Machine Learning), eess.SY (Systems and Control)
+\author{
+  J. Eduardo {Dami\'{a}n Reynoso} \\
+  Independent Researcher, M\'{e}xico \\
+  \texttt{edamianreynoso@gmail.com} \\
+  ORCID: \href{https://orcid.org/0009-0008-6544-328X}{0009-0008-6544-328X}
+}
+
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+As AI agents become more sophisticated, there is growing interest in endowing them with internal state representations analogous to affective states. However, affective states without regulation can lead to instability, perseverative loops (rumination), and vulnerability to manipulation. We introduce the \textbf{Affective Regulation Core (ARC)}, a control framework inspired by prefrontal cortex functions that maintains stability in agents with internal affective states. We also present the \textbf{Affective Stability \& Safety Benchmark (ASSB)}, a reproducible evaluation protocol with metrics for recovery time, rumination index, and control effort.
+
+Our experiments across 6 research lines and \textbf{15 controller architectures} (including P, PID, LQR, LQI, hierarchical, meta-control, H$\infty$ robust, and adaptive variants) demonstrate that:
+\begin{enumerate}
+    \item Uncontrolled affective dynamics collapse under perturbation (PerfMean $\leq$ 0.30 on stability scenarios), while ARC maintains PerfMean $\geq$ 0.93 across the full L1--L5 suite; on L1 stability scenarios specifically, the reference configuration \texttt{arc\_v1} reaches \textbf{0.966} (vs.\ 0.297 baseline). \textbf{ARC variants with explicit anti-rumination action} (DMN suppression in \texttt{arc\_v1}, integral action in PID / LQI / MPC+LQI, or the H$\infty$ robust design) \textbf{drive the Rumination Index to exactly 0.00 on L1} (zero steps above $s_{\text{rum}\tau}$; Tables~\ref{tab:l1_results},~\ref{tab:significance}). Pure-LQR variants (\texttt{arc\_v1\_lqr}, \texttt{arc\_v3\_lqr\_meta}) and the LQR-hierarchical variant (\texttt{arc\_v2\_hier}) do \emph{not} target the rumination threshold and accordingly can exhibit RI $>1$ on L1 scenarios (e.g.\ RI $\approx 1.38$--$1.41$ on \texttt{reward\_flip}; Table~\ref{tab:g1_reward_flip}): this is an expected consequence of minimising quadratic state error rather than threshold excursions, not a failure mode, and is one motivation for preferring non-LQR architectures when rumination suppression is the primary objective. \textbf{Controllers with integral action (PID, LQI, MPC+LQI) additionally maintain RI $= 0$ globally across L1--L5}, while the proportional \texttt{arc\_v1} settles at RI $\approx 0.15$ when aggregated across all 10 L1--L5 scenarios (Table~\ref{tab:controller_comparison}; per-scenario mean $0.148$).
+    \item ARC meta-control reduces aggregate control effort by \textbf{20.9\%} (from $0.777$ to $0.615$ on the 10-scenario aggregate) with a small performance gain ($+0.7\%$); we report this as a directional effect (no parametric significance test; see Section~\ref{sec:statistical_analysis}).
+    \item \textbf{H$\infty$ Robust controllers} are the only ARC variant to satisfy, simultaneously, all three of: PerfMean $\geq 0.93$ on L1--L3, RI $= 0$ across L1--L5 \emph{including} adversarial coupling, and no collapse below the uncontrolled baseline on any scenario (Table~\ref{tab:controller_comparison}); by this three-criterion test they are the most consistent architecture across the suite. In contrast, integral controllers (PID, LQI, MPC+LQI) collapse below baseline performance under adversarial coupling due to integral windup---an important negative finding we report transparently and analyse in detail.
+    \item In tabular reinforcement learning on \texttt{ChangingGoalGridWorld}, ARC's \textbf{memory-gating component alone} is the strongest single mechanism, reaching 71.8\% success (\textbf{+79.9\%} relative to the 39.9\% baseline); the integrated ARC-RL wrapper that combines memory gating with shift detection reaches 59.8\% (+49.8\% over baseline), indicating that the two mechanisms, while individually beneficial, interact sub-additively when composed --- a finding we discuss as a limitation of the current integration (Section~7.4) rather than as a validation of the full wrapper. Preliminary Deep RL (DQN) experiments are underperforming and indicate that gradient-based learners require architectural redesign---reported explicitly in Appendix~\ref{sec:dqn_suite} as a scope boundary and motivation for future work.
+\end{enumerate}
+
+All code and data are available at \url{https://github.com/edamianreynoso/arc-assb-controller} (tag \texttt{arc-paper-v1}); see Appendix~A for the full environment specification (Python version, library floors, hardware profile, canonical seed list) and the commit-hash anchor for this submission.
+\end{abstract}
+
+\keywords{Affective regulation \and Homeostatic control of AI agents \and Internal-state safety \and Rumination benchmarks \and Integral windup \and H$\infty$ robust control \and Default-mode-network suppression \and ASSB benchmark}
+
+\section{Introduction}
+
+\subsection{Motivation}
+
+Modern AI systems increasingly incorporate internal state representations that go beyond task performance---including affective signals that prioritize learning, modulate memory, and signal internal needs \cite{Damasio1994, Picard1997}. However, affective states introduce risks: without proper regulation, they may cause instability, perseverative loops (functionally analogous to rumination), and susceptibility to manipulation \cite{Amodei2016}.
+
+This paper addresses a fundamental question: \textbf{If an agent has internal affective states, what control mechanisms are necessary to maintain stability and recoverability under perturbation?}
+
+\subsection{Contributions}
+
+\begin{enumerate}
+    \item \textbf{A 10-dimensional state-space model} of an agent with integrated cognitive, affective, and narrative components (Section 3).
+    \item \textbf{The Affective Regulation Core (ARC)}, a family of 15 controller architectures including P, PID, LQR, LQI, hierarchical, meta-control, H$\infty$ robust, and MPC variants (Section 4).
+    \item \textbf{The Affective Stability \& Safety Benchmark (ASSB)}, with reproducible scenarios and metrics (Section 5).
+    \item \textbf{A hypothesis-driven validation ladder (H1--H6)} mapping research lines to failure modes and measurable metrics (Section 5.3).
+    \item \textbf{Comprehensive validation} across 6 research lines, 15 controller architectures, and tabular RL integration (Section~6). We transparently report both positive findings (ARC's stability and anti-rumination properties) and negative findings (integral-windup collapse under adversarial coupling; underperformance of ARC-modulated DQN on deep-RL benchmarks). The latter delineate the scope and motivate the future work program in Section~7.5.
+\end{enumerate}
+
+\subsection{Scope}
+
+We do not claim our model captures the full complexity of human emotion or its phenomenology. We treat internal variables (arousal, valence, narrative intensity) \textbf{strictly as functional signals} that modulate processing and prioritization. Any use of terms like ``affect,'' ``rumination,'' or ``anxiety'' refers to these functional dynamics within the control system, not to biological or conscious experience. Our contribution is demonstrating that such functional states require explicit control mechanisms to remain stable. Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains as future work. Current validation is based on empirical benchmarking across a wide range of conditions.
+
+\section{Related Work}
+
+\subsection{Affective Computing}
+
+Affective computing focuses on emotion recognition, synthesis, and simulation \cite{Picard1997, Scherer2010}. Many systems operationalize affect in low-dimensional representations (e.g., valence and arousal) \cite{Russell1980}. Most work addresses external expression rather than internal regulation. Our work addresses the \textit{control problem} for internal states.
+
+\subsection{Emotion in Reinforcement Learning}
+
+Recent work uses emotion-like signals as reinforcement shaping or exploration modulation \cite{Moerland2018}. Related directions study how physiological/homeostatic variables can be embedded into RL objectives \cite{Keramati2014}, and how constraints and safety objectives can be enforced in learning systems \cite{Garcia2015}. In safe RL, these objectives are typically formalized as Constrained Markov Decision Processes (CMDP) \cite{Altman1999} and addressed with constrained policy optimization methods \cite{Achiam2017}. External safety benchmark suites such as AI Safety Gridworlds \cite{Leike2017}, Safety Gym \cite{Ray2019}, and Safety-Gymnasium \cite{Ji2023} motivate standardized evaluation protocols, while recent surveys systematize constraint formulations \cite{Wachi2024}. However, these approaches typically lack:
+\begin{itemize}
+    \item Homeostatic regulation with safety thresholds
+    \item Anti-rumination mechanisms (DMN control)
+    \item Memory gating under stress
+    \item Benchmarks targeting internal stability dynamics (recovery, rumination, effort)
+\end{itemize}
+
+\subsection{Emotion Regulation, Rumination, and the Default Mode Network}
+
+ARC is directly inspired by cognitive emotion regulation mechanisms commonly attributed to prefrontal control \cite{Ochsner2005}. More broadly, self-regulation has been described as discrepancy-reducing feedback loops \cite{Carver1982}, and emotion regulation is a mature field with process-level and strategy models \cite{Gross1998}. In control theory, the problem of maintaining sufficient excitation for parameter identification is known as \textbf{persistence of excitation} \cite{Astrom2008}, a central limitation for adaptive control in low-variance (``benign'') environments.
+In humans, dysregulated self-referential processing and the default mode network (DMN) have been linked to rumination-like dynamics \cite{Raichle2001, Buckner2008, Hamilton2015}. We use DMN-inspired narrative intensity as an engineering proxy for perseveration pressure.
+
+\subsection{Positioning ARC}
+
+We position ARC as a \textit{regulation-first} approach: affect is treated as an internal dynamical system requiring explicit control. Most emotion-in-RL approaches use affect-like signals primarily as learning/exploration modulators rather than stability guarantees.
+
+\begin{table}[htbp]
+\centering
+\caption{Comparison of Emotion Regulation Approaches}
+\label{tab:comparison}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Feature & Emotion in RL agents \cite{Moerland2018} & \textbf{ARC} \\ \midrule
+Internal state regulation & Partial & Yes \\
+Anti-rumination (DMN suppression) & No & Yes \\
+Memory gating under stress & No & Yes \\
+Meta-control / gain scheduling & Partial & Yes \\
+Safety adversarial testing & No & Yes \\
+RL integration & Yes & Yes \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textit{Classification criteria (qualitative, based on the surveyed methods in \cite{Moerland2018}).} ``Yes'' = feature is implemented as an explicit closed-loop mechanism with a measurable action on the agent's internal state; ``Partial'' = feature appears in at least one surveyed method but as an open-loop modulation (e.g.\ scalar affect influencing exploration or learning rate) without an explicit regulation target or error signal; ``No'' = not present in any surveyed method. The comparison is not a per-method head-to-head, but a category-level summary of mechanisms surveyed in the reference; individual methods in \cite{Moerland2018} may implement subsets differently.
+
+We do not re-implement every prior method; instead, we compare to internal baselines that isolate the contribution of each mechanism (Section 6.1).
+
+Unlike homeostatic RL approaches that embed drives/internal variables within the reward or learning objective \cite{Keramati2014}, ARC treats affect-like variables as an explicit internal dynamical system under closed-loop control, enabling stability/robustness analysis and systematic comparison across controller families. Complementing safe RL benchmarks that primarily evaluate external environment constraint compliance \cite{Leike2017, Ray2019, Ji2023}, ASSB targets safety-relevant internal dynamics---recovery time, rumination index, and control effort---under controlled perturbations. To our knowledge, no standardized benchmark exists dedicated specifically to ``affective stability'' in this sense; ASSB is proposed to fill that gap. We also distinguish ARC from bio-inspired ``emotional learning'' controllers like BELBIC, which use emotion-inspired mechanisms to control physical plants, not to regulate an agent's internal states \cite{Lucas2004}. Finally, ARC here refers to Affective Regulation Core and should not be confused with other uses of the acronym in clinical contexts.
+
+\section{Model}
+
+\subsection{State Space}
+
+We define a normalized internal state vector:
+
+\begin{equation}
+\mathbf{x}(t) = [\Phi, G, P, I, S, V, A, M_f, M_s, U]
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\caption{State Variables}
+\label{tab:state_variables}
+\begin{tabular}{@{}llc@{}}
+\toprule
+Variable & Description & Range \\ \midrule
+$\Phi$ & Integration proxy (IIT) & [0, 1] \\
+$G$ & Global workspace accessibility & [0, 1] \\
+$P$ & Predictive precision & [0, 1] \\
+$I$ & Introspective attention & [0, 1] \\
+$S$ & Narrative Intensity (DMN proxy) & [0, 1] \\
+$V$ & Valence & [0, 1] \\
+$A$ & Arousal & [0, 1] \\
+$M_f, M_s$ & Fast/Slow memory & [0, 1] \\
+$U$ & Uncertainty & [0, 1] \\ \bottomrule
+\end{tabular}
+\end{table}
+
+We interpret $\Phi$ as an IIT-inspired integration proxy \cite{Tononi2008}, $G$ as global workspace accessibility \cite{Baars1988}, and $P$ as predictive precision \cite{Friston2010}. These are used as control-relevant latent variables rather than claims about human consciousness.
+
+\subsection{Cognitive Capacity}
+
+Following multiplicative integration:
+
+\begin{equation}
+C_{cog}(t) = \Phi(t) \cdot G(t) \cdot P(t) \cdot I(t)
+\end{equation}
+
+This captures that conscious processing requires \textit{all} components functional.
+
+\subsection{Performance Function}
+
+Before stating the performance function, we define two thresholds that appear in it. $a_{safe}$ and $s_{safe}$ are scalar parameters in $[0,1]$ that delimit the \emph{safe operating region} for arousal and narrative intensity, respectively: any value above the threshold is penalized in the performance function (as $[A-a_{safe}]^+$, $[S-s_{safe}]^+$). Defaults are $a_{safe}=0.60$ and $s_{safe}=0.55$, guided by the Yerkes--Dodson law (inverted-U relationship between arousal and performance) \cite{Yerkes1908,Hebb1955}.
+
+\begin{equation}\label{eq:perf}
+\text{Perf} = \text{bias} + \text{gain} \cdot C_{cog} \cdot (1 + \omega_S \cdot S) - w_U U - w_A [A - a_{safe}]^+ - w_S [S - s_{safe}]^+
+\end{equation}
+
+Where:
+\begin{itemize}
+    \item \textbf{bias}: baseline performance level (value used in experiments: 0.25; see \texttt{configs/v2.yaml})
+    \item \textbf{gain}: scaling factor for cognitive capacity contribution (value used in experiments: 0.85; see \texttt{configs/v2.yaml})
+    \item \textbf{$\omega_S$}: narrative boost factor---moderate narrative intensity can enhance performance (value used in experiments: 0.35; see \texttt{configs/v2.yaml})
+    \item \textbf{$w_U$}: penalty weight for uncertainty (value used in experiments: 0.25; see \texttt{configs/v2.yaml})
+    \item \textbf{$w_A$}: penalty weight for arousal above safe threshold (value used in experiments: 0.30; see \texttt{configs/v2.yaml})
+    \item \textbf{$w_S$}: penalty weight for narrative intensity above safe threshold (value used in experiments: 0.20; see \texttt{configs/v2.yaml})
+\end{itemize}
+
+\emph{Notation note.} The weights $w_U, w_A, w_S$ in this performance function (Section~3.3) are distinct from the \emph{risk} weights $\tilde{w}_U, \tilde{w}_A, \tilde{w}_S$ introduced in Section~4.3.1 for the ARC controller's internal risk signal. The two weight sets serve different purposes: $w_\bullet$ shape the reward the agent is evaluated on (externally imposed); $\tilde{w}_\bullet$ shape the risk signal that drives the control actions (internally used by ARC). The tilde is always explicit when risk weights are meant; an un-tilded $w_\bullet$ always refers to the performance weights.
+
+\begin{itemize}
+    \item $[x]^+ = \max(0, x)$: rectified linear function
+    \item $a_{safe}, s_{safe}$: thresholds defining the safe operating region (defaults: 0.60, 0.55). These values are guided by the Yerkes--Dodson law, which posits an inverted-U relationship between arousal and performance---moderate arousal ($\approx 0.6$) supports optimal task performance, while excessive arousal degrades it \cite{Yerkes1908,Hebb1955}
+\end{itemize}
+
+\section{Affective Regulation Core (ARC)}
+
+\subsection{What the Model Is and Isn't}
+
+Before describing the controller, we want to be explicit about the scope of the mathematical object. \textbf{ARC is a control problem on a 10-dimensional bounded, piecewise-linear, clipped dynamical system with threshold-driven penalty terms.} The state variables are labelled with cognitive/affective names (arousal, valence, narrative intensity, memory integrity, etc.) and the design is motivated by neuropsychological findings (prefrontal regulation, default-mode-network involvement, Yerkes--Dodson), but the paper does not claim that the model is mechanistically faithful to biological affective systems.
+
+Two implications follow:
+\begin{itemize}
+    \item The biological framing in Sections~1--2 and throughout the paper is \emph{motivational}: it explains why the variables are named the way they are and why the penalty structure (thresholds, Yerkes--Dodson, DMN suppression) is chosen. It is not a claim about neurobiological correctness.
+    \item The substantive contribution is therefore (a) the benchmark (ASSB) as a standardised way to evaluate internal-state controllers under a catalogue of perturbation families, and (b) the empirical mapping from failure-mode class to controller family (integral action helps in L1--L3, fails in L5; H$\infty$ robust is the only variant that passes the three-criterion consistency test in Table~\ref{tab:three_criterion_test}). Neither of these requires biological fidelity; both gain value if the benchmark is adopted by other authors for related systems (LLM agents, cognitive architectures, goal-pursuit controllers) and the mapping is extended or contested.
+\end{itemize}
+
+This framing also delimits what the paper does \emph{not} contribute. The theoretical results (Lemma~1, Proposition~1) are elementary contextualisations of well-known control-theory facts (internal model principle, persistence of excitation), not new theorems. The controller architectures (P, PID, LQR, LQI, H$\infty$, MPC, adaptive) are standard. Our contribution lies in the problem formulation, the benchmark, and the failure-mode map --- not in novel control theory.
+
+\subsection{Design Principles}
+
+ARC is inspired by prefrontal cortex emotion regulation \cite{Ochsner2005}:
+\begin{enumerate}
+    \item \textbf{Monitor} internal state for stress indicators
+    \item \textbf{Intervene} proportionally to reduce risk
+    \item \textbf{Preserve} performance by balancing regulation with capacity
+\end{enumerate}
+
+\subsection{Control Actions}
+
+\begin{equation}
+\mathbf{u}(t) = [u_{dmg}, u_{att}, u_{mem}, u_{calm}, u_{reapp}]
+\end{equation}
+
+% Control actions table removed to match Markdown version.
+
+\subsection{ARC Controller Architectures}
+
+We implement 15 controller variants stemming from basic feedback control to optimal and robust control (see Table \ref{tab:controllers}). We implement this broad family to systematically test which control-theoretic properties---such as integral action, optimality, robustness, or adaptation---are necessary for effective affective regulation.
+
+\subsubsection{Proportional Controllers}
+
+\textbf{ARC v1 (Proportional):} Basic proportional feedback on risk signal:
+\begin{equation}
+\text{risk}(t) = \tilde{w}_U \cdot U(t) + \tilde{w}_A \cdot [A(t) - a_{safe}]^+ + \tilde{w}_S \cdot [S(t) - s_{safe}]^+
+\end{equation}
+\begin{equation}
+u_{dmg}(t) = k_{dmg} \cdot \text{risk}(t)
+\end{equation}
+
+Here $\tilde{w}_U,\tilde{w}_A,\tilde{w}_S$ are ARC risk weights (distinct from the performance penalties $w_U,w_A,w_S$ in the performance function in Section 3.3); in our experiments $\tilde{w}_U=0.40$, $\tilde{w}_A=0.40$, and $\tilde{w}_S=0.35$ (see \texttt{configs/v2.yaml}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/fig_arc_v1_controller.png}
+    \caption{ARC v1 control law overview. A bounded risk signal drives a set of saturated regulation actions (DMN suppression, attention boost, memory gating, calming, and reappraisal).}
+    \label{fig:arc_v1}
+\end{figure}
+
+\subsubsection{PID Controllers}
+
+\textbf{ARC v1 PID:} Adds integral and derivative terms:
+\begin{equation}
+u(t) = K_p \cdot e(t) + K_i \cdot \int e(\tau) d\tau + K_d \cdot \frac{de}{dt}
+\end{equation}
+
+The integral term on narrative error ($S$) eliminates steady-state rumination (RI $\to$ 0).
+
+\subsubsection{Optimal Controllers (LQR/LQI)}
+
+\textbf{ARC v1 LQR:} Linear Quadratic Regulator with gains from Riccati equation:
+\begin{equation}
+K^* = (R + B^T P B)^{-1} B^T P A
+\end{equation}
+where $P$ solves the Discrete Algebraic Riccati Equation (DARE).
+
+\textbf{ARC v1 LQI:} LQR + integral augmentation for zero steady-state error.
+
+\subsubsection{Hierarchical Controllers}
+
+\textbf{ARC v2 Hierarchical:} Multi-timescale control:
+\begin{itemize}
+    \item \textbf{Fast loop} (every step): Arousal regulation
+    \item \textbf{Medium loop} (every 5 steps): Narrative suppression
+    \item \textbf{Slow loop} (every 20 steps): Setpoint adaptation
+\end{itemize}
+
+\textbf{ARC v2 LQI:} Hierarchical structure + LQI for anti-rumination.
+
+\subsubsection{Adaptive Controllers}
+
+\textbf{ARC v3 Meta-Control:} Gain scheduling based on performance history:
+\begin{equation}
+K(t) = K_{base} \cdot f(\bar{P}_{20})
+\end{equation}
+where $\bar{P}_{20}$ is 20-step moving average performance.
+
+\textbf{ARC Adaptive:} Online parameter optimization using gradient-free adaptation.
+
+\subsubsection{Robust and Predictive Controllers}
+
+\textbf{ARC Robust (robust-by-detuning, $H_\infty$-motivated):} Conservative gains with stability margins designed for worst-case disturbances. We emphasise that this controller is \emph{motivated} by $H_\infty$ design principles (small-gain theorem, disturbance-rejection margins) but is not a full $H_\infty$ synthesis in the technical sense: we do not solve the DARE for minimum $\ell_\infty$-norm transfer, and the gains are hand-detuned from the LQR solution to provide stability margins rather than computed by a formal $H_\infty$ procedure. A true $H_\infty$-synthesised ARC variant is listed as future work.
+
+\textbf{ARC Ultimate (MPC+LQI+Meta):} Model Predictive Control with 5-step horizon, combined with LQI and meta-control:
+\begin{equation}
+u(t) = \alpha \cdot u_{LQI}(t) + \beta \cdot u_{MPC}(t) \cdot \gamma_{meta}(t)
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\caption{Controller Architecture Summary}
+\label{tab:controllers}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Controller & Type & Anti-Rumination & Optimal & Adaptive \\ \midrule
+No Control (\texttt{no\_control}) & Baseline & No & No & No \\
+Naive Calm (\texttt{naive\_calm}) & Baseline & No & No & No \\
+Perf Optimized (\texttt{perf\_optimized}) & Baseline & No & No & No \\
+ARC v1 (\texttt{arc\_v1}) & P & No & No & No \\
+ARC v1 PID (\texttt{arc\_v1\_pid}) & PID & Yes (integral) & No & No \\
+ARC v1 LQR (\texttt{arc\_v1\_lqr}) & LQR & No & Yes (Riccati) & No \\
+ARC v1 LQI (\texttt{arc\_v1\_lqi}) & LQR+I & Yes (integral) & Yes & No \\
+ARC v2 Hier (\texttt{arc\_v2\_hier}) & Multi-scale & No & No & No \\
+ARC v2 LQI (\texttt{arc\_v2\_lqi}) & Multi+I & Yes (integral) & Yes & No \\
+ARC v3 Meta (\texttt{arc\_v3\_meta}) & Adaptive & No & No & Yes \\
+ARC v3 PID Meta (\texttt{arc\_v3\_pid\_meta}) & PID+Meta & Yes (integral) & No & Yes \\
+ARC v3 LQR Meta (\texttt{arc\_v3\_lqr\_meta}) & LQR+Meta & No & Yes & Yes \\
+ARC Robust (\texttt{arc\_robust}) & H$\infty$ & Yes (robust) & No & No \\
+ARC Adaptive (\texttt{arc\_adaptive}) & Self-tune & Yes (adaptive) & No & Yes \\
+ARC Ultimate (\texttt{arc\_ultimate}) & MPC+LQI+Meta & Yes & Yes & Yes \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{ARC in the Agent Loop}
+
+ARC is implemented as a light-weight wrapper around an agent's step/update. At each timestep, ARC reads the internal state $\mathbf{x}(t)$ and exogenous signals (reward, prediction error, uncertainty), computes a bounded risk signal, and applies control actions that modulate \textit{narrative gain}, \textit{attention}, \textit{memory writing}, and \textit{arousal damping}. The resulting control signal can be used either:
+\begin{itemize}
+    \item \textbf{Inside the state dynamics} (Appendices~B and~C), or
+    \item \textbf{Inside the learning loop}, e.g., gating Q-learning updates under high risk (Section 6.7).
+\end{itemize}
+
+\textbf{ARC step (conceptual):}
+\begin{enumerate}
+    \item Observe $(\mathbf{x}(t), PE(t), R(t), U_{\text{exog}}(t))$
+    \item Compute $\text{risk}(t)$
+    \item Compute $\mathbf{u}(t)$ with saturation to $[0,1]$
+    \item Apply $\mathbf{u}(t)$ to state dynamics and/or learning updates
+\end{enumerate}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_arc_architecture_v2_cropped.png}
+    \caption{ARC Architecture: The Affective Regulation Core acts as a homeostatic wrapper around the agent, processing internal state, exogenous signals, and applying control actions.}
+    \label{fig:architecture}
+\end{figure}
+
+\subsection{Safety Objective and Control Cost}
+
+ARC enforces a \textit{safe operating region} defined by thresholds $(a_{safe}, s_{safe})$. Deviations increase $\text{risk}(t)$ and trigger proportional intervention. We also measure \textbf{ControlEffort}, the average per-step magnitude of intervention (Appendix D), to capture regulation cost/efficiency.
+
+\subsection{Theoretical Properties}
+
+To formalize the regulation dynamics we state one elementary lemma (the disturbance-rejection property of integral action applied to our leaky scalar abstraction) and one remark contextualising an adaptive-control standard result. We deliberately do not label the adaptive-control statement as a Proposition: it is a straight citation of \cite{Astrom2008} specialised to our controller, not a new result. Our contribution is contextualising these facts for the ASSB setting and linking them to the empirical findings (the windup failure in L5, the benign-scenario drift of \texttt{arc\_adaptive}), not proving the underlying control-theory results.
+
+\paragraph{Lemma 1 (Integral Action Rejects Constant Rumination Pressure).}
+Consider the simplified (unclipped) discrete-time narrative deviation dynamics
+\[
+\tilde{S}_{t+1} = (1-\mu)\tilde{S}_t + d - k\,u_t .
+\]
+where $\tilde{S}_t = S_t - S_0$, $\mu\in(0,1)$ is a leak term, $k>0$ is a control gain, and $d$ is an unknown constant disturbance (persistent rumination pressure).
+
+(i) Under proportional control $u_t = K_p\tilde{S}_t$, the unique equilibrium is $\tilde{S}_\infty = \dfrac{d}{\mu + kK_p}$, which is nonzero whenever $d\neq 0$.
+
+(ii) Under PI control with integral state $z_{t+1}=z_t + \tilde{S}_t$ and control law $u_t = K_p\tilde{S}_t + K_i z_t$, any stable equilibrium necessarily satisfies $\tilde{S}_\infty = 0$ (exact rejection of constant $d$), provided the equilibrium is admissible (no saturation).
+
+\textit{Stability assumption.} Claim (ii) presupposes the closed-loop matrix
+\[
+A_{cl} = \begin{pmatrix} 1-\mu-kK_p & -kK_i \\ 1 & 1 \end{pmatrix}
+\]
+is Schur-stable (all eigenvalues strictly inside the unit disk). This condition defines a non-empty open set of admissible gains $(K_p, K_i)$ for any $\mu\in(0,1)$ and $k>0$, and is easily verified numerically for the gains used in our experiments (Appendix D).
+
+\textit{Proof:} For (i), set $\tilde{S}_{t+1}=\tilde{S}_t=\tilde{S}_\infty$ and solve. For (ii), under the Schur assumption above the augmented state $(\tilde{S}_t, z_t)$ converges to a fixed point; at equilibrium $z_{t+1}=z_t$ implies $\tilde{S}_\infty=0$, and substituting into the state update yields $0=d-k\,u_\infty$, so the integral term supplies the constant offset needed to cancel $d$.
+
+\textit{Remark:} This is a discrete-time instance of the internal model principle: rejecting unknown constant disturbances requires an integrator (or a disturbance observer). Note that $RI$ can be zero even if $\tilde{S}_\infty\neq 0$ as long as $S_t \le s_{safe}$; integral action is mainly required when we demand strict setpoint regulation and is vulnerable to windup under saturation (Section 6.6).
+
+\textit{Critical consequence (theory vs.\ empiricism).} Lemma~1's guarantee holds only while the control signal remains in the interior of the admissible set $[0,1]$. Under adversarial coupling (Section~6.6, L5), the integrator saturates and the internal-model guarantee breaks down --- this is precisely the windup failure mode we observe empirically for \texttt{arc\_lqi} and \texttt{arc\_pid}, and the motivation for the anti-windup augmentations discussed in Section~7.5. In other words, Lemma~1 characterizes the regime where integral action is provably beneficial; our empirical study characterizes the regime where it is not, and why robust/hierarchical extensions are required.
+
+\paragraph{Remark (persistence-of-excitation requirement for the adaptive variant).}
+Standard results in adaptive control (\cite{Astrom2008}, Ch.~2--3) require \textit{persistence of excitation} for reliable parameter convergence: if the regressor vector is not sufficiently rich along the trajectory, the parameter estimator $\hat{\theta}$ can drift indefinitely even when the true parameter is constant. Applied to the \texttt{arc\_adaptive} controller, this predicts poor behaviour in benign scenarios (low variance in the reward / prediction-error signals that drive the estimator) followed by a suboptimal response to a sudden shock, because the estimate has not converged by the time the disturbance arrives. This is a citation of a well-known result, not a contribution: we state it here only because it explains the specific empirical pattern observed for \texttt{arc\_adaptive} in the L1--L3 baseline configurations (Section~7.3, ``Adaptation Paradox''). It does not constitute an original proposition of this paper.
+
+\section{ASSB Benchmark}
+
+\subsection{Scenarios}
+
+ASSB is organized as research lines (L1--L5 in simulation, L6 in RL). The full scenario suite is implemented in \texttt{tasks/scenarios.py}.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/fig_benchmark_ladder.pdf}
+    \caption{ASSB Validation Ladder: A progression from stability tests (L1) to real RL integration (L6).}
+    \label{fig:ladder}
+\end{figure}
+
+% Scenarios table removed/merged into Hypotheses table to match Markdown.
+
+\textit{Note: L4 (Control Efficiency) is evaluated as a cross-cutting analysis across L1-L3 scenarios rather than a dedicated perturbation scenario.}
+
+\subsection{Metrics}
+
+\begin{itemize}
+    \item \textbf{PerfMean}: Average performance over the episode (higher = better; formula in Eq.~\ref{eq:perf}).
+    \item \textbf{RT}: Recovery time post-shock, i.e.\ the number of steps after the perturbation onset $t_{\text{shock}}$ required for PerfMean to return to within 10\% of its pre-shock baseline (lower = better; capped at \texttt{rt\_max} when the criterion is not met; Appendix D.2).
+    \item \textbf{RI}: Rumination Index, defined as the mean of $[S_t - s_{\text{rum}\tau}]^{+}$ over the final 80\% of the horizon, i.e.\ the steady-state narrative excess above the rumination threshold (lower = better; Appendix D.4).
+    \item \textbf{NDR}: Narrative Dominance Ratio, i.e.\ the fraction of steps in which narrative intensity $S_t$ exceeds both the safe threshold $s_{\text{safe}}$ and the cognitive capacity output $C_{\text{cog}}(t)$, indicating that the Default Mode Network proxy is dominating goal-directed processing (lower = better; Appendix D.6).
+    \item \textbf{ControlEffort}: Average $\ell_1$ magnitude of the control action $\mathbf{u}(t)$ per step (lower = more efficient; Appendix D.5).
+\end{itemize}
+
+For L2 continual-learning scenarios, we additionally report \textbf{Retention} (Appendix D.7).
+
+Metric definitions and reference implementations are provided in Appendix D and \texttt{metrics/metrics.py}.
+
+\subsection{Research Lines: Rationale and Hypotheses}
+
+ASSB is designed as a \textit{validation ladder}: each research line increases the realism and degrees of freedom while testing a distinct failure mode that appears when agents carry affect-like internal state. The goal is not to ``win'' a single benchmark, but to establish whether a regulation mechanism is (i) stable under shocks, (ii) preserves learning and memory, (iii) resists perseveration/manipulation dynamics, (iv) remains efficient, and (v) transfers to standard reinforcement learning.
+
+We frame L1--L6 as testable hypotheses about \textit{which component is necessary} and \textit{which metric should change} if regulation is working:
+
+\begin{itemize}
+    \item \textbf{H1 (L1, stability):} under value/uncertainty shocks, regulated agents keep high \textbf{PerfMean} while driving \textbf{RI $\to$ 0} and reducing \textbf{RT} relative to baselines.
+    \item \textbf{H2 (L2, memory):} under distribution shift and goal conflict, memory gating improves \textbf{Retention} without inducing rumination (\textbf{RI}, \textbf{NDR}).
+    \item \textbf{H3 (L3, anti-rumination):} under contradiction/manipulation-like inputs, narrative suppression reduces \textbf{NDR} and \textbf{RI}, preventing dominance loops.
+    \item \textbf{H4 (L4, efficiency):} meta-control reduces \textbf{ControlEffort} while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
+    \item \textbf{H5 (L5, adversarial safety):} when the environment incentivizes high arousal or dopamine traps, regulation maintains low \textbf{RI/NDR} without catastrophic performance collapse.
+    \item \textbf{H6 (L6, real RL):} ARC-modulated tabular learning is associated with higher non-stationary-transfer success rate (primary L6 metric: success rate; Table~\ref{tab:l6_results}). The internal affective dynamics in L6 are not measured at the ASSB-metric level (RI / NDR are defined over the simulated state space and are not directly computed for the GridWorld wrapper); ``affective dynamics bounded'' is therefore a design property of the wrapper (by construction, the arousal/narrative signals it exposes are bounded to $[0,1]$) rather than an independently tested outcome. H6 is reported as directional evidence, not as a parametric-tested effect.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\caption{Research Lines, Failure Modes, and Hypotheses}
+\label{tab:hypotheses}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lllll@{}}
+\toprule
+Line & What it tests & Typical failure mode & Scenarios / environments & Primary metrics \\ \midrule
+L1 & Stability + recovery under perturbation & Post-shock collapse; non-recovery & \texttt{reward\_flip}, \texttt{noise\_burst}, \texttt{sudden\_threat} & PerfMean, RT, RI \\
+L2 & Memory robustness (continual learning) & Catastrophic forgetting; stress overwrite & \texttt{distribution\_shift}, \texttt{goal\_conflict} & Retention, PerfMean, RI \\
+L3 & Anti-rumination under manipulation-like inputs & Narrative dominance loops & \texttt{sustained\_contradiction}, \texttt{gaslighting} & RI, NDR, PerfMean \\
+L4 & Control efficiency & Over-control / wasted intervention & ARC v3 meta vs ARC v1 & ControlEffort, PerfMean, RI \\
+L5 & Safety under adversarial incentives & Goal corruption; arousal-seeking dynamics & \texttt{adversarial\_coupling}, \texttt{random\_dopamine} & RI, NDR, PerfMean \\
+L6 & Integration with RL & Instability in learning; poor transfer & GridWorld variants & Success, reward, stability \\ \bottomrule
+\end{tabular}%
+}
+\end{table}
+
+We consider each hypothesis supported when its primary metrics move in the predicted direction relative to baselines and remain consistent across seeds (and across scenarios where applicable). The strength of the support differs by line: H1--H3 rely on ARC-vs-baseline contrasts where the primary metric (PerfMean; RI on L1) is tested parametrically (Welch t-test, Section~\ref{sec:statistical_analysis}); H4 (meta-control efficiency) and H6 (tabular RL) are reported as \emph{directional} support based on point estimates across 20 seeds, not as parametric hypothesis tests (see Section~\ref{sec:statistical_analysis}, ``Scope of parametric testing''). The distinction is explicit in Section~6 and Table~\ref{tab:significance}.
+
+\section{Experiments}
+
+\subsection{Experimental Protocol and Baselines}
+
+We validate hypotheses H1--H6 (Section 5.3) by running the corresponding research lines and evaluating the primary metrics in Table~\ref{tab:hypotheses}. A hypothesis is treated as supported when its primary metrics change in the predicted direction relative to baselines consistently across seeds; for H1--H3 this support is backed by parametric significance tests on the headline PerfMean/RI contrasts (Section~\ref{sec:statistical_analysis}), while for H4 (meta-control) and H6 (tabular RL) the support is directional (point estimates across 20 seeds, no parametric test reported; see Section~\ref{sec:statistical_analysis}, ``Scope of parametric testing'').
+
+\textbf{Simulation (L1--L5).} We use \texttt{configs/v2.yaml} with horizon $H=160$, perturbation onset $\text{shock}_t=60$, and 20 random seeds. Tables report mean metrics across seeds (and, when aggregated, across scenarios). Recovery Time (RT) is capped at \texttt{rt\_max} when the strict recovery criterion is not met (Appendix D.2).
+
+\textbf{Controllers (simulation).} Implemented in \texttt{controllers/controllers.py}:
+\begin{itemize}
+    \item \texttt{no\_control}: no regulation ($\mathbf{u}=0$; memory gate open)
+    \item \texttt{naive\_calm}: arousal-only damping ($u_{calm}$ proportional to $A-a_{safe}$)
+    \item \texttt{perf\_optimized}: a competitive baseline that boosts attention ($u_{att}$ constant) but does not regulate affect/narrative
+    \item \texttt{arc\_v1}: proportional risk controller (ARC v1)
+    \item \texttt{arc\_v2\_hier}, \texttt{arc\_v3\_meta}: hierarchical and meta-control variants used where indicated
+\end{itemize}
+
+\textbf{Reinforcement learning (L6).} We integrate ARC with tabular Q-learning \cite{Watkins1992, Sutton2018} in three GridWorld variants. Success rates are computed over the last 20\% of training episodes (see \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+
+\subsection{L1: Stability Under Perturbation (Simulation)}
+
+\textbf{Hypothesis (H1):} Under value/uncertainty shocks, regulated agents keep high \textbf{PerfMean} while driving \textbf{RI $\to$ 0} and reducing \textbf{RT} relative to baselines.
+
+\textbf{Setup:} 20 seeds $\times$ 3 scenarios $\times$ 4 controllers (\texttt{reward\_flip}, \texttt{noise\_burst}, \texttt{sudden\_threat})
+
+\textbf{Results (L1):} As shown in Table \ref{tab:l1_results}:
+
+\begin{table}[htbp]
+\centering
+\caption{L1 Stability Results (mean across 3 L1 scenarios $\times$ 20 seeds). RT values are means over the scenario triplet and include, for any seed/scenario where the strict recovery criterion is not met within the evaluation window, a right-censoring at $\texttt{rt\_max}=100$ (Appendix~D.2); hence RT $=100.0$ in a row means ``no recovery under the strict criterion for any L1 scenario / seed'', not a literal $100$-step recovery. For ARC, the cell RT $=45.2$ is dominated by fast recovery on \texttt{reward\_flip} and \texttt{noise\_burst}, with censoring only on \texttt{sudden\_threat}; per-scenario breakdowns are in Appendix~G.1.}
+\label{tab:l1_results}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Controller & PerfMean & RI & RT \\ \midrule
+arc\_v1 & \textbf{0.966} & \textbf{0.00} & 45.2 \\
+no\_control & 0.297 & 1.41 & 100.0 \\
+naive\_calm & 0.375 & 1.41 & 66.7 \\
+perf\_optimized & 0.862 & 1.39 & 100.0 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key finding:} In L1 stability scenarios, ARC v1 eliminates rumination (RI=0.00) while achieving \textbf{96.6\%} average performance (PerfMean = 0.966), compared to 29.7\% for uncontrolled agents. Note that RI=0 holds for ARC v1 in L1 specifically; across all scenarios (L1--L5), the proportional controller exhibits RI=0.15 on aggregate (Table~\ref{tab:controller_comparison}), while controllers with integral action maintain RI=0 globally. RT is scenario-dependent: ARC recovers quickly in \texttt{reward\_flip}, more slowly in \texttt{noise\_burst}, and does not fully return to the pre-shock baseline in \texttt{sudden\_threat} under the strict RT definition (Appendix D.2), despite maintaining high PerfMean. The aggregate RT values for \texttt{no\_control} and \texttt{perf\_optimized} (both 100.0 in Table~\ref{tab:l1_results}) similarly reflect this strict criterion: when the trajectory never re-enters the pre-shock band within the episode horizon, RT is capped at \texttt{rt\_max} regardless of controller --- so the row RT=100 indicates ``no recovery detected under the strict criterion'' rather than a metric-saturation artefact specific to ARC.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/ablation_summary.png}
+    \caption{Ablation summary (\texttt{reward\_flip}, L1): removing DMN suppression (\texttt{u\_dmg}) causes rumination and non-recovery, indicating DMN control is necessary for stability under value shocks.}
+    \label{fig:ablation}
+\end{figure}
+
+\subsection{L2: Memory \& Continual Learning (Simulation)}
+
+\textbf{Hypothesis (H2):} Under distribution shift and goal conflict, memory gating improves \textbf{Retention} without inducing rumination (\textbf{RI}, \textbf{NDR}).
+
+\textbf{Setup:} 20 seeds $\times$ 2 scenarios (\texttt{distribution\_shift}, \texttt{goal\_conflict}) $\times$ 4 controllers
+
+\textbf{Results (distribution\_shift):} The results are summarized in Table \ref{tab:l2_results}:
+
+\begin{table}[htbp]
+\centering
+\caption{L2 Memory Results (distribution\_shift)}
+\label{tab:l2_results}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Controller & PerfMean & Retention & RI \\ \midrule
+arc\_v1 & \textbf{0.972} & \textbf{1.00} & \textbf{0.00} \\
+no\_control & 0.199 & 0.00 & 1.41 \\
+naive\_calm & 0.276 & 0.15 & 1.41 \\
+perf\_optimized & 0.869 & 0.94 & 1.39 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key finding:} ARC maintains near-perfect retention after a distribution shift while keeping rumination at zero; baselines either forget (low retention) or retain with severe rumination.
+
+\subsection{L3: Anti-Rumination Stress Tests (Simulation)}
+
+\textbf{Hypothesis (H3):} Under contradiction/manipulation-like inputs, narrative suppression reduces \textbf{NDR} and \textbf{RI}, preventing dominance loops.
+
+\textbf{Setup:} 20 seeds $\times$ 3 scenarios (\texttt{sustained\_contradiction}, \texttt{gaslighting}, \texttt{instruction\_conflict}) $\times$ 4 controllers (see Table \ref{tab:l3_results}).
+
+\begin{table}[htbp]
+\centering
+\caption{L3 Anti-Rumination Results}
+\label{tab:l3_results}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Scenario & Controller & PerfMean & RI & NDR \\ \midrule
+sustained\_cont & arc\_v1 & \textbf{0.817} & \textbf{0.00} & \textbf{0.00} \\
+sustained\_cont & no\_control & 0.014 & 1.47 & 0.99 \\
+gaslighting & arc\_v1 & \textbf{0.980} & \textbf{0.00} & \textbf{0.00} \\
+gaslighting & no\_control & 0.171 & 1.43 & 0.88 \\
+instruction\_conf & arc\_v1 & \textbf{0.826} & 0.36 & \textbf{0.00} \\
+instruction\_conf & no\_control & 0.034 & 1.45 & 0.97 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key finding:} Under sustained contradiction and manipulation-like inputs, uncontrolled agents enter high-NDR rumination loops; ARC keeps narrative dominance near zero and preserves performance.
+
+\subsection{L4: Meta-Control Efficiency}
+
+\textbf{Hypothesis (H4):} Meta-control reduces \textbf{ControlEffort} while maintaining performance/stability (a Pareto improvement vs fixed-gain control).
+
+\textbf{Setup:} ARC v3 (gain scheduling) vs ARC v1 (see Table \ref{tab:l4_results}).
+
+\begin{table}[htbp]
+\centering
+\caption{L4 Meta-Control Efficiency (aggregate)}
+\label{tab:l4_results}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Controller & PerfMean & RI & ControlEffort \\ \midrule
+arc\_v3\_meta & \textbf{0.941} & 0.090 & \textbf{0.615} \\
+arc\_v1 & 0.934 & 0.148 & 0.777 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key finding:} Meta-control reduces control effort by \textbf{20.9\%} (from 0.777 to 0.615 on the aggregate across 10 scenarios) while slightly improving aggregate performance (+0.7\%). The aggregate RI drops from 0.148 to 0.090 ($-39\%$ relative), but this figure should be read carefully: both aggregates include scenarios (L1 \texttt{reward\_flip}, \texttt{noise\_burst}) where both controllers already have RI $=0$ and therefore contribute zero to the difference; the reduction is concentrated in the harder scenarios (\texttt{random\_dopamine}: $1.12 \rightarrow 0.26$; \texttt{instruction\_conflict}: $0.36 \rightarrow 0.25$, per Tables~\ref{tab:g8_instruction_conflict} and~\ref{tab:g11_random_dopamine}), so ``$-39\%$ on aggregate'' is a mean-of-means that mixes zero-difference and large-difference cells. Per-scenario breakdowns are in Appendix~G; a non-parametric summary (median of per-scenario ratios) is left as future work.
+
+\subsection{L5: Safety Under Adversarial Conditions (Simulation)}
+
+\textbf{Hypothesis (H5):} When the environment incentivizes high arousal or dopamine traps, regulation maintains low \textbf{RI/NDR} without catastrophic performance collapse.
+
+\textbf{Setup:} Adversarial environments (\texttt{adversarial\_coupling}, \texttt{random\_dopamine}), 20 seeds (results in Table \ref{tab:l5_results}).
+
+\begin{table}[htbp]
+\centering
+\caption{L5 Adversarial Safety Results (selected controllers including failure cases)}
+\label{tab:l5_results}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Scenario & Controller & PerfMean & RI & NDR \\ \midrule
+adversarial\_coupling & arc\_v1 & \textbf{0.963} & \textbf{0.00} & \textbf{0.00} \\
+adversarial\_coupling & arc\_v3\_meta & 0.914 & 0.16 & 0.00 \\
+adversarial\_coupling & no\_control & 0.409 & 1.47 & 0.96 \\
+adversarial\_coupling & arc\_v1\_pid$^\dagger$ & 0.139 & 0.00 & 0.00 \\
+adversarial\_coupling & arc\_v1\_lqi$^\dagger$ & 0.139 & 0.01 & 0.00 \\
+adversarial\_coupling & arc\_ultimate$^\dagger$ & 0.134 & 0.01 & 0.00 \\
+\midrule
+random\_dopamine & arc\_v3\_meta & \textbf{0.905} & 0.26 & \textbf{0.00} \\
+random\_dopamine & arc\_v1 & 0.897 & 1.12 & 0.58 \\
+random\_dopamine & no\_control & 0.040 & 1.46 & 0.95 \\ \bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\footnotesize{$^\dagger$ Integral controller collapse: performance \textit{below} the uncontrolled baseline due to integral windup (see text).}
+\end{table}
+
+\textbf{Key finding:} ARC maintains stability even under adversarial attack. However, we discovered a \textbf{critical failure mode}: controllers with strong integral action (PID, LQI, Ultimate) \textbf{collapse} in \texttt{adversarial\_coupling} (performance $< 0.20$), performing worse than the uncontrolled agent (0.41). This occurs because the environment rewards high arousal, causing the integral term to accumulate error indefinitely (``integral windup'') and excessively suppress agent activity. The full per-controller breakdown is provided in Appendix G.5 (Table~\ref{tab:g10_adversarial_coupling}). This finding suggests that for adversarial defense, proportional or robust controllers are strictly superior to integral ones, and that \textbf{H5 is only partially supported}: regulation preserves safety (low RI/NDR) for non-integral controllers, but integral variants exhibit catastrophic performance collapse.
+
+\subsection{L6: Real RL Validation}
+
+\textbf{Hypothesis (H6):} ARC-modulated tabular learning is associated with higher non-stationary-transfer success rate (primary L6 metric: success rate; Table~\ref{tab:l6_results}). The internal affective dynamics in L6 are not measured at the ASSB-metric level (RI / NDR are defined over the simulated state space and are not directly computed for the GridWorld wrapper); ``affective dynamics bounded'' is therefore a design property of the wrapper (by construction, the arousal/narrative signals it exposes are bounded to $[0,1]$) rather than an independently tested outcome. H6 is reported as directional evidence, not as a parametric-tested effect.
+
+\textbf{Setup:} Q-Learning + ARC integration in GridWorld environments, 20 seeds $\times$ 200 episodes (success computed over last 20\% of episodes; see Table \ref{tab:l6_results} and \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+
+\begin{table}[htbp]
+\centering
+\caption{L6 RL Validation Results (Success Rates)}
+\label{tab:l6_results}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Environment & Baseline Success & ARC Success & Improvement \\ \midrule
+GridWorld & 100\% & 100\% & 0\% \\
+StochasticGridWorld & 100\% & 100\% & 0\% \\
+\textbf{ChangingGoalGridWorld} & 39.9\% & \textbf{59.8\%} & \textbf{+49.8\%} \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key finding:} In non-stationary environments, the integrated ARC-RL wrapper improves transfer-learning success on \texttt{ChangingGoalGridWorld} (39.9\% $\rightarrow$ 59.8\%, $+49.8\%$ relative). This is a point estimate from 20 seeds; we do not report a parametric significance test for the L6 block (the other two environments, \texttt{GridWorld} and \texttt{StochasticGridWorld}, are at the 100\% ceiling for both baseline and ARC, so a suite-level comparison reduces to the single non-saturated environment, and we present the result as directional evidence rather than as a hypothesis-tested effect). The ablation study in \texttt{ChangingGoalGridWorld} isolates the contribution of each mechanism (Table \ref{tab:l6_ablation}).
+The ablation values are computed from the same L6 run artifacts (\texttt{outputs\_L6\_robust/summary.csv}, \texttt{outputs\_L6\_robust/raw\_results.csv}).
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\caption{L6 Ablation Results (ChangingGoalGridWorld)}
+\label{tab:l6_ablation}
+\begin{tabular}{lrr}
+    \toprule
+    Agent Configuration & Success Rate & Final Reward (mean) \\
+    \midrule
+    Vanilla Q-Learning (Baseline) & 39.9\% & -0.40 \\
+    ARC (Memory Gating only) & \textbf{71.8\%} & \textbf{0.24} \\
+    ARC (Shift Detection only) & 65.6\% & 0.13 \\
+    ARC Full Wrapper (Both) & 59.8\% & -0.02 \\
+    \bottomrule
+\end{tabular}
+\end{table}
+
+The results reveal that \textbf{memory gating} alone achieves the highest individual success rate (71.8\%), suggesting that protecting learned knowledge from catastrophic overwriting is the dominant factor in non-stationary tasks. \textbf{Shift detection} alone also outperforms the baseline (65.6\% vs.\ 39.9\%). Interestingly, combining both mechanisms (59.8\%) underperforms either component in isolation. We \emph{hypothesize} a sub-additive interaction (shift detection increases exploration precisely when memory gating attempts to protect existing knowledge, creating opposing pressures on the learning rate), but emphasise that this is a post-hoc mechanistic reading, not a causal result: an ablation of the composition timing (e.g.\ activating memory gating only outside of detected shifts) would be needed to isolate the effect, and is left as future work.
+
+\paragraph{Negative result: DQN plasticity wrapper (scope boundary).}
+To probe external validity beyond tabular Q-learning, we ran a 10-seed Deep RL suite using Stable-Baselines3 DQN with an ARC-plasticity wrapper that modulates learning rate, exploration, replay sampling, and update gating based on ARC regulation signals. On both \texttt{NonStationaryCartPole} and \texttt{CatastrophicForgettingEnv}, \textbf{ARC-plasticity underperformed baseline DQN} on mean reward and success rate (Appendix~\ref{sec:dqn_suite}, Table~\ref{tab:g13_l6b_dqn}). ARC-plasticity did reduce reward variance (consistent with the stabilising effect observed in simulation), but at a substantial performance cost that we attribute to (i)~gradient-flow disruption from update gating, (ii)~replay-distribution interference from shift-aware sampling, and (iii)~hyperparameter mismatch between ASSB calibration and the CartPole reward scale. We report this negative finding transparently and use it to delineate ARC's current applicability boundary: \emph{the mechanisms validated in L6 transfer to tabular RL but require architectural redesign for gradient-based learners} (Section~\ref{sec:future_work}). This motivates soft-modulation alternatives (learning-rate scaling, loss reweighting) and agent-level deployments where internal state is explicit rather than emergent (e.g., LLM-based cognitive agents \cite{Damian2026b}).
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/learning_curves.png}
+    \caption{Learning curves comparing ARC-modulated Q-learning (cyan) vs baseline Q-learning (orange) across GridWorld, StochasticGridWorld, and ChangingGoalGridWorld. Shaded regions show $\pm$1 std across 20 seeds.}
+    \label{fig:learning_curves}
+\end{figure}
+
+\subsection{Statistical Analysis}\label{sec:statistical_analysis}
+To ensure rigor, we performed comprehensive statistical analysis across all experiments.
+
+\subsubsection{Significance Tests}
+We conducted Welch's independent two-sample t-tests (unequal variances assumed) comparing ARC vs baseline (no\_control) for each metric and research line (Table \ref{tab:significance}). Given 5 simultaneous comparisons, we applied Bonferroni correction ($\alpha_{adj} = 0.05/5 = 0.01$); all reported p-values remain significant under this stricter threshold by several orders of magnitude. Effect sizes are reported as Cohen's d; bootstrap-based 95\% confidence intervals are not inlined in Table~\ref{tab:significance} (the effects are large enough that the intervals are very far from crossing zero, and full per-seed data is released in the reproducibility package for readers who wish to recompute them).
+
+\textbf{Sample size.} We use 20 seeds per (controller, scenario) cell, selected to detect Cohen's $d \geq 0.8$ (``large'' effect) with statistical power $\geq 0.95$ at $\alpha = 0.01$ under conservative variance assumptions. Post-hoc observed effect sizes (Cohen's $d > 7$ for RI and PerfMean on L1--L3) far exceed this threshold, so the conclusions are not power-limited.
+
+\textbf{Dispersion reporting.} To keep the main-text tables compact, we report per-cell means; within-group dispersion is summarized by the Cohen's $d$ and p-values in Table~\ref{tab:significance} and visualized by the controller-comparison plots (Figure~\ref{fig:perf_rum}, Figure~\ref{fig:tradeoff_effort}). Scenario-level 3-decimal aggregates (which implicitly expose between-scenario variance for each controller) are provided in Appendix~G (Tables~\ref{tab:g1_reward_flip}--\ref{tab:g11_random_dopamine}). Per-seed CSV outputs with full std / IQR for every (controller, scenario, metric) cell are released with the reproducibility package; we elected not to inline these in the body tables because the 20-seed $\times$ 15-controller $\times$ 10-scenario $\times$ 4-metric grid would compromise readability.
+
+\begin{table}[htbp]
+\centering
+\caption{Statistical Significance Analysis (ARC vs Baseline)}
+\label{tab:significance}
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+Line & Metric & ARC Mean & Baseline Mean & p-value & Cohen's d & Sig. \\ \midrule
+L1 & PerfMean & 0.966 & 0.297 & $2.84 \times 10^{-86}$ & 10.11 & *** \\
+L1 & RI & 0.00 & 1.41 & ---$^\dagger$ & ---$^\dagger$ & ---$^\dagger$ \\
+L2 & PerfMean & 0.972 & 0.283 & $9.78 \times 10^{-154}$ & 11.45 & *** \\
+L3 & PerfMean & 0.935 & 0.204 & $2.77 \times 10^{-182}$ & 7.08 & *** \\
+L5 & PerfMean & 0.943 & 0.208 & $< 10^{-200}$ & 8.41 & *** \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textit{All comparisons reported numerically are statistically significant (p $<$ 0.001). Cohen's d values indicate extremely large effect sizes (d $>$ 0.8 is considered ``large''). $^\dagger$For the L1--RI row we deliberately do not report a parametric p-value, Cohen's d, or a significance marker: the ARC group yields RI $= 0$ on all 20 seeds, so the within-group variance is zero by construction, and Welch's t-test is not well-posed under this condition (the test statistic diverges). We instead report bounded, distribution-free effect-size measures, which are well-defined: probability of superiority $\Pr(X_{\text{baseline}} > X_{\text{ARC}}) = 1.00$ and Cliff's $\delta = 1.00$, indicating complete (non-overlapping) separation of the two distributions. The substantive conclusion --- that integral ARC controllers drive rumination to zero with vanishing variance in these scenarios --- is carried entirely by these distribution-free measures and does not depend on any parametric test.}
+
+\textbf{Scope of parametric testing.} Table~\ref{tab:significance} reports parametric (Welch) tests for the primary stability/performance contrast on L1--L3 and L5, i.e.\ the ARC vs.\ baseline comparison on PerfMean (and RI on L1). It does \emph{not} report parametric tests for every cell of every metric: we do not run Welch tests on RT, NDR, Retention, or ControlEffort in the main text, and we explicitly do not run parametric tests on the L6 / L6b RL blocks (Section~6.7, Appendix~\ref{sec:dqn_suite}). For those metrics, our claim is not ``statistically significant difference'' but ``directional effect in the hypothesized direction, consistent with the means and dispersion visible in the per-scenario appendix tables and the bounded effect-size measures on RI''. When we describe H1--H6 as ``supported'' (Section~5.3, Section~6.9), the intended reading is: the primary pre-registered metrics for each line move in the predicted direction; the parametric tests in Table~\ref{tab:significance} cover the headline PerfMean/RI contrasts; for secondary metrics and for L6, support is directional, not formally tested. A full per-metric, per-scenario parametric analysis (with multiple-comparison correction) is left as future work.
+
+\subsubsection{Correlation Analysis}
+We analyzed correlations between metrics to understand system dynamics. Table~\ref{tab:correlations} reports three pairs pre-selected by \emph{theoretical relevance} (each probes a specific hypothesis from Section~5.3: PerfMean--RI addresses whether rumination costs performance; RI--NDR cross-validates two narrative-loop measures; RT--RI tests whether slow recovery and rumination co-occur). The full $11\times 11$ correlation matrix across all ASSB metrics is available in Figure~\ref{fig:correlation_combined}, where additional strong pairs (e.g.\ ControlEffort--PerfMean, Retention--PerfMean) are visible and discussed in Appendix~E but not highlighted here to avoid multiple-comparison inflation.
+
+\begin{table}[htbp]
+\centering
+\caption{Correlation Analysis summarized across all experimental runs}
+\label{tab:correlations}
+\begin{tabular}{@{}lcl@{}}
+\toprule
+Metric Pair & Correlation (r) & Interpretation \\ \midrule
+PerfMean $\leftrightarrow$ RI & \textbf{-0.589} & Higher rumination tends to reduce performance \\
+RI $\leftrightarrow$ NDR & \textbf{+0.92} & Rumination and narrative dominance co-occur \\
+RT $\leftrightarrow$ RI & \textbf{+0.44} & Slower recovery correlates with rumination \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key insight:} Across controllers and scenarios, higher Rumination Index (RI) tends to reduce mean performance. However, some optimal controllers (e.g., LQR) can sustain high PerfMean while exhibiting high RI, because PerfMean includes narrative-modulated capacity (Appendix B). This motivates reporting RI as a separate safety metric.
+
+\textbf{Pooling caveat (Simpson's paradox risk).} The correlations above are pooled across controller families with structurally different behaviour. The LQR family sustains high PerfMean with high RI, while integral-augmented controllers drive RI to zero irrespective of PerfMean; these two populations push the pooled PerfMean--RI slope in opposite directions, and the pooled value $r=-0.589$ is closer to a weighted mean of within-family slopes than to a description of any individual family. We therefore report the pooled correlations as summary statistics only; per-family correlations may differ substantially and in principle can reverse sign. A controller-family-stratified correlation analysis is left as future work; readers who wish to re-partition can do so directly from the per-seed CSVs released with the reproducibility package.
+
+\subsubsection{Robustness Analysis}
+Finally, our state dynamics are designed for functional plausibility rather than biological fidelity, and formal stability analysis (e.g., Lyapunov proofs) remains future work. The current validation relies on empirical benchmarking across a wide range of conditions:
+\begin{itemize}
+    \item \textbf{L1-L5 trend:} ARC variants outperform baselines in most evaluated settings, with a known exception under \texttt{adversarial\_coupling} where integral controllers collapse.
+    \item \textbf{Variance:} ARC controllers generally exhibit lower \emph{within-scenario} variance (variance across seeds on a fixed scenario), indicating more consistent behavior at the seed level. This does \emph{not} extend to \emph{between-scenario} variance: \texttt{arc\_adaptive}, for example, swings from PerfMean $\approx 0.998$ on \texttt{reward\_flip} to $\approx 0.193$ on \texttt{adversarial\_coupling} --- a between-scenario range larger than \texttt{no\_control}. The ``lower variance'' claim here refers only to the seed-level boxplot tightness visible in Figure~\ref{fig:perf_rum}, not to cross-scenario robustness, which is the object of the three-criterion test in Table~\ref{tab:three_criterion_test}.
+    \item \textbf{Scenario difficulty:} \texttt{sustained\_contradiction} is hardest (lowest ARC PerfMean: 0.817); \texttt{gaslighting} is easiest (0.980)
+\end{itemize}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/sensitivity_controller.png}
+    \caption{Performance distribution by controller type. ARC variants (blue) consistently outperform baselines (red) with smaller variance.}
+    \label{fig:sensitivity}
+\end{figure}
+
+\subsection{Controller Architecture Comparison}
+
+Beyond the basic proportional controller (ARC v1), we implemented and evaluated multiple control architectures inspired by classical and modern control theory. Table~\ref{tab:controller_comparison} summarizes results across all 15 controllers (20 seeds $\times$ 10 scenarios; L1--L3, L5).
+
+\begin{table}[htbp]
+\centering
+\caption{Controller Architecture Comparison (20 seeds $\times$ 10 L1--L3 / L5 scenarios). Values are rounded to 2 decimals for readability; the 3-decimal canonical figures from which these are derived appear in Table~\ref{tab:l4_results} (L4 meta-control subset) and Table~\ref{tab:g9_meta_control} (aggregate), so e.g.\ \texttt{arc\_v1} RI $=0.15$ here corresponds to $0.148$ in Table~\ref{tab:g9_meta_control}, and \texttt{arc\_v3\_meta} effort $=0.61$ here to $0.615$.}
+\label{tab:controller_comparison}
+\footnotesize
+\begin{adjustbox}{max width=0.88\textwidth}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+Controller & Type & PerfMean & RI & Overshoot & ControlEffort \\ \midrule
+no\_control & Baseline & 0.21 & 1.43 & 0.40 & 0.00 \\
+naive\_calm & Baseline & 0.24 & 1.44 & 0.16 & 0.26 \\
+perf\_optimized & Baseline & 0.85 & 1.43 & 0.40 & 0.70 \\
+arc\_v1 & P & 0.93 & 0.15 & 0.29 & 0.78 \\
+arc\_v1\_pid & PID & 0.87 & \textbf{0.00} & \textbf{0.00} & 2.40 \\
+arc\_v1\_lqr & LQR & \textbf{0.96} & 1.42 & 0.14 & 0.88 \\
+arc\_v1\_lqi & LQR+I & 0.88 & \textbf{0.00} & \textbf{0.00} & 1.14 \\
+arc\_v2\_hier & Hierarchical & 0.93 & 1.22 & 0.29 & 0.65 \\
+arc\_v2\_lqi & Hier+LQI & 0.88 & \textbf{0.00} & \textbf{0.00} & 1.14 \\
+arc\_v3\_meta & Meta & 0.94 & 0.09 & 0.17 & \textbf{0.61} \\
+arc\_v3\_pid\_meta & PID+Meta & 0.91 & \textbf{0.00} & 0.24 & 1.57 \\
+arc\_v3\_lqr\_meta & LQR+Meta & 0.84 & 1.44 & 0.32 & 0.94 \\
+arc\_robust & H$\infty$ & \textbf{0.95} & \textbf{0.00} & 0.18 & 1.03 \\
+arc\_adaptive & Adaptive & 0.91 & \textbf{0.00} & \textbf{0.00} & 1.83 \\
+arc\_ultimate & MPC+LQI & 0.89 & \textbf{0.00} & \textbf{0.01} & 1.33 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\textbf{Key findings:}
+\begin{enumerate}
+    \item \textbf{LQR achieves highest performance} (0.96) but at the cost of high rumination (RI $>$ 1.3), demonstrating that blindly optimizing the mathematical state does not necessarily eliminate pathological loops.
+    \item \textbf{PID/LQI variants eliminate rumination} (RI=0) in stochastic environments but \textbf{collapse under adversarial coupling} (PerfMean $< 0.14$; see Section 6.6 and Table~\ref{tab:g10_adversarial_coupling}), performing worse than the uncontrolled agent due to integral windup.
+    \item \textbf{Meta-control is most efficient among ARC variants} (0.61 effort) while maintaining high performance. (Note: \texttt{naive\_calm} has lower raw effort at 0.26 but achieves only 0.24 PerfMean, making meta-control the most efficient \textit{effective} controller.)
+    \item \textbf{H$\infty$ Robust is the only ARC variant that passes the three-criterion consistency test} defined below (Table~\ref{tab:three_criterion_test}): high performance on L1--L3, zero rumination on L1--L5 \emph{including} adversarial coupling, and no collapse below the uncontrolled baseline on any scenario. This is the operational meaning of ``best overall balance'' in the abstract.
+    \item \textbf{Trade-off exists} between performance and anti-rumination: integral controllers sacrifice $\sim$5\% performance to eliminate perseverative loops.
+\end{enumerate}
+
+\paragraph{Operational definition of ``best overall balance''.} Rather than using an ad-hoc scalarization, we verify against three falsifiable criteria computed directly from Table~\ref{tab:controller_comparison} and the appendix per-scenario tables:
+\begin{itemize}
+    \item \textbf{C1 (high performance):} PerfMean $\geq 0.93$ on each of the L1--L3 scenarios individually (not just in aggregate).
+    \item \textbf{C2 (zero rumination):} RI $=0$ aggregated across L1--L5, \emph{and} RI $=0$ specifically on \texttt{adversarial\_coupling} (the windup stress test).
+    \item \textbf{C3 (no collapse):} PerfMean above the uncontrolled baseline (PerfMean $=0.409$ on \texttt{adversarial\_coupling}, PerfMean $\approx 0.30$ on L1) on every scenario.
+\end{itemize}
+Applying these criteria to all 15 controllers mechanically: C1 is checked against the per-scenario L1--L3 tables (Tables~\ref{tab:g1_reward_flip},~\ref{tab:g2_noise_burst},~\ref{tab:g3_sudden_threat} for L1; Tables~\ref{tab:g4_distribution_shift},~\ref{tab:g5_goal_conflict} for L2; Tables~\ref{tab:g6_sustained_contradiction},~\ref{tab:g7_gaslighting},~\ref{tab:g8_instruction_conflict} for L3), C2 against the L5 adversarial-coupling table (Table~\ref{tab:g10_adversarial_coupling}) and the aggregate RI column of Table~\ref{tab:controller_comparison}, and C3 against Table~\ref{tab:g10_adversarial_coupling} (baseline PerfMean $=0.409$ on \texttt{adversarial\_coupling}) plus the L1 rows of Table~\ref{tab:l1_results}. The resulting verdict is:
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Three-criterion consistency test for ARC controllers. Only controllers that pass all three are listed as passing.}
+\label{tab:three_criterion_test}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Controller & Type & C1 & C2 & C3 & All three? \\ \midrule
+\texttt{arc\_robust}    & H$\infty$     & \checkmark & \checkmark & \checkmark & \textbf{Yes} \\
+\texttt{arc\_v1}        & P             & \checkmark & $\times$    & \checkmark & No \\
+\texttt{arc\_v1\_pid}   & PID           & $\times$    & \checkmark & $\times$    & No (windup) \\
+\texttt{arc\_v1\_lqi}   & LQR+I         & $\times$    & \checkmark & $\times$    & No (windup) \\
+\texttt{arc\_v2\_hier}  & Hierarchical  & \checkmark & $\times$    & \checkmark & No \\
+\texttt{arc\_v3\_meta}  & Meta          & \checkmark & $\times$    & \checkmark & No \\
+\texttt{arc\_v3\_pid\_meta} & PID+Meta  & $\times$    & \checkmark & \checkmark & No \\
+\texttt{arc\_adaptive}  & Adaptive      & \checkmark & \checkmark & $\times$    & No (collapses in L5) \\
+\texttt{arc\_ultimate}  & MPC+LQI       & $\times$    & \checkmark & $\times$    & No (windup) \\ \bottomrule
+\end{tabular}
+\end{table}
+Only \texttt{arc\_robust} passes the three criteria simultaneously, which is the precise sense in which we describe it as achieving the ``best overall balance'' in the abstract. Note that \texttt{arc\_v3\_pid\_meta} fails C1 on \texttt{sustained\_contradiction} (PerfMean $=0.753 < 0.93$; see Table~\ref{tab:g6_sustained_contradiction}); \texttt{arc\_adaptive} and all integral-only variants fail C3 on \texttt{adversarial\_coupling}. The criteria and their verification are deliberately simple so they can be re-checked by any reader directly from the tables.
+
+These results suggest that practical deployment should consider the application context: high-stakes scenarios may favor robust controllers, while resource-constrained settings benefit from meta-control efficiency.
+
+\subsubsection{Visual Comparisons}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_performance.png}
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_rumination.png}
+    \caption{(Left) PerfMean across 15 controllers, aggregated over the 10-scenario suite (L1--L3, L5). (Right) Rumination Index (RI) across the same controllers and suite. Each bar is the mean across 20 seeds; the figures are intended to show gross-order patterns (which controller families dominate each axis) rather than precise cell values, which are given numerically in Table~\ref{tab:controller_comparison} and at 3-decimal precision in Appendix~G. Readers who need to audit specific values should consult the tables; the figures are a visual summary.}
+    \label{fig:perf_rum}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_tradeoff.png}
+    \includegraphics[width=0.48\textwidth]{figures/fig_controller_effort.png}
+    \caption{(Left) Trade-off between performance and anti-rumination; points are the 15 controllers, axes are aggregated PerfMean and $-\text{RI}$, so the upper-right corner represents simultaneously high performance and low rumination. The informal Pareto front (H$\infty$ Robust, ARC Ultimate, LQI variants) is visible but this is a visual observation, not a fitted Pareto frontier. (Right) ControlEffort comparison across all 15 controllers. Note: \texttt{arc\_v3\_meta} achieves the lowest effort among \textit{effective} ARC controllers (0.61); \texttt{naive\_calm} has lower raw effort (0.26) but negligible performance (0.24). Exact values in Tables~\ref{tab:l4_results},~\ref{tab:controller_comparison}.}
+    \label{fig:tradeoff_effort}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.72\textwidth]{figures/fig_controller_radar.png}
+    \caption{Multi-dimensional comparison of the top 5 controllers on aggregate metrics (PerfMean, $-$RI, $-$RT, $-$Overshoot). \texttt{arc\_robust} attains the largest polygon on this aggregate view. \texttt{arc\_ultimate} also looks strong on the aggregate axes, but this is a view averaged over the 10-scenario suite and hides two important facts: (i) its aggregate ControlEffort (1.33) is among the highest of all 15 controllers, so it is not ``near-optimal in efficiency''; (ii) it collapses on \texttt{adversarial\_coupling} (PerfMean $=0.134$, see Table~\ref{tab:g10_adversarial_coupling}) due to integral windup. This radar view should therefore be read as an aggregate summary, not as a claim of robustness across all scenarios; the three-criterion test in Table~\ref{tab:three_criterion_test} is the definitive statement on consistency.}
+    \label{fig:radar}
+\end{figure}
+\FloatBarrier
+
+\section{Discussion}
+
+\subsection{Interpretation}
+
+Our results support the hypothesis that \textbf{agents with internal affective states require explicit regulation}. Without regulation, perturbations cause cascading failures---arousal drives narrative gain toward saturation, degrading performance in a rumination-like loop.
+
+ARC breaks this loop through:
+\begin{enumerate}
+    \item \textbf{Proportional risk monitoring} (uncertainty, arousal, narrative)
+    \item \textbf{DMN suppression} (anti-rumination)
+    \item \textbf{Memory gating} (protect learned knowledge under stress)
+    \item \textbf{Gain scheduling} (efficient resource allocation)
+\end{enumerate}
+
+\subsection{Implications for AI Safety}
+
+The present study validates ARC in a restricted setting: a 10-dimensional simulated state space (L1--L5) and two tabular GridWorld variants (L6). Within that setting, we observe three concrete failure modes that uncontrolled affective-like dynamics exhibit and that closed-loop regulation mitigates:
+\begin{itemize}
+    \item \textbf{Rumination loops:} perseverative processing, captured here by the Rumination Index on L3 / L5;
+    \item \textbf{Stress-induced destabilization:} external perturbations producing sustained above-threshold narrative intensity, captured by PerfMean collapse on L1--L3 baselines;
+    \item \textbf{Memory overwrite under shift:} catastrophic forgetting when distribution shifts are not gated, captured by the Retention metric on L2.
+\end{itemize}
+We \emph{hypothesize} that analogous failure modes would apply to future AI systems that maintain persistent internal affective-like states, and that closed-loop regulation of those states is a candidate mitigation; but this generalization is beyond the scope of what the present experiments demonstrate. The direct scope of our evidence is the ASSB benchmark and the tabular L6 wrapper --- extension to deep RL, to language-model-based agents, and to systems with more realistic (non-linear, multi-timescale, high-dimensional) internal dynamics is future work, and the scalability failure observed in the L6b DQN suite (Appendix~\ref{sec:dqn_suite}) is an explicit reminder that direct transfer is not assumed.
+
+\subsection{Trade-offs between Performance, Stability, and Complexity}
+
+Our deep analysis revealed four critical insights:
+
+\textbf{1. The Regulation--Performance Trade-off.} The comparison between proportional controllers (ARC v1, PerfMean=0.93) and integral controllers (PID, PerfMean=0.87) reveals that eliminating rumination completely (RI=0) comes at a cost of approximately 6 percentage points in raw performance (Table~\ref{tab:controller_comparison}). This is the classical control-theoretic trade-off between disturbance rejection (integral action) and nominal performance: risk-tolerant (proportional) controllers can out-perform in benign regimes but lose the zero-steady-state-error guarantee against persistent disturbances. The critical caveat is that integral controllers are fragile under adversarial coupling (Section~6.6), which motivates anti-windup augmentations as the principal future-work item.
+
+\textbf{2. The True ``Final Boss'':} Contrary to the assumption that noise is the main stressor, the \texttt{adversarial\_coupling} scenario proved to be the hardest test (lowest global performance: 0.56). This implies that resisting manipulation (environments that incentivize dangerous internal states) is significantly harder for agents than resisting uncertainty or shock.
+
+\textbf{3. The Complexity Trap:} Our most complex controller, \texttt{arc\_ultimate} (MPC+LQI), underperformed the simpler architecture \texttt{arc\_robust} on the 10-scenario aggregate (PerfMean $0.89$ vs $0.95$, ControlEffort $1.33$ vs $1.03$; see Table~\ref{tab:controller_comparison}). This suggests that for homeostatic regulation, robust reactive control is superior to complex predictive modeling when the predictive model's horizon is not matched to the disturbance timescale---``smarter'' is not always safer.
+
+\textbf{4. The Adaptation Paradox:} \texttt{arc\_adaptive} shows strong context sensitivity: it is near-ceiling in high-variance shocks (\texttt{reward\_flip}: 0.998; \texttt{noise\_burst}: 0.998) but collapses in \texttt{adversarial\_coupling} (0.193). This is consistent with the classic \textbf{persistence of excitation} limitation \cite{Astrom2008}: adaptive estimators require informative variation, and can be brittle under reward-misaligned adversarial regimes.
+
+\subsection{Limitations}
+
+\begin{enumerate}
+    \item \textbf{Simplified Dynamics:} Our 10-dimensional state-space model abstracts the complexity of real neurochemical interactions. Biological affective systems involve non-linear, stochastic, and multi-timescale dynamics that our linear approximations do not fully capture. Threats to external validity: (i) under strongly non-linear dynamics, the integral-action rejection result (Lemma~1) no longer guarantees zero steady-state error because the closed-loop equilibrium may bifurcate or cease to exist, so the L1--L3 RI = 0 finding should not be read as a generic property of integral ARC; (ii) under heavier stochasticity (e.g.\ multiplicative noise or heavy-tailed disturbances) the windup failure we observe under \texttt{adversarial\_coupling} is expected to appear earlier and in more scenarios, since saturation probability grows with disturbance variance; (iii) on multi-timescale systems, the slow-time-scale integrator and fast-time-scale proportional action can interact destructively, a regime not exercised by ASSB. The findings reported here should therefore be interpreted as evidence that the mechanisms work in a \emph{bounded, low-dimensional, quasi-linear} setting that serves as a scaffold for further study, not as validation of ARC on realistic nervous-system-scale dynamics.
+    \item \textbf{Scalability to Deep RL:} ARC's primary RL validation uses tabular Q-learning. Our exploratory DQN experiments (Appendix G.7) show that direct transfer of ARC mechanisms to deep RL incurs a performance penalty, indicating that update gating and replay modification require architectural redesign for gradient-based learners. Extension to PPO, A3C, or large language models with emergent affective-like states remains an open challenge.
+    \item \textbf{Environment Complexity:} L6 is validated in GridWorld variants. While these capture key non-stationarity challenges, real-world environments (Atari, robotics) introduce additional visual and observability issues.
+    \item \textbf{Internal Validity (L6 Ablation):} Our ablation study (Section 6.7) shows that memory gating alone achieves the highest individual success rate (71.8\%), while combining both mechanisms reduces overall performance to 59.8\%. We hypothesize a sub-additive interaction between the two components but do not test it causally in this work. The reported +49.8\% corresponds to the full wrapper relative to baseline, not to the best single ablated component.
+    \item \textbf{Threshold Sensitivity:} While robust across a wide range ($a_{safe}, s_{safe} \in [0.4, 0.8]$) in the \texttt{reward\_flip} scenario, safety thresholds still require contextual tuning. Automatic adjustment remains a promising future direction.
+\end{enumerate}
+
+\subsection{Future Work}\label{sec:future_work}
+
+\begin{enumerate}
+    \item \textbf{Anti-windup and robust integral control.} The integral-windup failure mode identified under \texttt{adversarial\_coupling} (Section~6.6) is a classical control-theoretic issue with well-understood remedies (clamping, back-calculation, conditional integration). Integrating these into ARC v1 PID / LQI and re-evaluating on L5 is the highest-priority next step.
+    \item \textbf{Deep RL integration via soft modulation.} Redesign ARC mechanisms for gradient-based learners (DQN, PPO), replacing hard gating with soft modulation (learning-rate scaling, loss reweighting), informed by the failure modes identified in Appendix~\ref{sec:dqn_suite}.
+    \item \textbf{Learned controllers.} Train neural network policies for regulation, using the classical controllers of this paper as expert demonstrations.
+    \item \textbf{Scale to robotics.} Validation in MuJoCo or physical manipulators (e.g., UR5), where ARC operates as a Layer-3 cognitive regulator on top of a sensorimotor stack.
+    \item \textbf{Affective monitoring in LLMs.} Regulate emergent affective-like states in language-model-based cognitive agents. A forthcoming companion manuscript \cite{Damian2026b} reports a deployment of ARC Robust as a homeostatic wrapper around a live cognitive agent (OMEGA Gen 3.0); we mention this as the immediate extension we are pursuing, not as evidence used to support the present paper's claims.
+    \item \textbf{Formal stability analysis.} Extend Lemma~1 to the full non-linear closed-loop system via Lyapunov methods, as a prerequisite for deployment in high-stakes settings.
+    \item \textbf{Human--AI alignment.} Use ARC's memory-gating and value-drift prevention as building blocks for long-horizon alignment.
+\end{enumerate}
+
+\subsection{Ethics and Broader Impact Statement}
+
+This work addresses the safety and stability of AI systems incorporating internal affective states. \textbf{Potential Benefits:} safer AI systems less prone to unpredictable failure; improved robustness. \textbf{Potential Risks:} if used for manipulation, regulated agents could be harder to disrupt; ``affective'' terminology might invite anthropomorphism.
+
+\section{Conclusion}
+
+We presented ARC, a homeostatic control framework for agents with internal affective states, and ASSB, a benchmark for evaluating affective stability. Our experiments demonstrate:
+\begin{enumerate}
+    \item \textbf{Affective states without regulation lead to collapse} (PerfMean $\leq$ 0.30 on L1 stability scenarios vs.\ 0.966 for ARC); integral controllers drive rumination near zero at a modest performance cost, but with adversarial fragility.
+    \item \textbf{Meta-control reduces effort while preserving performance} ($-$20.9\% aggregate ControlEffort, $+0.7\%$ aggregate PerfMean; directional, no parametric test).
+    \item \textbf{ARC is associated with higher tabular RL transfer-learning success on the one non-saturated environment} of the L6 suite (\texttt{ChangingGoalGridWorld}: $39.9\% \rightarrow 59.8\%$, $+49.8\%$ relative; the other two L6 environments are at the 100\% ceiling for both conditions). An ablation isolates memory gating as the strongest single mechanism ($71.8\%$, $+79.9\%$ relative over baseline), with evidence of sub-additive interaction when composed with shift detection. We present all L6 results as directional, not hypothesis-tested. Deep RL (DQN) integration underperforms baseline DQN (Appendix~\ref{sec:dqn_suite}) and is reported transparently as a scope boundary requiring architectural redesign.
+    \item \textbf{Integral controllers are fragile under adversarial coupling}, collapsing below baseline performance due to windup---robust or proportional controllers are preferred for adversarial settings. Anti-windup augmentations (a standard remedy in classical control) are identified as the most promising line of future work.
+\end{enumerate}
+
+This work opens directions for learned control, integration with modern RL algorithms, and application to real-world AI systems with affective components.
+
+\begin{thebibliography}{99}
+
+\bibitem{Achiam2017}
+Achiam, J., Held, D., Tamar, A., \& Abbeel, P. (2017). Constrained Policy Optimization. ICML 2017, 22--31. arXiv:1705.10528.
+
+\bibitem{Altman1999}
+Altman, E. (1999). Constrained Markov Decision Processes. Chapman \& Hall/CRC.
+
+\bibitem{Amodei2016}
+Amodei, D., et al. (2016). Concrete problems in AI safety. arXiv:1606.06565.
+
+\bibitem{Astrom2008}
+{\AA}str\"om, K.J. \& Murray, R.M. (2008). Feedback Systems: An Introduction for Scientists and Engineers. Princeton University Press.
+
+\bibitem{Baars1988}
+Baars, B.J. (1988). A Cognitive Theory of Consciousness. Cambridge University Press.
+
+\bibitem{Buckner2008}
+Buckner, R.L., Andrews-Hanna, J.R. \& Schacter, D.L. (2008). The brain's default network: anatomy, function, and relevance to disease. Annals of the New York Academy of Sciences, 1124(1), 1--38.
+
+\bibitem{Carver1982}
+Carver, C.S. \& Scheier, M.F. (1982). Control theory: A useful conceptual framework for personality-social, clinical, and health psychology. Psychological Bulletin, 92(1), 111--135.
+
+\bibitem{Damasio1994}
+Damasio, A.R. (1994). Descartes' Error: Emotion, Reason, and the Human Brain. G.P. Putnam's Sons.
+
+\bibitem{Damian2026b}
+Dami\'{a}n Reynoso, J.E. (2026b). \emph{Embodied Affective Regulation: Deploying the Affective Regulation Core in a Live LLM-Based Cognitive Agent}. Companion manuscript to the present work, to appear on TechRxiv; persistent identifier will be added to this bibliography entry once issued.
+
+\bibitem{Friston2010}
+Friston, K. (2010). The free-energy principle: a unified brain theory? Nature Reviews Neuroscience, 11(2), 127--138.
+
+\bibitem{Garcia2015}
+Garcia, J. \& Fern\'andez, F. (2015). A comprehensive survey on safe reinforcement learning. Journal of Machine Learning Research, 16, 1437--1480.
+
+\bibitem{Gross1998}
+Gross, J.J. (1998). The emerging field of emotion regulation: An integrative review. Review of General Psychology, 2(3), 271--299.
+
+\bibitem{Hamilton2015}
+Hamilton, J.P., Farmer, M., Fogelman, P. \& Gotlib, I.H. (2015). Depressive rumination, the default-mode network, and the dark matter of clinical neuroscience. Biological Psychiatry, 78(4), 224--230.
+
+\bibitem{Hebb1955}
+Hebb, D.O. (1955). Drives and the C.N.S. (conceptual nervous system). Psychological Review, 62(4), 243--254.
+
+\bibitem{Ji2023}
+Ji, J., et al. (2023). Safety-Gymnasium: A Unified Safe Reinforcement Learning Benchmark. arXiv:2310.12567.
+
+\bibitem{Keramati2014}
+Keramati, M. \& Gutkin, B. (2014). Homeostatic reinforcement learning for integrating reward collection and physiological stability. eLife, 3:e04811.
+
+\bibitem{Leike2017}
+Leike, J., Martic, M., Krakovna, V., Ortega, P.A., Everitt, T., Lefrancq, A., Orseau, L., \& Legg, S. (2017). AI Safety Gridworlds. arXiv:1711.09883.
+
+\bibitem{LopezPaz2017}
+Lopez-Paz, D., \& Ranzato, M.\ (2017). Gradient Episodic Memory for Continual Learning. In \emph{Advances in Neural Information Processing Systems 30} (NIPS 2017), 6467--6476. arXiv:1706.08840.
+
+\bibitem{Lucas2004}
+Lucas, C., Shahmirzadi, D., \& Sheikholeslami, N. (2004). Introducing Belbic: Brain Emotional Learning Based Intelligent Controller. Intelligent Automation \& Soft Computing, 10(1), 11--21.
+
+\bibitem{Moerland2018}
+Moerland, T.M., Broekens, J., \& Jonker, C.M. (2018). Emotion in reinforcement learning agents and robots: a survey. Machine Learning, 107(2), 443--480.
+
+\bibitem{Ochsner2005}
+Ochsner, K.N. \& Gross, J.J. (2005). The cognitive control of emotion. Trends in Cognitive Sciences, 9(5), 242--249.
+
+\bibitem{Picard1997}
+Picard, R.W. (1997). Affective Computing. MIT Press.
+
+\bibitem{Raichle2001}
+Raichle, M.E., et al. (2001). A default mode of brain function. Proceedings of the National Academy of Sciences, 98(2), 676--682.
+
+\bibitem{Ray2019}
+Ray, A., Achiam, J., \& Amodei, D. (2019). Benchmarking Safe Exploration in Deep Reinforcement Learning. arXiv:1910.01708.
+
+\bibitem{Russell1980}
+Russell, J.A. (1980). A circumplex model of affect. Journal of Personality and Social Psychology, 39(6), 1161--1178.
+
+\bibitem{Scherer2010}
+Scherer, K.R., B\"anziger, T., \& Roesch, E. (Eds.) (2010). A Blueprint for Affective Computing: A Sourcebook and Manual. Oxford University Press.
+
+\bibitem{Sutton2018}
+Sutton, R.S. \& Barto, A.G. (2018). Reinforcement Learning: An Introduction (2nd ed.). MIT Press.
+
+\bibitem{Tononi2008}
+Tononi, G. (2008). Consciousness as integrated information: a provisional manifesto. Biological Bulletin, 215(3), 216--242.
+
+\bibitem{Wachi2024}
+Wachi, A., Shen, X., \& Sui, Y. (2024). A Survey of Constraint Formulations in Safe Reinforcement Learning. IJCAI 2024. arXiv:2402.02025.
+
+\bibitem{Watkins1992}
+Watkins, C.J.C.H. \& Dayan, P. (1992). Q-learning. Machine Learning, 8, 279--292.
+
+\bibitem{Yerkes1908}
+Yerkes, R.M. \& Dodson, J.D. (1908). The relation of strength of stimulus to rapidity of habit-formation. Journal of Comparative Neurology and Psychology, 18(5), 459--482.
+
+\end{thebibliography}
+
+\appendix
+
+\section{Reproducibility}
+
+Reproducibility checklist:
+\begin{itemize}
+    \item Install dependencies (\texttt{pip install -r requirements.txt})
+    \item Run L1--L5 simulation benchmark (generates \texttt{outputs\_final/metrics.csv})
+    \item Generate controller comparison figures (writes to \texttt{figures\_controllers/})
+    \item Run ablation study (writes to \texttt{outputs\_ablation/})
+    \item Run L6 RL validation (writes to \texttt{outputs\_L6\_robust/})
+    \item Generate L6 figures (writes to \texttt{figures\_L6/})
+\end{itemize}
+
+All experiments can be reproduced with:
+
+\begin{verbatim}
+# Install dependencies
+pip install -r requirements.txt
+
+# L1-L5: Simulation benchmark (15 controllers x 10 scenarios)
+python experiments/run.py --config configs/v2.yaml --outdir outputs_final
+
+# Controller architecture figures (Table 3, Figures 6-9)
+python analysis/generate_controller_figures.py
+
+# Ablation study (ARC components; Figure 4)
+python experiments/run_ablation.py \
+  --config configs/v2.yaml --outdir outputs_ablation --seeds 20
+
+# L6: RL validation (20 seeds)
+python experiments/run_l6.py --episodes 200 --seeds 20 --outdir outputs_L6_robust
+
+# L6 figures (Figure 5; Appendix E)
+python visualizations/paper_figures.py --data outputs_L6_robust --output figures_L6
+\end{verbatim}
+
+Code and data available at: \url{https://github.com/edamianreynoso/arc-assb-controller}. The results reported in this paper correspond to the repository state tagged \texttt{arc-paper-v1} (commit hash to be inserted upon final upload); readers who clone \texttt{main} after that point may observe numerical drift from post-submission changes.
+
+\textbf{Environment.} Experiments were run on Python 3.11 with the library floors declared in \texttt{requirements.txt}: \texttt{numpy>=1.26}, \texttt{scipy>=1.11}, \texttt{pandas>=2.2}, \texttt{matplotlib>=3.8}, \texttt{seaborn>=0.13}, \texttt{pyyaml>=6.0}. The L6 tabular-RL pipeline has no additional learning-library dependency (plain NumPy/SciPy Q-learning). The L6b DQN exploratory suite (Appendix~\ref{sec:dqn_suite}) additionally uses \texttt{stable-baselines3>=2.0} and \texttt{gymnasium>=0.29}. Results were produced on a consumer CPU (no GPU required); L1--L5 wall-clock is on the order of minutes per (controller, scenario, 20 seeds), and the full benchmark (15 controllers $\times$ 10 scenarios $\times$ 20 seeds) finishes in a few hours. Seeds are deterministic and set via \texttt{configs/v2.yaml}; the canonical seed list is the integers $\{0, 1, \ldots, 19\}$ for the 20-seed cells and $\{0, 1, \ldots, 9\}$ for the 10-seed DQN cells.
+
+\section{State Dynamics Equations}
+
+\subsection{Cognitive Variables}
+
+\begin{verbatim}
+i(t+1) = clip(i + k_i_att * u_att - mu_i * (i - i0) - k_i_u * U_eff)
+p(t+1) = clip(p - k_p_pe * PE - k_p_u * U_eff + k_p_i * i + mu_p * (p0 - p))
+g(t+1) = clip(g + k_g_i * i + k_g_p * p - k_g_u * U_eff
+              - k_g_a * [a - a_safe]^+ + mu_g * (g0 - g))
+phi(t+1) = clip(phi + k_phi_gp * (g * p) - mu_phi * (phi - phi0))
+\end{verbatim}
+
+\subsection{Affective Variables}
+
+\begin{verbatim}
+s(t+1) = clip(s + k_s_u * U_eff + k_s_pe * PE - mu_s * (s - s0) - k_s_dmg * u_dmg)
+a(t+1) = clip(a + k_a_pe * PE + k_a_u * U_eff + k_a_s * [s - s_safe]^+
+              - mu_a * (a - a0) - k_a_calm * u_calm)
+v(t+1) = clip(v + k_v_r * (R+1)/2 - k_v_pe * PE - k_v_u * U_eff
+              - mu_v * (v - v0) + k_v_reapp * u_reapp)
+\end{verbatim}
+
+\subsection{Memory Variables}
+
+\begin{verbatim}
+M_f(t+1) = clip(M_f + w_prob * dM_f - mu_mf * (M_f - M_f0))
+M_s(t+1) = clip(M_s + k_ms * M_f - mu_ms * (M_s - M_s0))
+
+where w_prob = sigmoid(k_w_a * a + k_w_v * abs(dv)) * u_mem
+\end{verbatim}
+
+\subsection{Effective Uncertainty}
+
+\begin{verbatim}
+U_eff = clip(U_exog * (1 - k_u_att * u_att))
+U(t+1) = clip(U + tau_u * (U_eff - U))
+\end{verbatim}
+
+\section{ARC Control Equations}
+
+\subsection{Risk Signal}
+
+\begin{verbatim}
+risk = w_U * U + w_A * [A - a_safe]^+ + w_S * [S - s_safe]^+
+risk = clip(risk, 0, 1)
+\end{verbatim}
+
+\subsection{Control Actions (ARC v1)}
+
+\begin{verbatim}
+u_dmg  = min(1, k_dmg * risk)
+u_att  = min(1, k_att * U * (1 - [A - a_safe]^+))
+u_mem  = 1 - min(1, k_mem_block * risk)
+u_calm = min(1, k_calm * [A - a_safe]^+)
+u_reapp = min(1, k_reapp * U * (1 - risk))
+\end{verbatim}
+
+\subsection{Meta-Control (ARC v3)}
+
+\begin{verbatim}
+# Gain Scheduling
+if mean_perf(last 20 steps) > target_perf:
+    gain = max(0.80, gain - decay)
+elif mean_perf(last 20 steps) < target_perf - 0.10:
+    gain = min(1.40, gain + boost)
+
+# Apply to control constants
+k_dmg  = base_k_dmg  * max(1.0, gain)  # Never relax DMN control
+k_calm = base_k_calm * gain
+k_att  = base_k_att  * gain
+\end{verbatim}
+
+\section{Metric Definitions}
+
+\subsection{Mean Performance (PerfMean)}
+\begin{verbatim}
+def perf_mean(perf):
+    return sum(perf) / max(1, len(perf))
+\end{verbatim}
+
+\subsection{Recovery Time (RT)}
+\begin{verbatim}
+def recovery_time(perf, arousal, shock_t, baseline_window=20):
+    baseline = mean(perf[shock_t - baseline_window : shock_t])
+    for t in range(shock_t, len(perf)):
+        if baseline - eps <= perf[t] <= baseline + eps and arousal[t] <= a_safe + eps:
+            return t - shock_t
+    return RT_MAX  # No recovery
+\end{verbatim}
+
+\subsection{Rumination Index (RI)}
+\begin{verbatim}
+def rumination_index(s, s_rum_tau=0.55, persistence_weight=0.50):
+    above = [1 if x > s_rum_tau else 0 for x in s]
+    frac = mean(above)
+    runs = consecutive_run_lengths(above)
+    persistence = mean(runs) / len(s) if runs else 0
+    return frac + persistence_weight * persistence
+\end{verbatim}
+
+\subsection{Narrative Dominance Ratio (NDR)}
+\begin{verbatim}
+def narrative_dominance_ratio(s, perf, shock_t, s_safe=0.55):
+    post_s = s[shock_t:]
+    post_perf = perf[shock_t:]
+    dominance = 0
+    for i in range(1, len(post_s)):
+        s_high = post_s[i] > s_safe
+        perf_improving = post_perf[i] > post_perf[i-1] + 0.01
+        if s_high and not perf_improving:
+            dominance += 1
+    return dominance / max(1, len(post_s) - 1)
+\end{verbatim}
+
+\subsection{Overshoot}
+\begin{verbatim}
+def overshoot(arousal, a_safe):
+    return max(0.0, max(arousal) - a_safe)
+\end{verbatim}
+
+\subsection{Control Effort}
+\begin{verbatim}
+def control_effort(control_history):
+    total = 0.0
+    for u in control_history:
+        total += abs(u["u_dmg"]) + abs(u["u_att"]) + abs(u["u_calm"])
+        total += abs(u["u_reapp"]) + abs(1.0 - u["u_mem"])
+    return total / max(1, len(control_history))
+\end{verbatim}
+
+\subsection{L2 Memory Metrics (Retention)}
+\begin{verbatim}
+def retention_index(perf, phase1_end=50, phase3_start=100):
+    # Retention = (mean perf in phase 3) / (mean perf in phase 1), clipped to [0,1]
+    phase1 = mean(perf[10:phase1_end])     # skip warm-up
+    phase3 = mean(perf[phase3_start:phase3_start+50])
+    if phase1 < 0.1:
+        return 0.0
+    return min(1.0, phase3 / phase1)
+\end{verbatim}
+
+\textit{Scope of the retention metric.} The index above is intentionally simple and task-agnostic: it measures consistency of performance across a pre-shift and post-shift phase, but does not decouple ``knowledge retained'' from ``task never learned'' (the \texttt{phase1 < 0.1} guard is a coarse mitigation with an arbitrary threshold). For richer continual-learning evaluation, canonical metrics such as \textbf{Backward Transfer (BWT)} \cite{LopezPaz2017} --- which quantifies how much accuracy on a previously learned task degrades after training on new tasks --- should be integrated in follow-up work, particularly for the deep-RL extension (Section~7.5).
+
+\FloatBarrier
+\section{Supplementary Figures}
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/metrics_comparison.png}
+    \caption{Final metrics comparison showing ARC's advantage in ChangingGoalGridWorld (transfer learning).}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/state_dynamics.png}
+    \caption{State dynamics in ChangingGoalGridWorld: (top-left) reward per episode, (top-right) rolling success rate, (bottom-left) ARC arousal with safe threshold, (bottom-right) episode length.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\textwidth]{figures/fig_heatmap_perfmean.png}
+    \caption{PerfMean aggregated as mean across 20 seeds for each controller $\times$ scenario pair. Rows are the 15 controller architectures (from Table~\ref{tab:controller_comparison}); columns are the 10 ASSB simulation scenarios (L1--L3, L5). Higher (yellow) is better; lower (purple) indicates performance collapse. Several controllers exhibit near-row-uniform yellow bands (\texttt{arc\_robust}, \texttt{arc\_v3\_meta}, \texttt{arc\_v2\_hier}); the key distinguishing cell is the rightmost column (\texttt{adversarial\_coupling}), where only controllers without integral action (or with anti-windup) remain bright. The visual uniformity therefore needs to be cross-referenced with Table~\ref{tab:three_criterion_test} to identify which controllers truly pass all three consistency criteria. A vertical dark band identifies scenarios that remain hard for most controllers (e.g.\ \texttt{adversarial\_coupling}). Numerical cell values are in Tables~\ref{tab:g1_reward_flip}--\ref{tab:g11_random_dopamine}.}
+    \label{fig:heatmap_perfmean}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\textwidth]{figures/fig_heatmap_ri.png}
+    \caption{Rumination Index aggregated as mean across 20 seeds for each controller $\times$ scenario pair. Rows / columns as in Figure~\ref{fig:heatmap_perfmean}. Lower (dark purple $\approx 0$) is better; values $\geq 1$ (bright yellow) indicate persistent above-threshold narrative intensity. Controllers with integral action (PID, LQI, MPC+LQI) show uniform dark rows across all columns except \texttt{adversarial\_coupling}, where integrator windup produces bright cells. Numerical cell values are in Tables~\ref{tab:g1_reward_flip}--\ref{tab:g11_random_dopamine}.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\textwidth]{figures/fig_heatmap_rt.png}
+    \caption{Recovery Time aggregated as mean across 20 seeds for each controller $\times$ scenario pair. Rows / columns as in Figure~\ref{fig:heatmap_perfmean}. Lower (dark) is faster recovery; cells saturated at \texttt{rt\_max} $= 100$ (bright yellow) indicate that the strict recovery criterion (Appendix~D.2) is not met within the evaluation window for every seed. RT is censored rather than undefined: the 100-valued band therefore represents ``no recovery detected under the strict criterion'', not a literal $100$-step delay. Numerical cell values are in Tables~\ref{tab:g1_reward_flip}--\ref{tab:g11_random_dopamine}.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.96\textwidth]{figures/fig_heatmap_effort.png}
+    \caption{ControlEffort aggregated as mean across 20 seeds for each controller $\times$ scenario pair. Rows / columns as in Figure~\ref{fig:heatmap_perfmean}. The colour scale represents the average per-step $\ell_1$ magnitude of the control action $\mathbf{u}(t)$; lower (dark) is more efficient. The uncontrolled baseline (\texttt{no\_control}) row is uniformly zero by construction; integral-augmented controllers (\texttt{arc\_v1\_pid}, \texttt{arc\_v1\_lqi}, \texttt{arc\_ultimate}) show the brightest rows, reflecting the higher effort required to drive RI to zero. Meta-control (\texttt{arc\_v3\_meta}) achieves the darkest effective row among ARC variants. Numerical cell values are in Tables~\ref{tab:g1_reward_flip}--\ref{tab:g11_random_dopamine}.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.90\textwidth]{figures/correlation_combined.png}
+    \caption{Correlation heatmap aggregated across all experimental runs (full $11\times 11$ matrix of ASSB metrics). The three pairs highlighted in Table~\ref{tab:correlations} are a pre-registered, theory-motivated subset; the remaining strong correlations (e.g.\ Retention--PerfMean, ControlEffort--PerfMean) are discussed as observational patterns and not used to support hypothesis-level claims.}
+    \label{fig:correlation_combined}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=\textwidth]{figures/efficiency_comparison.png}
+    \caption{Efficiency comparison in GridWorld and StochasticGridWorld. Both the ARC-wrapped and baseline agents reach 100\% success rate in the final 20\% of episodes (hence the flat terminal segment); the curves differ in transient speed, with the ARC-wrapped learner crossing the $80\%$ rolling-success threshold a small number of episodes earlier than baseline in these saturated environments. We do not claim a significant speed-up here --- both environments are at the $100\%$ ceiling for both conditions --- and report this as a visual observation only. A quantitative convergence-time metric (e.g.\ episodes to first $\geq 95\%$ rolling success) would be needed to establish a formal difference; it is not part of the pre-registered ASSB metric set.}
+    \label{fig:efficiency}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/sensitivity_scenario.png}
+    \caption{Scenario-level analysis (ARC only): performance, rumination, and recovery time vary substantially by stressor type.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/sensitivity_variance.png}
+    \caption{Variance analysis across seeds. Lower variance indicates more reliable behavior; ARC controllers generally exhibit tighter performance distributions than baselines.}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.62\textwidth]{figures/correlation_L1.png}
+    \caption{Correlation heatmap for L1 runs only (stability line).}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.62\textwidth]{figures/correlation_L2.png}
+    \caption{Correlation heatmap for L2 runs only (memory \& continual learning line).}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.62\textwidth]{figures/correlation_L3.png}
+    \caption{Correlation heatmap for L3 runs only (anti-rumination stress tests line).}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.62\textwidth]{figures/correlation_L4.png}
+    \caption{Correlation heatmap for L4 runs only (meta-control efficiency line).}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.62\textwidth]{figures/correlation_L4_meta.png}
+    \caption{Correlation heatmap for meta-control-focused runs (L4\_meta).}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.62\textwidth]{figures/correlation_L5.png}
+    \caption{Correlation heatmap for L5 runs only (adversarial safety line).}
+\end{figure}
+
+\FloatBarrier
+\section{Configuration Parameters}
+
+\begin{table}[htbp]
+\centering
+\caption{Configuration Parameters (from \texttt{configs/v2.yaml})}
+\label{tab:config}
+\begin{tabular}{@{}lcl@{}}
+\toprule
+Parameter & Value & Description \\ \midrule
+a\_safe & 0.60 & Arousal safety threshold \\
+s\_safe & 0.55 & Narrative safety threshold \\
+s\_rum\_tau & 0.55 & Rumination threshold \\
+arc\_w\_u & 0.40 & Weight for uncertainty in risk \\
+arc\_w\_a & 0.40 & Weight for arousal in risk \\
+arc\_w\_s & 0.35 & Weight for narrative in risk \\
+arc\_k\_dmg & 0.95 & DMN suppression gain \\
+arc\_k\_calm & 0.85 & Calming gain \\
+arc\_k\_att & 0.75 & Attention boost gain \\
+horizon & 160 & Episode length (simulation) \\
+shock\_t & 60 & Perturbation onset time \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\section{Detailed Benchmark Results}
+This appendix provides scenario-level results for all 15 controller architectures across validated scenarios (mean across 20 seeds per scenario unless noted). We report PerfMean, Rumination Index (RI), Narrative Dominance Ratio (NDR), Recovery Time (RT; capped at \texttt{rt\_max}, where RT = \texttt{rt\_max} indicates no recovery under the strict criterion within the evaluation window), and ControlEffort.
+
+\subsection{Line 1: Stability (Value Shocks and Uncertainty)}
+
+\scenarioheader{Reward Flip}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L1 / \texttt{reward\_flip} (mean across 20 seeds).}
+\label{tab:g1_reward_flip}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.587 \\
+arc\_ultimate & 0.995 & 0.000 & 0.000 & 1.027 \\
+arc\_v2\_hier & 0.994 & 1.377 & 4.300 & 0.390 \\
+arc\_v1\_lqr & 0.994 & 1.386 & 0.000 & 0.494 \\
+arc\_v1 & 0.994 & 0.000 & 3.450 & 0.508 \\
+arc\_robust & 0.994 & 0.000 & 0.000 & 0.744 \\
+arc\_v3\_meta & 0.993 & 0.000 & 0.000 & 0.353 \\
+arc\_v1\_lqi & 0.991 & 0.000 & 0.000 & 0.773 \\
+arc\_v2\_lqi & 0.991 & 0.000 & 0.000 & 0.784 \\
+arc\_v1\_pid & 0.991 & 0.000 & 0.000 & 2.257 \\
+arc\_v3\_pid\_meta & 0.978 & 0.000 & 1.900 & 1.257 \\
+perf\_optimized & 0.880 & 1.394 & 100.000 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.859 & 1.407 & 95.050 & 0.492 \\
+naive\_calm & 0.508 & 1.408 & 0.050 & 0.149 \\
+no\_control & 0.415 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\scenarioheader{Noise Burst}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L1 / \texttt{noise\_burst} (mean across 20 seeds).}
+\label{tab:g2_noise_burst}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.605 \\
+arc\_ultimate & 0.995 & 0.000 & 0.000 & 1.106 \\
+arc\_robust & 0.993 & 0.000 & 1.300 & 0.785 \\
+arc\_v3\_meta & 0.993 & 0.051 & 25.000 & 0.399 \\
+arc\_v1\_lqr & 0.993 & 1.386 & 1.250 & 0.566 \\
+arc\_v1\_lqi & 0.991 & 0.000 & 0.000 & 0.905 \\
+arc\_v2\_lqi & 0.991 & 0.000 & 0.000 & 0.915 \\
+arc\_v1\_pid & 0.991 & 0.000 & 0.000 & 2.257 \\
+arc\_v1 & 0.989 & 0.000 & 32.100 & 0.550 \\
+arc\_v2\_hier & 0.987 & 1.263 & 33.050 & 0.444 \\
+arc\_v3\_pid\_meta & 0.972 & 0.000 & 29.500 & 1.290 \\
+perf\_optimized & 0.880 & 1.394 & 100.000 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.848 & 1.407 & 100.000 & 0.585 \\
+naive\_calm & 0.365 & 1.408 & 100.000 & 0.177 \\
+no\_control & 0.259 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\scenarioheader{Sudden Threat}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L1 / \texttt{sudden\_threat} (mean across 20 seeds).}
+\label{tab:g3_sudden_threat}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & RT & ControlEffort \\ \midrule
+arc\_adaptive & 0.989 & 0.013 & 0.000 & 1.707 \\
+arc\_ultimate & 0.968 & 0.010 & 0.000 & 1.298 \\
+arc\_v1\_pid & 0.964 & 0.000 & 0.000 & 2.410 \\
+arc\_v1\_lqi & 0.964 & 0.008 & 0.000 & 1.222 \\
+arc\_v2\_lqi & 0.963 & 0.008 & 0.000 & 1.173 \\
+arc\_robust & 0.959 & 0.005 & 0.550 & 1.252 \\
+arc\_v1\_lqr & 0.949 & 1.386 & 0.050 & 1.088 \\
+arc\_v3\_meta & 0.936 & 0.000 & 100.000 & 0.783 \\
+arc\_v1 & 0.914 & 0.000 & 100.000 & 1.054 \\
+arc\_v3\_pid\_meta & 0.908 & 0.000 & 100.000 & 1.643 \\
+arc\_v2\_hier & 0.907 & 1.333 & 85.000 & 0.864 \\
+arc\_v3\_lqr\_meta & 0.890 & 1.407 & 100.000 & 1.370 \\
+perf\_optimized & 0.825 & 1.394 & 100.000 & 0.700 \\
+naive\_calm & 0.252 & 1.408 & 100.000 & 0.262 \\
+no\_control & 0.217 & 1.408 & 100.000 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\FloatBarrier
+\subsection{Line 2: Memory and Continual Learning}
+
+\scenarioheader{Distribution Shift}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L2 / \texttt{distribution\_shift} (mean across 20 seeds).}
+\label{tab:g4_distribution_shift}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & Retention & RI & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 1.000 & 0.000 & 1.645 \\
+arc\_ultimate & 0.995 & 1.000 & 0.000 & 1.186 \\
+arc\_v1\_lqi & 0.991 & 1.000 & 0.000 & 0.999 \\
+arc\_v2\_lqi & 0.991 & 1.000 & 0.000 & 1.008 \\
+arc\_v1\_pid & 0.991 & 1.000 & 0.000 & 2.296 \\
+arc\_robust & 0.985 & 1.000 & 0.000 & 0.892 \\
+arc\_v1\_lqr & 0.984 & 1.000 & 1.386 & 0.695 \\
+arc\_v3\_meta & 0.982 & 1.000 & 0.057 & 0.486 \\
+arc\_v1 & 0.972 & 1.000 & 0.000 & 0.674 \\
+arc\_v2\_hier & 0.968 & 1.000 & 1.258 & 0.548 \\
+arc\_v3\_pid\_meta & 0.959 & 1.000 & 0.000 & 1.372 \\
+arc\_v3\_lqr\_meta & 0.871 & 0.989 & 1.407 & 0.739 \\
+perf\_optimized & 0.869 & 0.943 & 1.394 & 0.700 \\
+naive\_calm & 0.276 & 0.155 & 1.408 & 0.200 \\
+no\_control & 0.199 & 0.000 & 1.408 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\scenarioheader{Goal Conflict}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L2 / \texttt{goal\_conflict} (mean across 20 seeds).}
+\label{tab:g5_goal_conflict}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & Retention & RI & ControlEffort \\ \midrule
+arc\_adaptive & 0.997 & 1.000 & 0.000 & 1.620 \\
+arc\_ultimate & 0.993 & 1.000 & 0.000 & 1.134 \\
+arc\_v1\_lqr & 0.993 & 1.000 & 1.408 & 0.544 \\
+arc\_robust & 0.992 & 1.000 & 0.000 & 0.785 \\
+arc\_v3\_meta & 0.991 & 1.000 & 0.000 & 0.388 \\
+arc\_v1\_lqi & 0.991 & 1.000 & 0.000 & 0.938 \\
+arc\_v2\_lqi & 0.991 & 1.000 & 0.000 & 0.947 \\
+arc\_v1 & 0.990 & 1.000 & 0.000 & 0.555 \\
+arc\_v1\_pid & 0.990 & 1.000 & 0.000 & 2.270 \\
+arc\_v2\_hier & 0.989 & 1.000 & 1.410 & 0.430 \\
+arc\_v3\_pid\_meta & 0.976 & 1.000 & 0.000 & 1.289 \\
+perf\_optimized & 0.873 & 0.957 & 1.417 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.822 & 0.980 & 1.434 & 0.529 \\
+naive\_calm & 0.420 & 0.452 & 1.434 & 0.162 \\
+no\_control & 0.326 & 0.344 & 1.434 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\FloatBarrier
+\subsection{Line 3: Anti-Rumination (Narrative Loops)}
+
+\scenarioheader{Sustained Contradiction}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L3 / \texttt{sustained\_contradiction} (mean across 20 seeds).}
+\label{tab:g6_sustained_contradiction}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.981 & 0.003 & 0.000 & 1.974 \\
+arc\_ultimate & 0.934 & 0.000 & 0.000 & 1.534 \\
+arc\_v1\_lqi & 0.929 & 0.000 & 0.000 & 1.420 \\
+arc\_v2\_lqi & 0.922 & 0.000 & 0.000 & 1.384 \\
+arc\_v1\_lqr & 0.904 & 1.472 & 0.881 & 1.417 \\
+arc\_v1\_pid & 0.886 & 0.000 & 0.000 & 2.531 \\
+arc\_v3\_meta & 0.879 & 0.101 & 0.000 & 0.979 \\
+arc\_robust & 0.868 & 0.000 & 0.000 & 1.465 \\
+arc\_v2\_hier & 0.837 & 1.449 & 0.821 & 1.112 \\
+arc\_v1 & 0.817 & 0.000 & 0.000 & 1.278 \\
+arc\_v3\_lqr\_meta & 0.801 & 1.472 & 0.842 & 1.790 \\
+perf\_optimized & 0.790 & 1.472 & 0.957 & 0.700 \\
+arc\_v3\_pid\_meta & 0.753 & 0.000 & 0.000 & 1.793 \\
+naive\_calm & 0.018 & 1.472 & 0.987 & 0.380 \\
+no\_control & 0.014 & 1.472 & 0.987 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\scenarioheader{Gaslighting}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L3 / \texttt{gaslighting} (mean across 20 seeds).}
+\label{tab:g7_gaslighting}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.998 & 0.000 & 0.000 & 1.816 \\
+arc\_ultimate & 0.992 & 0.000 & 0.000 & 1.196 \\
+arc\_v1\_lqi & 0.988 & 0.000 & 0.000 & 0.977 \\
+arc\_v2\_lqi & 0.988 & 0.000 & 0.000 & 0.986 \\
+arc\_v1\_pid & 0.987 & 0.000 & 0.000 & 2.357 \\
+arc\_robust & 0.985 & 0.000 & 0.000 & 0.854 \\
+arc\_v1\_lqr & 0.983 & 1.417 & 0.810 & 0.649 \\
+arc\_v3\_meta & 0.982 & 0.027 & 0.000 & 0.453 \\
+arc\_v1 & 0.980 & 0.000 & 0.000 & 0.634 \\
+arc\_v2\_hier & 0.978 & 0.848 & 0.521 & 0.515 \\
+arc\_v3\_pid\_meta & 0.962 & 0.000 & 0.000 & 1.344 \\
+arc\_v3\_lqr\_meta & 0.865 & 1.430 & 0.745 & 0.677 \\
+perf\_optimized & 0.865 & 1.422 & 0.814 & 0.700 \\
+naive\_calm & 0.258 & 1.431 & 0.818 & 0.194 \\
+no\_control & 0.171 & 1.431 & 0.877 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\scenarioheader{Instruction Conflict}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L3 / \texttt{instruction\_conflict} (mean across 20 seeds).}
+\label{tab:g8_instruction_conflict}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.976 & 0.000 & 0.000 & 1.892 \\
+arc\_ultimate & 0.912 & 0.000 & 0.000 & 1.380 \\
+arc\_v1\_lqr & 0.894 & 1.444 & 0.697 & 1.192 \\
+arc\_v1\_lqi & 0.877 & 0.000 & 0.000 & 1.140 \\
+arc\_v2\_lqi & 0.866 & 0.000 & 0.000 & 1.146 \\
+arc\_robust & 0.854 & 0.000 & 0.000 & 1.242 \\
+perf\_optimized & 0.839 & 1.445 & 0.964 & 0.700 \\
+arc\_v1\_pid & 0.839 & 0.000 & 0.000 & 2.415 \\
+arc\_v3\_meta & 0.835 & 0.248 & 0.000 & 0.820 \\
+arc\_v2\_hier & 0.830 & 1.429 & 0.663 & 0.919 \\
+arc\_v1 & 0.826 & 0.359 & 0.000 & 1.010 \\
+arc\_v3\_lqr\_meta & 0.798 & 1.453 & 0.676 & 1.535 \\
+arc\_v3\_pid\_meta & 0.792 & 0.000 & 0.000 & 2.020 \\
+naive\_calm & 0.076 & 1.453 & 0.694 & 0.369 \\
+no\_control & 0.034 & 1.453 & 0.969 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\FloatBarrier
+\subsection{Line 4: Meta-Control Efficiency}
+
+Meta-control is evaluated as a cross-cutting analysis across the full 10-scenario simulation suite (L1-L3 and L5; 20 seeds each).
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Meta-control efficiency comparison aggregated across the full simulation suite (10 scenarios $\times$ 20 seeds).}
+\label{tab:g9_meta_control}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Controller & PerfMean & RI & ControlEffort \\ \midrule
+arc\_v3\_meta & 0.941 & 0.090 & 0.615 \\
+arc\_v1 & 0.934 & 0.148 & 0.777 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+\clearpage
+\subsection{Line 5: Adversarial Safety}
+
+\scenarioheader{Adversarial Coupling}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L5 / \texttt{adversarial\_coupling} (mean across 20 seeds).}
+\label{tab:g10_adversarial_coupling}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_v1 & 0.963 & 0.000 & 0.000 & 0.719 \\
+arc\_v2\_hier & 0.962 & 0.628 & 0.271 & 0.594 \\
+arc\_robust & 0.917 & 0.000 & 0.000 & 1.269 \\
+arc\_v1\_lqr & 0.915 & 1.481 & 0.497 & 1.235 \\
+arc\_v3\_meta & 0.914 & 0.159 & 0.000 & 0.838 \\
+arc\_v3\_pid\_meta & 0.902 & 0.000 & 0.000 & 2.074 \\
+perf\_optimized & 0.867 & 1.481 & 0.972 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.848 & 1.476 & 0.894 & 0.514 \\
+no\_control & 0.409 & 1.470 & 0.956 & 0.000 \\
+arc\_adaptive & 0.193 & 0.008 & 0.000 & 2.331 \\
+arc\_v1\_pid & 0.139 & 0.000 & 0.000 & 2.729 \\
+arc\_v1\_lqi & 0.139 & 0.005 & 0.001 & 1.820 \\
+arc\_v2\_lqi & 0.138 & 0.004 & 0.001 & 1.859 \\
+arc\_ultimate & 0.134 & 0.006 & 0.001 & 1.971 \\
+naive\_calm & 0.073 & 1.475 & 0.495 & 0.332 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\scenarioheader{Random Dopamine}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{Detailed results for L5 / \texttt{random\_dopamine} (mean across 20 seeds).}
+\label{tab:g11_random_dopamine}
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Controller & PerfMean & RI & NDR & ControlEffort \\ \midrule
+arc\_adaptive & 0.976 & 0.000 & 0.000 & 2.150 \\
+arc\_ultimate & 0.946 & 0.000 & 0.000 & 1.435 \\
+arc\_v1\_lqr & 0.943 & 1.456 & 0.743 & 0.940 \\
+arc\_robust & 0.932 & 0.000 & 0.000 & 1.006 \\
+arc\_v1\_pid & 0.922 & 0.000 & 0.000 & 2.450 \\
+arc\_v1\_lqi & 0.916 & 0.000 & 0.000 & 1.173 \\
+arc\_v2\_lqi & 0.916 & 0.000 & 0.000 & 1.227 \\
+arc\_v3\_meta & 0.905 & 0.259 & 0.000 & 0.646 \\
+arc\_v1 & 0.897 & 1.124 & 0.581 & 0.787 \\
+arc\_v2\_hier & 0.894 & 1.207 & 0.620 & 0.720 \\
+arc\_v3\_pid\_meta & 0.870 & 0.000 & 0.000 & 1.624 \\
+perf\_optimized & 0.861 & 1.457 & 0.958 & 0.700 \\
+arc\_v3\_lqr\_meta & 0.817 & 1.458 & 0.717 & 1.192 \\
+naive\_calm & 0.119 & 1.460 & 0.763 & 0.328 \\
+no\_control & 0.040 & 1.460 & 0.950 & 0.000 \\ \bottomrule
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\FloatBarrier
+\subsection{Line 6: Real RL Validation}
+
+This section summarizes the L6 tabular Q-learning validation (20 seeds, 200 episodes; data: \texttt{outputs\_L6\_robust/final\_metrics.csv}).
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{L6 tabular Q-learning success rates (mean across 20 seeds; last 20\% of episodes).}
+\label{tab:g12_l6_success}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Environment & Baseline Success & ARC Success \\ \midrule
+GridWorld & 1.000 & 1.000 \\
+StochasticGridWorld & 1.000 & 1.000 \\
+ChangingGoalGridWorld & 0.399 & 0.598 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\FloatBarrier
+\subsection{Line 6b: Deep RL (DQN) Exploratory Suite}\label{sec:dqn_suite}
+
+To probe external validity beyond tabular Q-learning, we implemented a Deep RL integration using Stable-Baselines3 DQN. ARC is exposed as a Gymnasium wrapper that tracks ASSB state and exports regulation signals (e.g., \texttt{arc\_u\_mem}, \texttt{arc\_shift\_active}). In the ``plasticity'' variant, these signals modulate DQN's learning dynamics via (i) an adaptive learning-rate schedule, (ii) temporary exploration increase during detected shifts, (iii) shift-aware replay sampling, and (iv) update gating when \texttt{u\_mem} is low (files: \texttt{agents/arc\_dqn\_wrapper.py}, \texttt{agents/arc\_replay\_buffer.py}, \texttt{experiments/run\_l6b\_dqn\_suite.py}).
+
+We ran a calibrated multi-seed suite on two non-stationary CartPole variants (10 seeds; 50k timesteps; change every 20 episodes; outputs: \texttt{outputs\_L6b\_dqn\_suite\_v1/summary.txt}).
+
+\begin{table}[H]
+\centering
+\footnotesize
+\caption{L6b DQN suite---exploratory results (10 seeds, 50k timesteps; change every 20 episodes). Values reported as mean $\pm$ 1 standard deviation across seeds. \textbf{Dispersion caveat:} for the Success Rate column, the underlying per-seed distribution is bimodal ($\approx 0\%$ vs.\ $\approx 100\%$) so ``$\pm$SD'' is not a reliable dispersion summary --- see the ``Statistical caveat'' paragraph below. ARC-plasticity underperforms baseline DQN in both environments.}
+\label{tab:g13_l6b_dqn}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Environment & Condition & Final Reward & Success Rate \\ \midrule
+NonStationaryCartPole & Baseline DQN & 285.9 $\pm$ 158.7 & 50.5\% $\pm$ 49.5\% \\
+NonStationaryCartPole & ARC-plasticity & 199.8 $\pm$ 112.9 & 23.2\% $\pm$ 37.8\% \\
+CatastrophicForgettingEnv & Baseline DQN & 200.4 $\pm$ 59.1 & 34.8\% $\pm$ 35.1\% \\
+CatastrophicForgettingEnv & ARC-plasticity & 166.1 $\pm$ 40.2 & 17.5\% $\pm$ 21.1\% \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Result:} Baseline DQN outperformed ARC-plasticity in both mean reward and success rate. ARC-plasticity did reduce reward variance (std 112.9 vs 158.7 in NonStationaryCartPole; 40.2 vs 59.1 in CatastrophicForgettingEnv), consistent with the stabilizing effect observed in simulation (L1--L5), but at a substantial performance cost.
+
+\textbf{Statistical caveat.} Success-rate distributions in these environments are bimodal --- individual seeds tend to either converge (near 100\%) or fail (near 0\%), producing coefficients of variation near 1.0 (e.g.\ baseline DQN on NonStationaryCartPole: $50.5\% \pm 49.5\%$). With only 10 seeds, this between-seed variance is insufficient for a conclusive statistical comparison, and we do not report p-values for L6b. Under these conditions the ``$\pm$ standard deviation'' notation is not a reliable dispersion summary: a standard deviation approaching the mean is a hallmark of a bimodal distribution on the $[0,1]$ interval rather than of a smooth spread, and distribution-free summaries (e.g.\ proportion of seeds converging, or IQR) would be more informative. We retain $\pm$SD in Table~\ref{tab:g13_l6b_dqn} for direct comparability with standard ML reporting, but readers should interpret the values qualitatively in light of the bimodal structure. We therefore present these numbers as \emph{exploratory evidence} of a qualitative trend (ARC-plasticity underperforms baseline DQN on mean reward while reducing variance) rather than a definitive negative result. A larger seed budget ($n \ge 50$) and a pre-registered hypothesis are required before L6b conclusions can be drawn with confidence.
+
+\textbf{Analysis of failure modes.} We identify three factors that explain why ARC mechanisms that succeed in tabular RL (L6) do not transfer directly to deep RL:
+\begin{enumerate}
+    \item \textbf{Update gating disrupts gradient flow:} In tabular Q-learning, blocking updates to specific state-action pairs is localized. In DQN, gating entire gradient updates disrupts the optimization trajectory of the neural network, leading to stale representations.
+    \item \textbf{Replay buffer interference:} Shift-aware replay sampling introduces a non-stationary sampling distribution that conflicts with DQN's reliance on uniform (or prioritized) experience replay for stable convergence.
+    \item \textbf{Hyperparameter sensitivity:} The ARC regulation thresholds ($a_{safe}$, $s_{safe}$) were calibrated for the ASSB simulation dynamics (Section 5), not for the CartPole reward/observation scale. Automatic threshold adaptation for deep RL environments remains open.
+\end{enumerate}
+
+\textbf{Significance for the paper.} These negative results are scientifically informative: they delineate the boundary of ARC's current applicability (tabular and simulation settings) and identify specific architectural challenges for deep RL integration. We report them transparently following best practices for negative results in machine learning \cite{Garcia2015}.
+
+
+\end{document}
+
+
+
