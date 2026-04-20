@@ -3,16 +3,18 @@ message: If you use this software, please cite it using the metadata below.
 title: "Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"
 type: software
 authors:
-  - family-names: "Damian Reynoso"
+  - family-names: "Damián Reynoso"
     given-names: "J. Eduardo"
     email: edamianreynoso@gmail.com
+    orcid: "https://orcid.org/0009-0008-6544-328X"
 license: Apache-2.0
 repository-code: https://github.com/edamianreynoso/arc-assb-controller
 preferred-citation:
   type: article
   title: "Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"
   authors:
-    - family-names: "Damian Reynoso"
+    - family-names: "Damián Reynoso"
       given-names: "J. Eduardo"
+      orcid: "https://orcid.org/0009-0008-6544-328X"
   year: 2026
   url: https://github.com/edamianreynoso/arc-assb-controller

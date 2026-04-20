@@ -1,6 +1,6 @@
 # ARC-ASSB
 
-Code and data for the paper **"Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"** (Damian Reynoso, 2026).
+Code and data for the paper **"Affective Regulation Core: A Homeostatic Control Framework for Stable and Safe AI Agents"** (Damián Reynoso, 2026).
 
 ## Overview
 
